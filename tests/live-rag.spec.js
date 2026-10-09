@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import path from "node:path";
 
 const base = "http://127.0.0.1:8000";
 
@@ -89,8 +90,11 @@ test.describe("Live RAG & Grounded Citation Verification", () => {
   });
 
   test("5. Non-allowlisted source URL is refused by authorised source registry", async () => {
-    const { execSync } = require("child_process");
-    const output = execSync("python scripts/test_authorised_sources.py 2>&1", { encoding: "utf-8" });
+    const { spawnSync } = require("child_process");
+    const python = path.resolve(".venv", process.platform === "win32" ? "Scripts/python.exe" : "bin/python");
+    const result = spawnSync(python, ["scripts/test_authorised_sources.py"], { encoding: "utf-8" });
+    expect(result.status).toBe(0);
+    const output = result.stdout + result.stderr;
     expect(output).toContain("OK");
   });
 });

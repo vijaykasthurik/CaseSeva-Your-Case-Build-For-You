@@ -3,9 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "install:all": "npm install --prefix frontend",
+    "install:all": "node scripts/setup.cjs",
     "dev:frontend": "npm run dev --prefix frontend",
-    "dev": "concurrently \"python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000\" \"npm run dev --prefix frontend\"",
+    "dev:backend": "node scripts/backend.cjs",
+    "dev": "concurrently --kill-others \"npm run dev:backend\" \"npm run dev --prefix frontend -- --strictPort\"",
     "test": "playwright test"
   },
   "devDependencies": {

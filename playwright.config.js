@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "node:path";
 
 export default defineConfig({
   testDir: "./tests",
@@ -13,7 +14,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: "python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000",
+      command: "node scripts/backend.cjs",
       url: "http://127.0.0.1:8000/api/health",
       timeout: 120000,
       reuseExistingServer: false,
@@ -22,8 +23,8 @@ export default defineConfig({
         USE_REAL_DATABASE: "false",
         USE_REAL_STORAGE: "false",
         USE_REAL_LLM: "false",
-        MOCK_DATABASE_PATH: "D:\\AWSHACK\\.localdev\\playwright-database.json",
-        MOCK_STORAGE_PATH: "D:\\AWSHACK\\.localdev\\playwright-uploads"
+        MOCK_DATABASE_PATH: path.resolve(".localdev/playwright-database.json"),
+        MOCK_STORAGE_PATH: path.resolve(".localdev/playwright-uploads")
       }
     },
     {

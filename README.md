@@ -13,6 +13,12 @@ CaseSeva.ai is a legal case intelligence platform prototype. Parts 1 through 3 p
 From the repository root:
 
 ```powershell
+npm run install:all
+```
+
+This creates `.venv`, installs the backend and frontend dependencies, and installs Chromium for tests. Equivalent manual steps:
+
+```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r backend\requirements.txt
@@ -21,7 +27,13 @@ npm install --prefix frontend
 npx playwright install chromium
 ```
 
-The default `.env` uses `USE_MOCK_AWS=true`; no AWS credentials are required.
+Start both servers from the repository root (no virtual environment activation required):
+
+```powershell
+npm run dev
+```
+
+Open `http://127.0.0.1:5173`. The startup command uses `.venv` and forces local mock adapters, so AWS credentials are not required. Stop both servers with Ctrl+C before running the tests.
 
 ## Run the backend
 
