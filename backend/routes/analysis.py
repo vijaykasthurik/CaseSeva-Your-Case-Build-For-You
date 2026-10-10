@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from ..models.case import utc_now
 from ..services.analysis import STAGES, start_async
-from .dependencies import get_case_or_error, get_current_user
+from .dependencies import get_case_or_error, get_current_user, retired_workflow
 
 router = APIRouter(prefix="/api/cases")
 
@@ -37,7 +37,7 @@ def owned(request, case_id, user):
     return get_case_or_error(request, case_id, user)
 
 
-@router.post("/{case_id}/analyze")
+@router.post("/{case_id}/analyze", dependencies=[Depends(retired_workflow)])
 def analyze(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
     if case["status"] != "READY_FOR_ANALYSIS":
@@ -46,7 +46,7 @@ def analyze(case_id: str, request: Request, user: dict = Depends(get_current_use
     return {"status": "started"}
 
 
-@router.post("/{case_id}/analyze/retry")
+@router.post("/{case_id}/analyze/retry", dependencies=[Depends(retired_workflow)])
 def retry_analysis(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
     if case["status"] != "ANALYSIS_FAILED":
@@ -55,7 +55,7 @@ def retry_analysis(case_id: str, request: Request, user: dict = Depends(get_curr
     return {"status": "retry_started"}
 
 
-@router.post("/{case_id}/preview1/rerun")
+@router.post("/{case_id}/preview1/rerun", dependencies=[Depends(retired_workflow)])
 def rerun_preview_stages(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
     if case["status"] != "AWAITING_PREVIEW_1":
@@ -75,16 +75,16 @@ def rerun_preview_stages(case_id: str, request: Request, user: dict = Depends(ge
 @router.get("/{case_id}/status")
 def analysis_status(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
-    from ..services.overview import public_processing_error
-    return {"status": case["status"], "stage_statuses": case.get("stage_statuses", {}), "input_statuses": case.get("input_statuses", {}), "active_engine": case.get("active_engine"), "current_stage": case.get("current_stage"), "processing_mode": request.app.state.adapters.mode, "document_generation_stage": case.get("document_generation_stage"), "error": public_processing_error(case.get("processing_error") or case.get("analysis_error") or case.get("legal_analysis_error"))}
+    from ..services.overview import public_processing_error, public_statuses
+    return {"status": case["status"], "stage_statuses": public_statuses(case.get("stage_statuses", {})), "input_statuses": public_statuses(case.get("input_statuses", {})), "active_engine": case.get("active_engine"), "current_stage": case.get("current_stage"), "processing_mode": request.app.state.adapters.mode, "document_generation_stage": case.get("document_generation_stage"), "error": public_processing_error(case.get("processing_error") or case.get("analysis_error") or case.get("legal_analysis_error"))}
 
 
-@router.get("/{case_id}/preview1")
+@router.get("/{case_id}/preview1", dependencies=[Depends(retired_workflow)])
 def preview1(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     raise HTTPException(410, "Preview approval screens are retired. Use the Client Case Overview.")
 
 
-@router.patch("/{case_id}/facts/{fact_id}")
+@router.patch("/{case_id}/facts/{fact_id}", dependencies=[Depends(retired_workflow)])
 def edit_fact(case_id: str, fact_id: str, body: FactUpdate, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
     if case["status"] != "AWAITING_PREVIEW_1":
@@ -107,7 +107,7 @@ def edit_fact(case_id: str, fact_id: str, body: FactUpdate, request: Request, us
     return {"fact": found, "case": updated}
 
 
-@router.post("/{case_id}/facts")
+@router.post("/{case_id}/facts", dependencies=[Depends(retired_workflow)])
 def add_fact(case_id: str, body: FactCreate, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
     if case["status"] != "AWAITING_PREVIEW_1":
@@ -118,7 +118,7 @@ def add_fact(case_id: str, body: FactCreate, request: Request, user: dict = Depe
     return {"fact": fact, "case": updated}
 
 
-@router.patch("/{case_id}/timeline/{event_id}")
+@router.patch("/{case_id}/timeline/{event_id}", dependencies=[Depends(retired_workflow)])
 def edit_timeline(case_id: str, event_id: str, body: TimelineUpdate, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
     if case["status"] != "AWAITING_PREVIEW_1":
@@ -137,7 +137,7 @@ def edit_timeline(case_id: str, event_id: str, body: TimelineUpdate, request: Re
     return {"event": found, "case": updated}
 
 
-@router.patch("/{case_id}/parties")
+@router.patch("/{case_id}/parties", dependencies=[Depends(retired_workflow)])
 def edit_parties(case_id: str, body: PartiesUpdate, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
     if case["status"] != "AWAITING_PREVIEW_1":
@@ -147,7 +147,7 @@ def edit_parties(case_id: str, body: PartiesUpdate, request: Request, user: dict
     return {"parties": parties, "case": updated}
 
 
-@router.post("/{case_id}/preview1/approve")
+@router.post("/{case_id}/preview1/approve", dependencies=[Depends(retired_workflow)])
 def approve_preview(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
     if case["status"] != "AWAITING_PREVIEW_1":

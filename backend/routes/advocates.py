@@ -9,7 +9,7 @@ from ..models.case import utc_now
 from ..services.advocate_review import DEPENDENCY_MAP, append_audit, audit, outstanding_items
 from ..services.legal_analysis import run_legal_pipeline
 from ..services.sharing import require_access, shared_case
-from .dependencies import get_case_or_error, get_current_user
+from .dependencies import get_case_or_error, get_current_user, retired_workflow
 
 router = APIRouter(prefix="/api")
 
@@ -83,7 +83,7 @@ class ReviewNoteBody(BaseModel):
     note: str
 
 
-@router.post("/advocate/cases/{case_id}/evidence/{evidence_id}/approve")
+@router.post("/advocate/cases/{case_id}/evidence/{evidence_id}/approve", dependencies=[Depends(retired_workflow)])
 def approve_evidence(case_id: str, evidence_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = accepted_case(request, case_id, user)
     if case.get("workflow_version") == 2:
@@ -99,7 +99,7 @@ def approve_evidence(case_id: str, evidence_id: str, request: Request, user: dic
     return {"case": updated}
 
 
-@router.post("/advocate/cases/{case_id}/evidence/{evidence_id}/remove")
+@router.post("/advocate/cases/{case_id}/evidence/{evidence_id}/remove", dependencies=[Depends(retired_workflow)])
 def remove_evidence(case_id: str, evidence_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = accepted_case(request, case_id, user)
     if case.get("workflow_version") == 2:
@@ -399,23 +399,23 @@ def change_review_item(case_id: str, kind: str, target_id: str, new_value: Any, 
     return {"case": updated, "rerun_stages": rerun}
 
 
-@router.patch("/advocate/cases/{case_id}/facts/{fact_id}")
+@router.patch("/advocate/cases/{case_id}/facts/{fact_id}", dependencies=[Depends(retired_workflow)])
 def edit_fact(case_id: str, fact_id: str, body: dict[str, Any], request: Request, user: dict = Depends(get_current_user)):
     body = {**body, "human_corrected": True}
     return change_review_item(case_id, "fact", fact_id, body, request, user, "edit")
 
 
-@router.post("/advocate/cases/{case_id}/facts/{fact_id}/approve")
+@router.post("/advocate/cases/{case_id}/facts/{fact_id}/approve", dependencies=[Depends(retired_workflow)])
 def approve_fact(case_id: str, fact_id: str, request: Request, user: dict = Depends(get_current_user)):
     return change_review_item(case_id, "fact", fact_id, {}, request, user, "approve")
 
 
-@router.patch("/advocate/cases/{case_id}/provisions/{provision_id}")
+@router.patch("/advocate/cases/{case_id}/provisions/{provision_id}", dependencies=[Depends(retired_workflow)])
 def edit_provision(case_id: str, provision_id: str, body: ProvisionUpdate, request: Request, user: dict = Depends(get_current_user)):
     return change_review_item(case_id, "provision", provision_id, body.model_dump(exclude_none=True), request, user, "edit")
 
 
-@router.post("/advocate/cases/{case_id}/provisions/{provision_id}/remove")
+@router.post("/advocate/cases/{case_id}/provisions/{provision_id}/remove", dependencies=[Depends(retired_workflow)])
 def remove_provision(case_id: str, provision_id: str, request: Request, user: dict = Depends(get_current_user)):
     result = change_review_item(case_id, "provision", provision_id, {"removed": True}, request, user, "remove")
     case = result["case"]
@@ -423,37 +423,37 @@ def remove_provision(case_id: str, provision_id: str, request: Request, user: di
     return result
 
 
-@router.post("/advocate/cases/{case_id}/provisions/{provision_id}/approve")
+@router.post("/advocate/cases/{case_id}/provisions/{provision_id}/approve", dependencies=[Depends(retired_workflow)])
 def approve_provision(case_id: str, provision_id: str, request: Request, user: dict = Depends(get_current_user)):
     return change_review_item(case_id, "provision", provision_id, {}, request, user, "approve")
 
 
-@router.patch("/advocate/cases/{case_id}/forum")
+@router.patch("/advocate/cases/{case_id}/forum", dependencies=[Depends(retired_workflow)])
 def edit_forum(case_id: str, body: ForumUpdate, request: Request, user: dict = Depends(get_current_user)):
     return change_review_item(case_id, "forum", "forum", body.model_dump(), request, user, "edit")
 
 
-@router.post("/advocate/cases/{case_id}/forum/approve")
+@router.post("/advocate/cases/{case_id}/forum/approve", dependencies=[Depends(retired_workflow)])
 def approve_forum(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     return change_review_item(case_id, "forum", "forum", {}, request, user, "approve")
 
 
-@router.patch("/advocate/cases/{case_id}/limitation")
+@router.patch("/advocate/cases/{case_id}/limitation", dependencies=[Depends(retired_workflow)])
 def edit_limitation(case_id: str, body: LimitationUpdate, request: Request, user: dict = Depends(get_current_user)):
     return change_review_item(case_id, "limitation", "limitation", body.model_dump(), request, user, "edit")
 
 
-@router.post("/advocate/cases/{case_id}/limitation/approve")
+@router.post("/advocate/cases/{case_id}/limitation/approve", dependencies=[Depends(retired_workflow)])
 def approve_limitation(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     return change_review_item(case_id, "limitation", "limitation", {}, request, user, "approve")
 
 
-@router.patch("/advocate/cases/{case_id}/arguments/{objection_id}")
+@router.patch("/advocate/cases/{case_id}/arguments/{objection_id}", dependencies=[Depends(retired_workflow)])
 def edit_argument(case_id: str, objection_id: str, body: ArgumentUpdate, request: Request, user: dict = Depends(get_current_user)):
     return change_review_item(case_id, "argument", objection_id, body.model_dump(exclude_none=True), request, user, "edit")
 
 
-@router.post("/advocate/cases/{case_id}/arguments/{objection_id}/approve")
+@router.post("/advocate/cases/{case_id}/arguments/{objection_id}/approve", dependencies=[Depends(retired_workflow)])
 def approve_argument(case_id: str, objection_id: str, request: Request, user: dict = Depends(get_current_user)):
     return change_review_item(case_id, "argument", objection_id, {}, request, user, "approve")
 
@@ -474,7 +474,7 @@ def review_note(case_id: str, body: ReviewNoteBody, request: Request, user: dict
     return {"case": shared_case(updated, require_access(request, case_id, user, "case_file"))}
 
 
-@router.post("/cases/{case_id}/advocate/finalize")
+@router.post("/cases/{case_id}/advocate/finalize", dependencies=[Depends(retired_workflow)])
 def finalize(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = accepted_case(request, case_id, user)
     if case.get("workflow_version") == 2:

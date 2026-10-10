@@ -64,9 +64,8 @@ def grant_access(db, case, user, scopes, evidence_ids, hours):
 def shared_case(case, grant):
     keys = ("case_id", "status", "stage", "created_at", "version", "workflow_version", "documents_outdated", "document_version", "advocate_approved_items", "advocate_removed_items", "advocate_review_note", "advocate_document_requests", "stage_statuses", "processing_error", "engine2_stale")
     result = {key: case.get(key) for key in keys if key in case}
-    if "engine2" not in grant["scopes"]:
-        from .overview import public_processing_error
-        result["processing_error"] = public_processing_error(case.get("processing_error"))
+    from .overview import public_processing_error, public_evidence
+    result["processing_error"] = public_processing_error(case.get("processing_error"))
     # Audit entries can contain previous private argument/evidence values.
     def allowed_entry(entry):
         target = entry.get("target", "")
@@ -77,12 +76,15 @@ def shared_case(case, grant):
     if "story" in grant["scopes"]:
         result["client_story"] = case.get("client_story", "")
     if "raw_package" in grant["scopes"]:
-        raw = dict(case.get("raw_package", {}))
-        raw["evidence"] = [item for item in raw.get("evidence", []) if "evidence" in grant["scopes"] and item["evidence_id"] in grant["evidence_ids"]]
-        # Combined extraction text includes every file; expose only selected originals.
-        raw.pop("original_text", None)
-        raw.pop("english_working_text", None)
-        if "story" not in grant["scopes"]: raw.pop("original_story", None)
+        source = case.get("raw_package", {})
+        # Combined translations/normalizations have no per-source provenance.
+        # Deny them by default, including future nested fields.
+        raw = {key: source[key] for key in ("version", "input_version", "origin", "preferred_language", "created_at", "case_stage", "processing_mode") if key in source}
+        raw["language"] = {key: source.get("language", {})[key] for key in ("language", "status", "review_required") if key in source.get("language", {})}
+        raw["evidence"] = [public_evidence(item) for item in source.get("evidence", []) if "evidence" in grant["scopes"] and item["evidence_id"] in grant["evidence_ids"]]
+        if "story" in grant["scopes"]:
+            raw["original_story"] = source.get("original_story", "")
+            raw["optional_fields"] = source.get("optional_fields", {})
         result["raw_package"] = raw
     if "case_file" in grant["scopes"]:
         result["case_file"] = case.get("case_file", {})
@@ -98,6 +100,6 @@ def shared_case(case, grant):
     if "engine2" in grant["scopes"]:
         result["engine2"] = case.get("engine2", {})
     if "evidence" in grant["scopes"]:
-        result["evidence"] = [item for item in case.get("evidence", []) if item["evidence_id"] in grant["evidence_ids"]]
+        result["evidence"] = [public_evidence(item) for item in case.get("evidence", []) if item["evidence_id"] in grant["evidence_ids"]]
     result["grant"] = grant
     return result

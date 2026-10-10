@@ -10,7 +10,7 @@ from ..services.blackboard import initial_board, write, engine_state
 from ..services.input_layer import extract_content
 
 from ..models.case import utc_now
-from ..services.overview import client_case
+from ..services.overview import client_case, public_evidence
 from .dependencies import get_case_or_error, get_current_user
 
 router = APIRouter(prefix="/api/cases")
@@ -148,7 +148,6 @@ def list_cases(request: Request, user: dict = Depends(get_current_user)) -> dict
 
 @router.get("/{case_id}")
 def get_case(case_id: str, request: Request, user: dict = Depends(get_current_user)) -> dict[str, Any]:
-    from ..services.overview import client_case
     return {"case": client_case(get_owned_case(request, case_id, user))}
 
 
@@ -264,7 +263,7 @@ async def upload_evidence(
     updated = db.mutate("cases", case_id, lambda current: {"evidence": current.get("evidence", []) + [item], "pending_uploads": max(0, current.get("pending_uploads", 1) - 1), "version": current.get("version", 1) + 1, "input_version": current.get("input_version", 1) + 1, "engine2_stale": bool(current.get("engine2")), "documents_outdated": bool(current.get("document_version"))})
     if case.get("case_file"):
         engine_state(db, case_id, 1, "STALE", reason="New uploaded information")
-    return {"evidence": item, "case": client_case(updated)}
+    return {"evidence": public_evidence(item), "case": client_case(updated)}
 
 
 @router.get("/{case_id}/evidence/{evidence_id}")
@@ -317,4 +316,4 @@ def update_evidence(
     if updated_entry is None:
         raise HTTPException(status_code=404, detail="Evidence not found")
     updated = request.app.state.adapters.database.update("cases", case_id, {"evidence": evidence, "version": case.get("version", 1) + 1})
-    return {"evidence": updated_entry, "case": client_case(updated)}
+    return {"evidence": public_evidence(updated_entry), "case": client_case(updated)}

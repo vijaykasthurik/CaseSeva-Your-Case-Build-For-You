@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from ..models.case import utc_now
 from ..services.documents import build_documents
-from .dependencies import get_current_user, get_case_or_error
+from .dependencies import get_current_user, get_case_or_error, retired_workflow
 from ..services.sharing import require_access
 
 router = APIRouter(prefix="/api/cases")
@@ -141,7 +141,7 @@ def download_document(case_id: str, document_id: str, request: Request, format: 
     except ValueError as exc:
         raise HTTPException(422, str(exc))
     except RuntimeError as exc:
-        raise HTTPException(503, str(exc))
+        raise HTTPException(503, "The document could not be exported. Please retry later.")
     return Response(content=content, media_type=media_type, headers={"Content-Disposition": f'attachment; filename="{doc["type"]}-v{doc["version"]}.{format}"'})
 
 
@@ -159,7 +159,7 @@ class OverrideBody(BaseModel):
     reason: str
 
 
-@router.post("/{case_id}/documents/{document_id}/override-consistency")
+@router.post("/{case_id}/documents/{document_id}/override-consistency", dependencies=[Depends(retired_workflow)])
 def override_consistency(case_id: str, document_id: str, body: OverrideBody, request: Request, user: dict = Depends(get_current_user)):
     if user.get("role") != "advocate":
         raise HTTPException(status_code=403, detail="Advocate access required")

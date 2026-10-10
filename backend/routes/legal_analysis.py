@@ -5,9 +5,9 @@ from pydantic import BaseModel
 
 from ..models.case import utc_now
 from ..services.legal_analysis import LEGAL_STAGES, start_legal_async
-from .dependencies import get_case_or_error, get_current_user
+from .dependencies import get_case_or_error, get_current_user, retired_workflow
 
-router = APIRouter(prefix="/api/cases")
+router = APIRouter(prefix="/api/cases", dependencies=[Depends(retired_workflow)])
 
 
 class Preview2Approval(BaseModel):

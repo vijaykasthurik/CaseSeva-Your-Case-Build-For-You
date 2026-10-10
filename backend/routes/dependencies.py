@@ -27,3 +27,8 @@ def get_case_or_error(request: Request, case_id: str, user: dict) -> dict:
         else:
             raise HTTPException(status_code=403, detail="You do not have access to this case")
     return case
+
+
+def retired_workflow(user: dict = Depends(get_current_user)):
+    """Tombstone legacy operations before any case lookup, mutation or dispatch."""
+    raise HTTPException(410, "This workflow is retired. Use the Client Case Overview and current advocate review workflow.")
