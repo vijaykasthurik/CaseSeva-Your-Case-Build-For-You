@@ -1,0 +1,1 @@
+Organize only the supplied original story, real transcripts and extracted evidence into a clean narrative. Preserve contradictions and uncertainty. Never replace unreadable evidence with filenames or descriptions. Do not add legal conclusions or arguments. Keep uncertainties explicit. Follow the authoritative JSON schema supplied with this request.

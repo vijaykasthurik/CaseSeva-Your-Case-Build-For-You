@@ -3,6 +3,12 @@ from typing import Any
 
 
 class DatabaseAdapter(ABC):
+    def mutate(self, collection: str, record_id: str, transform) -> dict[str, Any]:
+        current = self.get(collection, record_id)
+        if current is None:
+            raise KeyError(record_id)
+        return self.update(collection, record_id, transform(current))
+
     @abstractmethod
     def create(self, collection: str, record: dict[str, Any]) -> dict[str, Any]:
         raise NotImplementedError

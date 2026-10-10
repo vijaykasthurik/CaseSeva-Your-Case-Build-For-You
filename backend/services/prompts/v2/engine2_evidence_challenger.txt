@@ -1,0 +1,1 @@
+Challenge weak, missing, contradictory or unreadable evidence in the supplied Case File. Request only specifically necessary documents; never fabricate the contents of missing evidence. A request must identify affected argument stages. Do not change foundation facts or law. Follow the authoritative JSON schema.

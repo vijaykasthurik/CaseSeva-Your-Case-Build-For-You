@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { setToken, signup } from "../api";
+import { setToken, signup, uploadVerificationDocument } from "../api";
 import FormErrors from "../components/FormErrors";
 import AppHeader from "../components/AppHeader";
 import { ArrowUpRight } from "lucide-react";
@@ -17,6 +17,7 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [verificationFiles, setVerificationFiles] = useState([]);
   const navigate = useNavigate();
 
   const submit = async (event) => {
@@ -27,6 +28,7 @@ export default function SignupPage() {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim())) clientErrors.email = "Enter a valid email address.";
     if (!/^[6-9]\d{9}$/.test(form.mobile_number.trim())) clientErrors.mobile_number = "Enter a valid 10-digit Indian mobile number.";
     if (form.password.length < 8) clientErrors.password = "Password must be at least 8 characters.";
+    if (form.role === "advocate" && !verificationFiles.length) clientErrors.verification_documents = "Provide supporting enrolment documents for admin review.";
     if (Object.keys(clientErrors).length) {
       setFieldErrors(clientErrors);
       setError("Please fix the highlighted fields.");
@@ -44,6 +46,7 @@ export default function SignupPage() {
         : Object.fromEntries(Object.entries(form).filter(([key]) => !["bar_council", "enrolment_number", "enrolment_year", "place_of_practice", "court_region", "practice_domains", "languages"].includes(key)));
       const result = await signup(payload);
       setToken(result.session_token);
+      if (form.role === "advocate") for (const file of verificationFiles) await uploadVerificationDocument(file);
       const target = result.user?.role === "advocate" ? "/advocate/dashboard" : "/dashboard";
       navigate(target, { replace: true });
     } catch (requestError) {
@@ -164,6 +167,8 @@ export default function SignupPage() {
               </div>
 
               {field("practice_domains", "Practice domains", "text", "Consumer, Labour")}
+              <label>Supporting enrolment documents<input type="file" multiple accept=".pdf,.png,.jpg,.jpeg" onChange={event => setVerificationFiles(Array.from(event.target.files))} /></label>
+              {fieldErrors.verification_documents && <p role="alert">{fieldErrors.verification_documents}</p>}
               {field("languages", "Languages", "text", "English, Hindi, Marathi")}
             </div>
           )}

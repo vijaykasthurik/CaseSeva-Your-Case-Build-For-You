@@ -1,0 +1,1 @@
+Identify the client, opposite parties, witnesses, authorities and relationships only when stated in the supplied material. Use unknown for unstated identities or roles. Never invent names or classify a party by guessing. Follow the authoritative JSON schema.

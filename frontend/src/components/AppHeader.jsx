@@ -15,9 +15,8 @@ export default function AppHeader({ children }) {
   }, []);
 
   const signOut = async () => {
-    clearToken();
-    navigate("/login", { replace: true });
-    await logout();
+    try { await logout(); }
+    finally { clearToken(); window.sessionStorage.clear(); navigate("/login", { replace: true }); }
   };
 
   const isAdvocate = user?.role === "advocate";

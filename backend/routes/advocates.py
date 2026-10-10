@@ -1,4 +1,5 @@
 import os
+import secrets
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -7,6 +8,7 @@ from pydantic import BaseModel
 from ..models.case import utc_now
 from ..services.advocate_review import DEPENDENCY_MAP, append_audit, audit, outstanding_items
 from ..services.legal_analysis import run_legal_pipeline
+from ..services.sharing import require_access, shared_case
 from .dependencies import get_case_or_error, get_current_user
 
 router = APIRouter(prefix="/api")
@@ -21,16 +23,18 @@ def require_advocate(user: dict[str, Any]) -> None:
 
 def accepted_case(request: Request, case_id: str, user: dict[str, Any]) -> dict[str, Any]:
     require_advocate(user)
+    require_access(request, case_id, user, "case_file")
     case = request.app.state.adapters.database.get("cases", case_id)
     if not case:
         raise HTTPException(status_code=404, detail="Case not found")
-    if case.get("assigned_advocate_id") != user["id"] or case.get("status") not in {"ADVOCATE_REVIEW", "ADVOCATE_APPROVED"}:
+    if case.get("assigned_advocate_id") != user["id"] or case.get("status") not in {"ADVOCATE_REVIEW", "ADVOCATE_APPROVED", "DOCUMENTS_READY", "DOCUMENTS_BLOCKED", "GENERATING_DOCUMENTS", "REVIEW_REQUIRED", "ENGINE1_RUNNING", "ENGINE2_RUNNING", "NEEDS_DOCUMENT"}:
         raise HTTPException(status_code=403, detail="This case is not assigned to you")
     return case
 
 
 class VerificationBody(BaseModel):
     status: str
+    reason: str = ""
 
 
 class AdvocateRequestBody(BaseModel):
@@ -69,6 +73,8 @@ class ReviewNoteBody(BaseModel):
 @router.post("/advocate/cases/{case_id}/evidence/{evidence_id}/approve")
 def approve_evidence(case_id: str, evidence_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = accepted_case(request, case_id, user)
+    if case.get("workflow_version") == 2:
+        raise HTTPException(410, "Use the versioned advocate review endpoint for this case.")
     if not any(item.get("evidence_id") == evidence_id for item in case.get("evidence", [])):
         raise HTTPException(status_code=404, detail="Evidence not found")
     entry = audit(case, user["id"], "approve", f"evidence:{evidence_id}", None, {"approved": True})
@@ -83,6 +89,8 @@ def approve_evidence(case_id: str, evidence_id: str, request: Request, user: dic
 @router.post("/advocate/cases/{case_id}/evidence/{evidence_id}/remove")
 def remove_evidence(case_id: str, evidence_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = accepted_case(request, case_id, user)
+    if case.get("workflow_version") == 2:
+        raise HTTPException(410, "Use the versioned advocate review endpoint for this case.")
     if not any(item.get("evidence_id") == evidence_id for item in case.get("evidence", [])):
         raise HTTPException(status_code=404, detail="Evidence not found")
     entry = audit(case, user["id"], "remove", f"evidence:{evidence_id}", None, {"removed": True})
@@ -113,21 +121,47 @@ def directory(request: Request, domain: str | None = None, state: str | None = N
 @router.post("/admin/advocates/{advocate_id}/verification")
 def verify_advocate(advocate_id: str, body: VerificationBody, request: Request, user: dict = Depends(get_current_user)):
     admin_token = request.headers.get("X-Admin-Token")
-    if admin_token != os.getenv("ADMIN_TOKEN", "caseseva-admin"):
+    configured = os.getenv("ADMIN_TOKEN", "")
+    if not configured or not admin_token or not secrets.compare_digest(admin_token, configured):
         raise HTTPException(status_code=403, detail="Admin verification token required")
-    if body.status not in {"VERIFIED", "REJECTED", "PENDING"}:
+    if body.status not in {"VERIFIED", "UNVERIFIED", "VERIFICATION_PENDING"}:
         raise HTTPException(status_code=422, detail="Invalid verification status")
     advocate = request.app.state.adapters.database.get("users", advocate_id)
     if not advocate or advocate.get("role") != "advocate":
         raise HTTPException(status_code=404, detail="Advocate not found")
-    return {"user": request.app.state.adapters.database.update("users", advocate_id, {"verification_status": body.status})}
+    if not body.reason.strip():
+        raise HTTPException(422, "A verification review reason is required.")
+    if body.status == "VERIFIED" and not advocate.get("verification_documents"):
+        raise HTTPException(409, "Review supporting enrolment documents before verification.")
+    from uuid import uuid4
+    db = request.app.state.adapters.database
+    db.create("verification_audit", {"id": uuid4().hex, "advocate_id": advocate_id, "reviewer_id": user["id"], "previous": advocate.get("verification_status"), "new": body.status, "reason": body.reason, "created_at": utc_now()})
+    updated = db.update("users", advocate_id, {"verification_status": body.status, "verification_reason": body.reason})
+    return {"user": {key: value for key, value in updated.items() if key != "password_hash"}}
 
 
 @router.get("/admin/advocates")
 def admin_advocates(request: Request, user: dict = Depends(get_current_user)):
-    if request.headers.get("X-Admin-Token") != os.getenv("ADMIN_TOKEN", "caseseva-admin"):
+    token = request.headers.get("X-Admin-Token", "")
+    configured = os.getenv("ADMIN_TOKEN", "")
+    if not configured or not token or not secrets.compare_digest(token, configured):
         raise HTTPException(status_code=403, detail="Admin verification token required")
-    return {"advocates": [item for item in request.app.state.adapters.database.list("users") if item.get("role") == "advocate"]}
+    return {"advocates": [{key: value for key, value in item.items() if key != "password_hash"} for item in request.app.state.adapters.database.list("users") if item.get("role") == "advocate"]}
+
+
+@router.get("/admin/advocates/{advocate_id}/documents/{index}")
+def verification_material(advocate_id: str, index: int, request: Request, user: dict = Depends(get_current_user)):
+    token = request.headers.get("X-Admin-Token", "")
+    configured = os.getenv("ADMIN_TOKEN", "")
+    if not configured or not token or not secrets.compare_digest(token, configured):
+        raise HTTPException(403, "Admin verification token required.")
+    advocate = request.app.state.adapters.database.get("users", advocate_id)
+    documents = (advocate or {}).get("verification_documents", [])
+    if index < 0 or index >= len(documents):
+        raise HTTPException(404, "Verification document not found.")
+    from fastapi.responses import Response
+    item = documents[index]
+    return Response(request.app.state.adapters.storage.download(item["storage_key"]), media_type=item.get("content_type") or "application/octet-stream")
 
 
 @router.post("/cases/{case_id}/request-advocate")
@@ -136,7 +170,7 @@ def request_advocate(case_id: str, request: Request, body: AdvocateRequestBody |
     if not advocate_id:
         raise HTTPException(status_code=422, detail="advocate_id is required")
     case = get_case_or_error(request, case_id, user)
-    if user.get("role") != "client" or case["status"] != "PREVIEW_2_APPROVED":
+    if user.get("role") != "client" or case["status"] not in {"PREVIEW_2_APPROVED", "ENGINE1_DONE", "ENGINE2_DONE", "LEGAL_CORPUS_NOT_READY", "REVIEW_REQUIRED"} or case.get("processing_error"):
         raise HTTPException(status_code=409, detail="Only approved client cases can request an advocate")
     advocate = request.app.state.adapters.database.get("users", advocate_id)
     if not advocate or advocate.get("role") != "advocate" or advocate.get("verification_status") != "VERIFIED":
@@ -146,7 +180,8 @@ def request_advocate(case_id: str, request: Request, body: AdvocateRequestBody |
         raise HTTPException(status_code=409, detail="A request is already pending")
     request.app.state.adapters.database.create("advocate_requests", {"id": f"{case_id}-{advocate_id}", "case_id": case_id, "advocate_id": advocate_id, "client_id": user["id"], "status": "PENDING", "created_at": utc_now()})
     updated = request.app.state.adapters.database.update("cases", case_id, {"status": "AWAITING_ADVOCATE", "requested_advocate_id": advocate_id, "version": case.get("version", 1) + 1})
-    return {"case": updated}
+    from ..services.overview import client_case
+    return {"case": client_case(updated)}
 
 
 @router.post("/cases/{case_id}/cancel-advocate-request")
@@ -156,8 +191,10 @@ def cancel_request(case_id: str, request: Request, user: dict = Depends(get_curr
     if not pending:
         raise HTTPException(status_code=404, detail="Pending advocate request not found")
     request.app.state.adapters.database.update("advocate_requests", pending["id"], {"status": "CANCELLED"})
-    updated = request.app.state.adapters.database.update("cases", case_id, {"status": "PREVIEW_2_APPROVED", "requested_advocate_id": None, "version": case.get("version", 1) + 1})
-    return {"case": updated}
+    restored_status = "ENGINE2_DONE" if case.get("engine2") else "ENGINE1_DONE"
+    updated = request.app.state.adapters.database.update("cases", case_id, {"status": restored_status if case.get("workflow_version") == 2 else "PREVIEW_2_APPROVED", "requested_advocate_id": None, "version": case.get("version", 1) + 1})
+    from ..services.overview import client_case
+    return {"case": client_case(updated)}
 
 
 @router.get("/advocate/requests")
@@ -179,7 +216,8 @@ def accept_request(case_id: str, request: Request, user: dict = Depends(get_curr
     if not item:
         raise HTTPException(status_code=403, detail="No pending request for this advocate")
     request.app.state.adapters.database.update("advocate_requests", item["id"], {"status": "ACCEPTED"})
-    return {"case": request.app.state.adapters.database.update("cases", case_id, {"status": "ADVOCATE_REVIEW", "assigned_advocate_id": user["id"]})}
+    request.app.state.adapters.database.update("cases", case_id, {"status": "AWAITING_ADVOCATE", "assigned_advocate_id": user["id"]})
+    return {"status": "ACCEPTED_AWAITING_CLIENT_CONSENT", "case_id": case_id}
 
 
 @router.post("/advocate/requests/{case_id}/decline")
@@ -189,7 +227,10 @@ def decline_request(case_id: str, request: Request, reason: str | None = None, u
     if not item:
         raise HTTPException(status_code=403, detail="No pending request for this advocate")
     request.app.state.adapters.database.update("advocate_requests", item["id"], {"status": "DECLINED", "reason": reason or ""})
-    return {"case": request.app.state.adapters.database.update("cases", case_id, {"status": "PREVIEW_2_APPROVED", "requested_advocate_id": None})}
+    case = request.app.state.adapters.database.get("cases", case_id)
+    restored_status = "ENGINE2_DONE" if case.get("engine2") else "ENGINE1_DONE"
+    updated = request.app.state.adapters.database.update("cases", case_id, {"status": restored_status if case.get("workflow_version") == 2 else "PREVIEW_2_APPROVED", "requested_advocate_id": None})
+    return {"status": updated["status"], "case_id": case_id}
 
 
 @router.get("/advocate/cases")
@@ -234,6 +275,12 @@ def list_advocate_cases(request: Request, user: dict = Depends(get_current_user)
             "title": (case.get("client_story", "").strip() or "Untitled case")[:80],
             "preview": case.get("client_story", "").strip()[:140],
         }
+        summary.pop("title", None)
+        summary.pop("preview", None)
+        if status == "AWAITING_ADVOCATE":
+            summary.pop("title", None)
+            summary.pop("preview", None)
+            summary["client_consent_pending"] = bool(case.get("assigned_advocate_id"))
 
         if status == "AWAITING_ADVOCATE" or (case_id in pending_request_case_ids and status not in {"ADVOCATE_REVIEW", "ADVOCATE_APPROVED"}):
             pending_requests.append(summary)
@@ -252,11 +299,15 @@ def list_advocate_cases(request: Request, user: dict = Depends(get_current_user)
 
 @router.get("/advocate/cases/{case_id}")
 def advocate_case(case_id: str, request: Request, user: dict = Depends(get_current_user)):
-    return {"case": accepted_case(request, case_id, user)}
+    case = accepted_case(request, case_id, user)
+    grant = require_access(request, case_id, user, "case_file")
+    return {"case": shared_case(case, grant)}
 
 
 def change_review_item(case_id: str, kind: str, target_id: str, new_value: Any, request: Request, user: dict, action: str):
     case = accepted_case(request, case_id, user)
+    if case.get("workflow_version") == 2:
+        raise HTTPException(410, "Use the versioned advocate review endpoint for this case.")
     if action == "approve" and kind == "fact":
         new_value = {"human_corrected": True, "advocate_approved": True}
     if action == "approve" and kind in {"forum", "limitation"}:
@@ -389,7 +440,7 @@ def create_document_request(case_id: str, body: DocumentRequestBody, request: Re
     case = accepted_case(request, case_id, user)
     item = {"request_id": f"ADR{len(case.get('advocate_document_requests', [])) + 1:03d}", "description": body.description, "affected_stages": body.affected_stages, "resolved": False, "raised_by": user["id"]}
     updated = request.app.state.adapters.database.update("cases", case_id, {"advocate_document_requests": case.get("advocate_document_requests", []) + [item], "version": case.get("version", 1) + 1})
-    return {"request": item, "case": updated}
+    return {"request": item, "case": shared_case(updated, require_access(request, case_id, user, "case_file"))}
 
 
 @router.post("/advocate/cases/{case_id}/review-note")
@@ -397,12 +448,14 @@ def review_note(case_id: str, body: ReviewNoteBody, request: Request, user: dict
     case = accepted_case(request, case_id, user)
     entry = audit(case, user["id"], "review_note", "review_note", case.get("advocate_review_note"), body.note)
     updated = request.app.state.adapters.database.update("cases", case_id, {"advocate_review_note": body.note, "advocate_audit": append_audit(case, entry), "version": case.get("version", 1) + 1})
-    return {"case": updated}
+    return {"case": shared_case(updated, require_access(request, case_id, user, "case_file"))}
 
 
 @router.post("/cases/{case_id}/advocate/finalize")
 def finalize(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = accepted_case(request, case_id, user)
+    if case.get("workflow_version") == 2:
+        raise HTTPException(410, "Use the versioned advocate approval endpoint.")
     pending = outstanding_items(case)
     docs = [item for item in case.get("advocate_document_requests", []) if not item.get("resolved")]
     if pending or docs:

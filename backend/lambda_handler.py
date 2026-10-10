@@ -25,6 +25,16 @@ def handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
             app.state.adapters = load_adapters()
 
         try:
+            if action in {"engine1", "engine2", "engine3"}:
+                if action == "engine1":
+                    from .services.engine1 import run_engine1 as target
+                elif action == "engine2":
+                    from .services.engine2 import run_engine2 as target
+                else:
+                    from .services.engine3 import run_engine3 as target
+                options = {key: event[key] for key in ("start_stage",) if key in event}
+                target(app, case_id, **options)
+                return {"statusCode": 200, "body": json.dumps({"status": "completed", "action": action})}
             if action == "run_pipeline":
                 run_pipeline(
                     app,

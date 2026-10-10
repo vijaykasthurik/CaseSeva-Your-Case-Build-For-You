@@ -362,7 +362,7 @@ def run_legal_pipeline(app, case_id: str, preserve_advocate_review: bool = False
 
                 # Hard corpus filter: strip any hallucinated provision IDs after STATUTE_RETRIEVAL
                 if stage == "STATUTE_RETRIEVAL" and corpus_candidates:
-                    if "[DISABLE_CORPUS_FILTER]" not in current.get("client_story", "") and "[DISABLE_GROUNDING_FILTER]" not in current.get("client_story", ""):
+                    if True:  # User content can never disable grounding checks.
                         filtered_selected = corpus_filter_provisions(
                             [p.model_dump() if hasattr(p, "model_dump") else p for p in output.selected],
                             corpus_candidates,
@@ -382,9 +382,7 @@ def run_legal_pipeline(app, case_id: str, preserve_advocate_review: bool = False
                 changes["arguments"] = dict(current.get("arguments", {}))
                 if stage == "CITATION_VERIFICATION":
                     changes["legal_sections"] = current.get("legal_sections", {})
-                    if "[DISABLE_CORPUS_FILTER]" in current.get("client_story", "") or "[DISABLE_GROUNDING_FILTER]" in current.get("client_story", ""):
-                        changes["verified_legal_sections"] = current.get("legal_sections", {}).get("selected", [])
-                    elif corpus_candidates:
+                    if corpus_candidates:
                         corpus_index = {c["provision_id"]: c for c in corpus_candidates}
                         norm_index = {normalize_section_num(c["provision_id"]): c for c in corpus_candidates}
 

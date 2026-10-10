@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, File, UploadFile
 from pydantic import BaseModel, Field
 
 from .dependencies import get_current_user
@@ -9,6 +9,25 @@ from .dependencies import get_current_user
 router = APIRouter(prefix="/api/auth")
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MOBILE_RE = re.compile(r"^[6-9]\d{9}$")
+
+
+@router.post("/advocate-verification-documents")
+async def verification_document(request: Request, file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    if user.get("role") != "advocate":
+        raise HTTPException(403, "Advocate account required.")
+    from pathlib import Path
+    from uuid import uuid4
+    name = (file.filename or "document").replace("\\", "/").split("/")[-1]
+    if Path(name).suffix.lower() not in {".pdf", ".png", ".jpg", ".jpeg"}:
+        raise HTTPException(415, "Upload a PDF or enrolment document image.")
+    content = await file.read(10 * 1024 * 1024 + 1)
+    if not content or len(content) > 10 * 1024 * 1024:
+        raise HTTPException(413, "Document must be nonempty and at most 10 MB.")
+    key = f"verification/{user['id']}/{uuid4().hex}"
+    request.app.state.adapters.storage.upload(key, content, file.content_type or "application/octet-stream")
+    documents = user.get("verification_documents", []) + [{"filename": name, "storage_key": key, "content_type": file.content_type}]
+    request.app.state.adapters.database.update("users", user["id"], {"verification_documents": documents, "verification_status": "VERIFICATION_PENDING"})
+    return {"status": "VERIFICATION_PENDING"}
 
 
 class SignupBody(BaseModel):

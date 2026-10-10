@@ -18,6 +18,9 @@ async function request(path, options = {}, { redirectOn401 = true } = {}) {
   if (!(options.body instanceof FormData)) headers.set("Content-Type", "application/json");
   const token = getToken();
   if (token) headers.set("Authorization", "Bearer " + token);
+  const match = path.match(/\/(?:advocate\/)?cases\/([^/?]+)/);
+  const access = match && window.sessionStorage.getItem(`case_access_${match[1]}`);
+  if (access) headers.set("X-Case-Access", access);
   
   let response;
   try {
@@ -101,6 +104,9 @@ export const updateEvidence = (caseId, evidenceId, description) =>
 export const startAnalysis = (caseId) => request(`/api/cases/${caseId}/analyze`, { method: "POST" });
 export const retryAnalysis = (caseId) => request(`/api/cases/${caseId}/analyze/retry`, { method: "POST" });
 export const getCaseStatus = (caseId) => request(`/api/cases/${caseId}/status`);
+export const chooseEngine2 = (caseId, run) => request(`/api/cases/${caseId}/engine2`, { method: "POST", body: JSON.stringify({ run }) });
+export const reprocessInput = caseId => request(`/api/cases/${caseId}/reprocess-input`, { method: "POST" });
+export const migrateCaseWorkflow = caseId => request(`/api/cases/${caseId}/migrate-workflow`, { method: "POST" });
 export const getPreview1 = (caseId) => request(`/api/cases/${caseId}/preview1`);
 export const editFact = (caseId, factId, payload) => request(`/api/cases/${caseId}/facts/${factId}`, { method: "PATCH", body: JSON.stringify(payload) });
 export const addFact = (caseId, payload) => request(`/api/cases/${caseId}/facts`, { method: "POST", body: JSON.stringify(payload) });
@@ -122,13 +128,29 @@ export const correctPreview2Fact = (caseId, factId, text) =>
 export const listAdvocates = (filters = {}) => request(`/api/advocates?${new URLSearchParams(filters)}`);
 export const requestAdvocate = (caseId, advocateId) => request(`/api/cases/${caseId}/request-advocate`, { method: "POST", body: JSON.stringify({ advocate_id: advocateId }) });
 export const cancelAdvocateRequest = (caseId) => request(`/api/cases/${caseId}/cancel-advocate-request`, { method: "POST" });
-export const verifyAdvocate = (advocateId, status) => request(`/api/admin/advocates/${advocateId}/verification`, { method: "POST", headers: { "X-Admin-Token": "caseseva-admin" }, body: JSON.stringify({ status }) });
-export const listAdminAdvocates = () => request("/api/admin/advocates", { headers: { "X-Admin-Token": "caseseva-admin" } });
+export const verifyAdvocate = (advocateId, status, reason = "") => request(`/api/admin/advocates/${advocateId}/verification`, { method: "POST", headers: { "X-Admin-Token": window.sessionStorage.getItem("admin_token") || "" }, body: JSON.stringify({ status, reason }) });
+export const listAdminAdvocates = () => request("/api/admin/advocates", { headers: { "X-Admin-Token": window.sessionStorage.getItem("admin_token") || "" } });
 export const getAdvocateRequests = () => request("/api/advocate/requests");
 export const getAdvocateCases = () => request("/api/advocate/cases");
 export const acceptAdvocateRequest = (caseId) => request(`/api/advocate/requests/${caseId}/accept`, { method: "POST" });
 export const declineAdvocateRequest = (caseId, reason = "") => request(`/api/advocate/requests/${caseId}/decline?reason=${encodeURIComponent(reason)}`, { method: "POST" });
-export const getAdvocateCase = (caseId) => request(`/api/advocate/cases/${caseId}`);
+export const getAdvocateCase = async (caseId) => {
+  const result = await request(`/api/advocate/cases/${caseId}/access-token`, { method: "POST" });
+  window.sessionStorage.setItem(`case_access_${caseId}`, result.access_token);
+  return request(`/api/advocate/cases/${caseId}`);
+};
+export const grantCaseAccess = (caseId, payload) => request(`/api/cases/${caseId}/sharing`, { method: "POST", body: JSON.stringify(payload) });
+export const getCaseGrants = (caseId) => request(`/api/cases/${caseId}/sharing`);
+export const revokeCaseAccess = (caseId, grantId) => request(`/api/cases/${caseId}/sharing/${grantId}`, { method: "DELETE" });
+export const uploadVerificationDocument = (file) => { const body = new FormData(); body.append("file", file); return request("/api/auth/advocate-verification-documents", { method: "POST", body }); };
+export const reviewCaseItem = (caseId, payload) => request(`/api/advocate/cases/${caseId}/review`, { method: "POST", body: JSON.stringify(payload) });
+export const rerunEngine = (caseId, engine, startStage = null) => request(`/api/advocate/cases/${caseId}/rerun`, { method: "POST", body: JSON.stringify({ engine, start_stage: startStage }) });
+export const approveReviewedCase = caseId => request(`/api/advocate/cases/${caseId}/approve`, { method: "POST" });
+export const downloadSharedEvidence = async (caseId, evidence) => {
+  const response = await fetch(`${API_BASE_URL}/api/advocate/cases/${caseId}/evidence/${evidence.evidence_id}`, { headers: { Authorization: `Bearer ${getToken()}`, "X-Case-Access": window.sessionStorage.getItem(`case_access_${caseId}`) || "" } });
+  if (!response.ok) throw new Error("Shared evidence download was denied or failed.");
+  const url = URL.createObjectURL(await response.blob()); const a = document.createElement("a"); a.href = url; a.download = evidence.filename; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
 export const approveAdvocateFact = (caseId, factId) => request(`/api/advocate/cases/${caseId}/facts/${factId}/approve`, { method: "POST" });
 export const removeAdvocateProvision = (caseId, provisionId) => request(`/api/advocate/cases/${caseId}/provisions/${provisionId}/remove`, { method: "POST" });
 export const approveAdvocateProvision = (caseId, provisionId) => request(`/api/advocate/cases/${caseId}/provisions/${provisionId}/approve`, { method: "POST" });
@@ -152,3 +174,8 @@ export const getDocument = (caseId, documentId) => request(`/api/cases/${caseId}
 export const getDocumentConsistency = (caseId, documentId) => request(`/api/cases/${caseId}/documents/${documentId}/consistency`);
 export const overrideDocumentConsistency = (caseId, documentId, reason) => request(`/api/cases/${caseId}/documents/${documentId}/override-consistency`, { method: "POST", body: JSON.stringify({ reason }) });
 export const documentDownloadUrl = (caseId, documentId) => `${API_BASE_URL}/api/cases/${caseId}/documents/${documentId}/download`;
+export const downloadCaseDocument = async (caseId, document, format) => {
+  const response = await fetch(`${documentDownloadUrl(caseId, document.id)}?format=${format}`, { headers: { Authorization: `Bearer ${getToken()}`, "X-Case-Access": window.sessionStorage.getItem(`case_access_${caseId}`) || "" } });
+  if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.detail || "Document download failed."); }
+  const url = URL.createObjectURL(await response.blob()); const a = window.document.createElement("a"); a.href = url; a.download = `${document.type}-v${document.version}.${format}`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+};

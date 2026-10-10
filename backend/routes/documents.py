@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from ..models.case import utc_now
 from ..services.documents import build_documents
 from .dependencies import get_current_user, get_case_or_error
+from ..services.sharing import require_access
 
 router = APIRouter(prefix="/api/cases")
 
@@ -17,13 +18,48 @@ def accessible_case(request: Request, case_id: str, user: dict[str, Any]) -> dic
         raise HTTPException(status_code=404, detail="Case not found")
     if case.get("owner_user_id") == user.get("id"):
         return case
-    if case.get("assigned_advocate_id") == user.get("id") and user.get("role") == "advocate" and case.get("status") in {"ADVOCATE_APPROVED", "DOCUMENTS_READY", "DOCUMENTS_BLOCKED"}:
+    if case.get("assigned_advocate_id") == user.get("id") and user.get("role") == "advocate":
+        require_access(request, case_id, user, "case_file")
         return case
     raise HTTPException(status_code=403, detail="You do not have access to these documents")
 
 
 def serialize(doc: dict[str, Any]) -> dict[str, Any]:
-    return {key: doc.get(key) for key in ("id", "case_id", "type", "version", "created_at", "consistency", "download_url")}
+    return {key: doc.get(key) for key in ("id", "case_id", "type", "title", "version", "created_at", "case_file_version", "consistency", "download_url")}
+
+
+def require_document(request, case, doc, user):
+    if user.get("role") != "advocate":
+        if doc.get("type") != "client_case_overview":
+            raise HTTPException(403, "Professional Legal Draft and internal reports are advocate-only.")
+    else:
+        require_access(request, case["case_id"], user, "case_file")
+        if doc.get("type") != "client_case_overview" and case.get("engine2"):
+            require_access(request, case["case_id"], user, "engine2")
+
+
+def start_engine3(case_id, request, user, regenerate=False):
+    from .advocates import accepted_case
+    from ..services.jobs import dispatch
+    case = accepted_case(request, case_id, user)
+    allowed = {"ADVOCATE_APPROVED", "DOCUMENTS_READY", "DOCUMENTS_BLOCKED"} if regenerate else {"ADVOCATE_APPROVED"}
+    if case["status"] not in allowed or case.get("advocate_approved_case_file_version") != case.get("case_file", {}).get("version"):
+        raise HTTPException(409, "The current Case File must be approved by an advocate first.")
+    if case.get("engine2_stale"):
+        raise HTTPException(409, "Rerun stale argument analysis before generating documents.")
+    if case.get("engine2"):
+        require_access(request, case_id, user, "engine2")
+    grant = require_access(request, case_id, user, "evidence")
+    approved_evidence = {item.split(":", 1)[1] for item in case.get("advocate_approved_items", []) if item.startswith("evidence:")}
+    if not approved_evidence.issubset(grant["evidence_ids"]):
+        raise HTTPException(403, "The client did not share all evidence selected for the documents.")
+    request.app.state.adapters.database.update("cases", case_id, {"status": "GENERATING_DOCUMENTS", "document_generation_stage": "RUNNING", "engine3_advocate_id": user["id"], "engine3_grant_id": grant["id"]})
+    try:
+        dispatch(request.app, 3, case_id)
+    except Exception:
+        request.app.state.adapters.database.update("cases", case_id, {"status": "DOCUMENTS_BLOCKED", "processing_error": {"engine": 3, "message": "Document processing job could not be started."}})
+        raise HTTPException(503, "Document processing job could not be started.")
+    return {"status": "GENERATING_DOCUMENTS"}
 
 
 def run_generation(request: Request, case: dict[str, Any]) -> list[dict[str, Any]]:
@@ -58,59 +94,62 @@ def run_generation(request: Request, case: dict[str, Any]) -> list[dict[str, Any
 
 @router.post("/{case_id}/documents/generate")
 def generate(case_id: str, request: Request, user: dict = Depends(get_current_user)):
-    case = get_case_or_error(request, case_id, user)
-    if case.get("status") != "ADVOCATE_APPROVED":
-        raise HTTPException(status_code=409, detail="Documents can only be generated after advocate approval")
-    request.app.state.adapters.database.update("cases", case_id, {"status": "GENERATING_DOCUMENTS", "document_generation_stage": "RUNNING"})
-    try:
-        docs = run_generation(request, request.app.state.adapters.database.get("cases", case_id))
-    except ValueError as exc:
-        request.app.state.adapters.database.update("cases", case_id, {"status": "ADVOCATE_APPROVED", "document_generation_stage": "FAILED"})
-        raise HTTPException(status_code=422, detail=str(exc))
-    current = request.app.state.adapters.database.get("cases", case_id)
-    return {"documents": [serialize(doc) for doc in docs], "status": current.get("status")}
+    return start_engine3(case_id, request, user)
 
 
 @router.post("/{case_id}/documents/regenerate")
 def regenerate(case_id: str, request: Request, user: dict = Depends(get_current_user)):
-    case = get_case_or_error(request, case_id, user)
-    if case.get("status") not in {"ADVOCATE_APPROVED", "DOCUMENTS_READY", "DOCUMENTS_BLOCKED"}:
-        raise HTTPException(status_code=409, detail="Regeneration requires advocate approval")
-    docs = run_generation(request, case)
-    current = request.app.state.adapters.database.get("cases", case_id)
-    return {"documents": [serialize(doc) for doc in docs], "status": current.get("status")}
+    return start_engine3(case_id, request, user, regenerate=True)
 
 
 @router.get("/{case_id}/documents")
 def list_documents(case_id: str, request: Request, user: dict = Depends(get_current_user)):
-    accessible_case(request, case_id, user)
-    return {"documents": [serialize(doc) for doc in request.app.state.adapters.database.list("documents") if doc.get("case_id") == case_id]}
+    case = accessible_case(request, case_id, user)
+    docs = []
+    for doc in request.app.state.adapters.database.list("documents"):
+        if doc.get("case_id") != case_id:
+            continue
+        if user.get("role") != "advocate" and doc.get("type") != "client_case_overview":
+            continue
+        require_document(request, case, doc, user)
+        docs.append({**serialize(doc), "outdated": case.get("documents_outdated", False) or doc.get("case_file_version") != case.get("case_file", {}).get("version")})
+    return {"documents": docs}
 
 
 @router.get("/{case_id}/documents/{document_id}")
 def get_document(case_id: str, document_id: str, request: Request, user: dict = Depends(get_current_user)):
-    accessible_case(request, case_id, user)
+    case = accessible_case(request, case_id, user)
     doc = request.app.state.adapters.database.get("documents", document_id)
     if not doc or doc.get("case_id") != case_id:
         raise HTTPException(status_code=404, detail="Document not found")
+    require_document(request, case, doc, user)
     return {"document": {key: doc.get(key) for key in ("id", "case_id", "type", "version", "created_at", "html", "text", "consistency")}}
 
 
 @router.get("/{case_id}/documents/{document_id}/download")
-def download_document(case_id: str, document_id: str, request: Request, user: dict = Depends(get_current_user)):
-    accessible_case(request, case_id, user)
+def download_document(case_id: str, document_id: str, request: Request, format: str = "html", user: dict = Depends(get_current_user)):
+    case = accessible_case(request, case_id, user)
     doc = request.app.state.adapters.database.get("documents", document_id)
     if not doc or doc.get("case_id") != case_id:
         raise HTTPException(status_code=404, detail="Document not found")
-    return Response(content=request.app.state.adapters.storage.download(doc["storage_key"]), media_type="text/html", headers={"Content-Disposition": f'attachment; filename="{doc["type"]}-v{doc["version"]}.html"'})
+    require_document(request, case, doc, user)
+    from ..services.exports import export
+    try:
+        content, media_type = export(doc["html"], format)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+    return Response(content=content, media_type=media_type, headers={"Content-Disposition": f'attachment; filename="{doc["type"]}-v{doc["version"]}.{format}"'})
 
 
 @router.get("/{case_id}/documents/{document_id}/consistency")
 def consistency(case_id: str, document_id: str, request: Request, user: dict = Depends(get_current_user)):
-    accessible_case(request, case_id, user)
+    case = accessible_case(request, case_id, user)
     doc = request.app.state.adapters.database.get("documents", document_id)
     if not doc or doc.get("case_id") != case_id:
         raise HTTPException(status_code=404, detail="Document not found")
+    require_document(request, case, doc, user)
     return {"findings": doc.get("consistency", [])}
 
 
@@ -123,6 +162,8 @@ def override_consistency(case_id: str, document_id: str, body: OverrideBody, req
     if user.get("role") != "advocate":
         raise HTTPException(status_code=403, detail="Advocate access required")
     case = accessible_case(request, case_id, user)
+    if case.get("workflow_version") == 2:
+        raise HTTPException(409, "Correct failed consistency checks and regenerate a new document version.")
     doc = request.app.state.adapters.database.get("documents", document_id)
     if not doc or doc.get("case_id") != case_id:
         raise HTTPException(status_code=404, detail="Document not found")

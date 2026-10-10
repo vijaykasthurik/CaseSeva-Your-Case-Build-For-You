@@ -1,0 +1,1 @@
+List only necessary missing details as short, simple questions. Distinguish missing factual input from missing legal-source coverage. Do not demand facts that the user cannot know or ask the user to verify laws. Do not fill any missing value yourself. Follow the authoritative JSON schema.

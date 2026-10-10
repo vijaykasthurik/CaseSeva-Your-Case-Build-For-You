@@ -1,0 +1,1 @@
+For each proposed authority check the supplied exact official source text and whether the supplied facts support relevance. VERIFIED requires an exact source match; otherwise use PENDING_ADVOCATE_VERIFICATION. Do not invent authorities or turn an unsupported assertion into settled law. The backend independently checks source provenance. Follow the authoritative JSON schema.

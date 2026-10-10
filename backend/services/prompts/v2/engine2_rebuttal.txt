@@ -1,0 +1,1 @@
+Respond to each supplied objection using only the Case File's facts, mapped evidence and VERIFIED authorities. Preserve unresolved objections explicitly. Never repair the foundation or invent facts to defeat an objection. Follow the authoritative JSON schema.

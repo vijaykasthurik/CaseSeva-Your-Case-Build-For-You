@@ -64,7 +64,7 @@ export default function AdvocateDashboardPage() {
     }
   };
 
-  const isPending = user?.verification_status === "PENDING";
+  const isPending = user?.verification_status !== "VERIFIED";
 
   return (
     <main className="main-container" style={{ paddingTop: "2.5rem", paddingBottom: "5rem" }}>
@@ -178,7 +178,7 @@ export default function AdvocateDashboardPage() {
                     <span style={{ display: "block", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-muted)", marginBottom: "0.2rem" }}>
                       Jurisdiction / Forum
                     </span>
-                    <strong style={{ color: "#000000" }}>{item.forum_level || "Standard Jurisdiction"}</strong>
+                    <strong style={{ color: "#000000" }}>{item.forum_level || "Jurisdiction pending verification"}</strong>
                   </div>
                   <div>
                     <span style={{ display: "block", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-muted)", marginBottom: "0.2rem" }}>
@@ -409,7 +409,7 @@ export default function AdvocateDashboardPage() {
                 {user.verification_status === "VERIFIED" ? (
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "#000000", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
                     <Check size={16} />
-                    <span>Verified Advocate</span>
+                    <span>Verified by CaseSeva admin review</span>
                   </span>
                 ) : (
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-muted)", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>

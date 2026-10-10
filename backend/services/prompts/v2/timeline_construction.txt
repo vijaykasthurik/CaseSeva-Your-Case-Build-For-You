@@ -1,0 +1,1 @@
+Build a timeline only from supplied facts and real input. Do not infer dates from typical procedures or use today's date for missing events. Preserve uncertain dates and contradictions. Include chronological gaps in gaps. Reference existing fact and evidence IDs only. Follow the authoritative JSON schema.

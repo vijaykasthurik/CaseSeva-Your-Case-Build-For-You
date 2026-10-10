@@ -1,97 +1,42 @@
-# CaseSeva.ai
+# CaseSeva AI
 
-CaseSeva.ai is a legal case intelligence platform prototype. Parts 1 through 3 provide the project foundation, offline AWS adapter layer, client authentication, profile management, case intake, story autosave, evidence storage, and browser-tested flows.
+Case understanding, optional argument analysis, advocate review, and advocate-only document generation. See [repository analysis and migration status](docs/REDESIGN_STATUS.md) for the architecture, changes, validation, and pending requirements. Implementation is in progress; this is not a production-ready legal service.
 
-## Prerequisites
+## Install and run
 
-- Python 3.11+
-- Node.js 18+
-- npm
-
-## Install
-
-From the repository root:
+Requires Python 3.11+, Node.js 18+, and npm.
 
 ```powershell
 npm run install:all
+npm run dev:mock
 ```
 
-This creates `.venv`, installs the backend and frontend dependencies, and installs Chromium for tests. Equivalent manual steps:
+Frontend: http://127.0.0.1:5173. Backend health: http://127.0.0.1:8000/api/health.
+
+`dev:mock` explicitly enables development adapters. The UI labels this mode. It does not verify law or produce completed professional documents. Local evidence is encrypted with a development key in the ignored upload directory; preserve that key with the uploads. This is not production key management.
+
+For live processing configure the ignored `.env` using `.env.example`, then run `npm run dev`. This command honors configuration; it does not force mock mode. `USE_MOCK_AWS=false` uses real Bedrock, DynamoDB, and S3 adapters without a mock fallback. Errors remain failed/pending. Live permissions, model access, media transcription, and verified legal corpus ingestion require validation. Legal domains are disabled until reviewed official-source records are available.
+
+OCR needs Tesseract on PATH and both `eng` and `tam` language data. Audio/video needs FFmpeg on PATH, `ENABLE_AWS_MEDIA=true`, a private `MEDIA_S3_BUCKET`, and authorized Amazon Transcribe access. Missing extraction dependencies are reported as pending; filenames never replace extracted content. Digital PDF, DOCX, UTF-8 TXT and CSV text extraction is implemented. Files are limited to 10 MB each.
+
+## Workflow
+
+Common Input -> Engine 1 (automatic factual/legal Case File) -> optional Engine 2 (arguments only) -> Client Case Overview -> Find Advocate -> acceptance plus scoped client consent -> advocate review and optional targeted reruns -> Engine 3 (advocate only).
+
+Clients receive Output A, Client Case Overview. Output B, Professional Legal Draft including the internal report and E-Filing Readiness Pack, is advocate-only. Unverified law remains pending.
+
+Existing cases are retained. Owners can explicitly upgrade an old case after the backend saves a migration snapshot. Old preview page URLs lead to the overview; preview APIs return 410.
+
+## Verification
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r backend\requirements.txt
-npm install
-npm install --prefix frontend
-npx playwright install chromium
+npm run test:backend
+npm test
+npm run build --prefix frontend
 ```
 
-Start both servers from the repository root (no virtual environment activation required):
+Browser tests start isolated servers on ports 8001/5174 with separate ignored storage and explicit mock mode. They validate workflow and permissions, not live legal correctness. `npm run test:legacy` retains historical preview-flow tests; these describe the retired workflow and are not the current acceptance suite.
 
-```powershell
-npm run dev
-```
+PDF download needs the installed Node/Playwright Chromium renderer; HTML and DOCX exports also exist. PDF rendering in a Python-only Lambda deployment remains pending.
 
-Open `http://127.0.0.1:5173`. The startup command uses `.venv` and forces local mock adapters, so AWS credentials are not required. Stop both servers with Ctrl+C before running the tests.
-
-## Run the backend
-
-```powershell
-python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-Health endpoint:
-
-```text
-http://127.0.0.1:8000/api/health
-```
-
-## Run the frontend
-
-In a second terminal:
-
-```powershell
-npm run dev --prefix frontend
-```
-
-Open `http://127.0.0.1:5173`.
-
-## Authentication flow
-
-- Visit `/signup` to create a client account.
-- Successful signup creates an authenticated session and opens `/dashboard`.
-- Visit `/profile` to edit the name, mobile, language, state, or district/city.
-- Visit `/login` to sign in with an existing account.
-- Sessions are stored in browser local storage and sent as bearer tokens.
-
-## Case intake flow
-
-- From the dashboard, choose **Start a new case**.
-- Select one of the three plain-language case stages.
-- Enter the client story; draft changes are saved to the backend as you type.
-- Upload images, PDFs, documents, text files, spreadsheets, or common video files.
-- Review and submit a complete case to move it from `DRAFT` to `READY_FOR_ANALYSIS`.
-- Draft evidence receives stable IDs such as `E001`, `E002`; deleted IDs are not reused.
-
-## Run the end-to-end test
-
-The Playwright configuration starts both servers automatically:
-
-```powershell
-npx playwright test
-```
-
-The Playwright suite resets `.localdev/playwright-database.json` and `.localdev/playwright-uploads` before each run. It covers authentication, profile persistence, case stages, stage switching, story autosave, evidence upload/deletion, validation, submission status, ownership enforcement, and the Part 1 health smoke test.
-
-Or, if GNU Make is available:
-
-```text
-make test
-```
-
-## Adapter mode
-
-Set `USE_MOCK_AWS=true` to use the fully offline local adapters. Set it to `false` to load the AWS adapter stubs; real AWS operations intentionally raise `NotImplementedError` until later implementation parts.
-
-No code outside `backend/adapters/real/` imports or references AWS SDK code.
+Admin advocate verification requires a server-configured `ADMIN_TOKEN`, supporting documents, and a recorded reason on `/admin/advocates`. There is no built-in admin credential. Development demo advocates do not represent real credential verification.

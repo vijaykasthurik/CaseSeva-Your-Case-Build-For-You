@@ -1,11 +1,17 @@
 from pydantic import BaseModel, Field
 
 
+class EvidenceQuote(BaseModel):
+    evidence_id: str
+    quote: str
+
+
 class Fact(BaseModel):
     fact_id: str
     text: str
     confidence: float = Field(ge=0, le=1)
     evidence_ids: list[str] = []
+    evidence_quotes: list[EvidenceQuote] = []
     human_corrected: bool = False
     removed: bool = False
 
@@ -25,6 +31,8 @@ class Parties(BaseModel):
     opposite_party: str
     relationship: str
     human_corrected: bool = False
+    witnesses: list[dict[str, str]] = []
+    authorities: list[dict[str, str]] = []
 
 
 class IntakeOutput(BaseModel):
@@ -38,6 +46,7 @@ class FactExtractionOutput(BaseModel):
 
 class TimelineOutput(BaseModel):
     timeline: list[TimelineEvent]
+    gaps: list[str] = []
 
 
 class PartyOutput(BaseModel):

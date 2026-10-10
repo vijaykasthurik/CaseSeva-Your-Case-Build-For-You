@@ -42,7 +42,7 @@ def load_adapters() -> AdapterSet:
     if "USE_MOCK_AWS" in env_vals_before_dotenv:
         use_mock = env_vals_before_dotenv["USE_MOCK_AWS"].strip().lower() == "true"
     else:
-        use_mock = os.getenv("USE_MOCK_AWS", "true").strip().lower() == "true"
+        use_mock = os.getenv("USE_MOCK_AWS", "false").strip().lower() == "true"
 
     def is_explicitly_true(key: str) -> bool:
         if key in env_vals_before_dotenv:
@@ -77,7 +77,7 @@ def load_adapters() -> AdapterSet:
         storage=storage,
         database=database,
         llm=llm,
-        auth=MockAuthAdapter(database),
+        auth=MockAuthAdapter(database, seed_demo=False),
         workflow=MockWorkflowAdapter(database),
         legal_retrieval=MockLegalRetrievalAdapter() if use_mock else RealLegalRetrievalAdapter(),
         mode="real" if not use_mock else "hybrid",

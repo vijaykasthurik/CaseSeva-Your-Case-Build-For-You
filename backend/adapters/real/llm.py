@@ -252,7 +252,10 @@ class RealLLMAdapter(LLMAdapter):
         stage_name = str(schema.get("stage", "")).lower().replace(" ", "_")
         if schema.get("fixture") == "uninformative" or (stage_name == "party_identification" and "uninformative" in prompt.lower()):
             raise ValueError("Semantic sanity check failed: 'parties' returned all unknown roles.")
-        prompt_file = Path("backend/services/prompts") / f"{stage_name}.txt"
+        prompt_root = Path(__file__).resolve().parents[2] / "services/prompts"
+        if schema.get("workflow_version") == 2:
+            prompt_root = prompt_root / "v2"
+        prompt_file = prompt_root / f"{stage_name}.txt"
         template_text = ""
         if prompt_file.exists():
             template_text = prompt_file.read_text(encoding="utf-8").strip()
@@ -262,7 +265,11 @@ class RealLLMAdapter(LLMAdapter):
             full_prompt = f"{prompt}\n\nSchema and format instructions:\n{template_text}"
 
         model_cls = STAGE_MODELS.get(stage_name)
-        schema_json_shape = model_cls.model_json_schema() if model_cls else {}
+        schema_json_shape = schema.get("json_schema") or (model_cls.model_json_schema() if model_cls else {})
+        if schema_json_shape:
+            full_prompt += "\nThe authoritative output schema for this request is:\n" + json.dumps(schema_json_shape)
+        if schema.get("workflow_version") == 2:
+            model_cls = None  # Engine services validate against their versioned schema.
 
         max_tokens = schema.get("max_tokens") or self.stage_max_tokens.get(stage_name, self.default_max_tokens)
 
@@ -306,7 +313,8 @@ class RealLLMAdapter(LLMAdapter):
                 raise ValueError(f"Output is not a JSON object (got {type(parsed_1).__name__})")
             if model_cls:
                 model_cls.model_validate(parsed_1)
-            _semantic_sanity_check(stage_name, parsed_1, full_prompt)
+            if schema.get("workflow_version") != 2:
+                _semantic_sanity_check(stage_name, parsed_1, full_prompt)
         except Exception as e:
             err_1 = str(e)
 
@@ -369,7 +377,8 @@ class RealLLMAdapter(LLMAdapter):
                 raise ValueError(f"Retry output is not a JSON object (got {type(parsed_2).__name__})")
             if model_cls:
                 model_cls.model_validate(parsed_2)
-            _semantic_sanity_check(stage_name, parsed_2, corrective_prompt)
+            if schema.get("workflow_version") != 2:
+                _semantic_sanity_check(stage_name, parsed_2, corrective_prompt)
         except Exception as e:
             err_2 = str(e)
 
@@ -393,4 +402,3 @@ class RealLLMAdapter(LLMAdapter):
         log_entry["error"] = err_2
         self.stage_logs.append(log_entry)
         raise ValueError(f"Bedrock LLM failed to produce valid JSON for schema stage '{stage_name}': {err_2}")
-

@@ -1,0 +1,1 @@
+Convert supplied factual disputes into neutral legal questions. Do not argue for either side, assume facts, invent law or decide outcomes. Reference supplied fact/evidence IDs. Keep issues without verified source coverage marked for advocate review. Follow the authoritative JSON schema.

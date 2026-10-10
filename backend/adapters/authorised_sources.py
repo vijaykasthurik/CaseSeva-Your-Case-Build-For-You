@@ -22,6 +22,8 @@ def is_authorised_url(url: str) -> bool:
     """Verifies if a URL belongs to the explicit allowlist of official Indian legal portals."""
     try:
         parsed = urlparse(url)
+        if parsed.scheme != "https" or parsed.username or parsed.password:
+            return False
         hostname = (parsed.hostname or "").lower().strip()
         if not hostname:
             return False
@@ -29,12 +31,6 @@ def is_authorised_url(url: str) -> bool:
         # Match exact domain in verified allowlist
         if hostname in AUTHORISED_DOMAINS:
             return True
-
-        # High Court or District Court official subdomains ending in .ecourts.gov.in or .nic.in allowlist
-        if hostname.endswith(".ecourts.gov.in") or hostname.endswith(".hc.gov.in") or hostname.endswith(".nic.in"):
-            base = ".".join(hostname.split(".")[-2:])
-            if base in {"nic.in", "gov.in"} and "indiacode.gov.in" not in hostname:
-                return True
 
         return False
     except Exception as err:

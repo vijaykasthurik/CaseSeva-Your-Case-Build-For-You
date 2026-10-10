@@ -45,11 +45,23 @@ class MockDatabaseAdapter(DatabaseAdapter):
         for attempt in range(50):
             try:
                 self.path.parent.mkdir(parents=True, exist_ok=True)
-                self.path.write_text(content, encoding="utf-8")
+                temporary = self.path.with_suffix(self.path.suffix + ".pending")
+                temporary.write_text(content, encoding="utf-8")
+                os.replace(temporary, self.path)
                 return
             except Exception:
                 time.sleep(0.02)
-        print(f"[ERROR MOCK DB WRITE]: Failed to write database to {self.path}", flush=True)
+        raise RuntimeError("Local database write failed.")
+
+    def mutate(self, collection: str, record_id: str, transform) -> dict[str, Any]:
+        with self._lock:
+            data = self._read()
+            record = data.get(collection, {}).get(record_id)
+            if record is None:
+                raise KeyError(record_id)
+            record.update(transform(dict(record)))
+            self._write(data)
+            return dict(record)
 
     def create(self, collection: str, record: dict[str, Any]) -> dict[str, Any]:
         record_id = str(record["id"])

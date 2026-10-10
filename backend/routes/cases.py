@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Uplo
 from pydantic import BaseModel
 
 from ..models.case import utc_now
+from ..services.overview import client_case
 from .dependencies import get_case_or_error, get_current_user
 
 router = APIRouter(prefix="/api/cases")
@@ -13,6 +14,7 @@ MAX_FILE_SIZE = 10 * 1024 * 1024
 ALLOWED_EXTENSIONS = {
     ".pdf", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".doc", ".docx",
     ".txt", ".rtf", ".xls", ".xlsx", ".csv", ".mp4", ".mov", ".avi", ".webm",
+    ".mp3", ".wav", ".m4a", ".ogg", ".flac",
 }
 STAGES = {"NEW_CONSULTATION", "COMPLAINT_FIR", "EXISTING_OLD_CASE"}
 
@@ -40,10 +42,7 @@ def validate_stage(stage: str | None, details: dict[str, Any] | None) -> dict[st
         errors["stage"] = "Choose a valid case stage."
         return errors
     details = details or {}
-    required = {
-        "COMPLAINT_FIR": ["has_fir", "reference_number", "station_authority"],
-        "EXISTING_OLD_CASE": ["case_number", "court_authority", "current_stage"],
-    }.get(stage, [])
+    required = []  # Stage details are optional; unknown values must not be invented.
     for key in required:
         value = details.get(key)
         if value is None or not str(value).strip():
@@ -53,10 +52,10 @@ def validate_stage(stage: str | None, details: dict[str, Any] | None) -> dict[st
 
 def validate_complete(case: dict[str, Any]) -> dict[str, str]:
     errors = validate_stage(case.get("stage"), case.get("stage_details"))
-    if not case.get("client_story", "").strip():
-        errors["client_story"] = "Tell us what happened before submitting."
-    if not case.get("evidence"):
-        errors["evidence"] = "Upload at least one evidence file before submitting."
+    if not case.get("client_story", "").strip() and not case.get("evidence"):
+        errors["client_story"] = "Provide a story, recording, or at least one file before submitting."
+    if case.get("pending_uploads"):
+        errors["evidence"] = "Wait for evidence uploads to finish before submitting."
     return errors
 
 
@@ -89,6 +88,8 @@ def create_case(request: Request, user: dict = Depends(get_current_user)) -> dic
         "advocate_id": None,
         "stage_statuses": {},
         "version": 1,
+        "next_evidence_number": 1,
+        "workflow_version": 2,
     }
     case["id"] = case["case_id"]
     request.app.state.adapters.database.create("cases", case)
@@ -115,7 +116,8 @@ def list_cases(request: Request, user: dict = Depends(get_current_user)) -> dict
 
 @router.get("/{case_id}")
 def get_case(case_id: str, request: Request, user: dict = Depends(get_current_user)) -> dict[str, Any]:
-    return {"case": get_owned_case(request, case_id, user)}
+    from ..services.overview import client_case
+    return {"case": client_case(get_owned_case(request, case_id, user))}
 
 
 @router.patch("/{case_id}")
@@ -135,7 +137,7 @@ def update_case(case_id: str, body: CaseUpdateBody, request: Request, user: dict
     changes["stage_details"] = merged_details
     changes["version"] = case.get("version", 1) + 1
     updated = request.app.state.adapters.database.update("cases", case_id, changes)
-    return {"case": updated}
+    return {"case": client_case(updated)}
 
 
 @router.post("/{case_id}/submit")
@@ -146,10 +148,15 @@ def submit_case(case_id: str, request: Request, user: dict = Depends(get_current
     errors = validate_complete(case)
     if errors:
         raise field_error(errors)
-    updated = request.app.state.adapters.database.update(
-        "cases", case_id, {"status": "READY_FOR_ANALYSIS", "version": case.get("version", 1) + 1}
-    )
-    return {"case": updated}
+    state = "SUBMITTED" if case.get("workflow_version") == 2 else "READY_FOR_ANALYSIS"
+    updated = request.app.state.adapters.database.update("cases", case_id, {"status": state, "version": case.get("version", 1) + 1})
+    if case.get("workflow_version") == 2:
+        from ..services.jobs import dispatch
+        try:
+            dispatch(request.app, 1, case_id)
+        except Exception:
+            updated = request.app.state.adapters.database.update("cases", case_id, {"status": "REVIEW_REQUIRED", "processing_error": {"stage": "DISPATCH", "message": "Could not start the processing job. Retry is required."}})
+    return {"case": client_case(updated)}
 
 
 @router.delete("/{case_id}")
@@ -172,18 +179,33 @@ async def upload_evidence(
     user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     case = get_owned_case(request, case_id, user)
-    if case["status"] not in {"DRAFT", "AWAITING_PREVIEW_1"}:
+    if case["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY"}:
         raise HTTPException(status_code=409, detail="Evidence can only be added during draft or Preview 1")
-    filename = file.filename or "upload"
+    filename = (file.filename or "upload").replace("\\", "/").split("/")[-1]
+    filename = re.sub(r'[\x00-\x1f<>:"|?*]', "_", filename)
     extension = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
-    content = await file.read()
-    if extension not in ALLOWED_EXTENSIONS and not (file.content_type or "").startswith(("image/", "video/")):
+    content = await file.read(MAX_FILE_SIZE + 1)
+    if extension not in ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=415, detail="Unsupported file type. Upload an image, PDF, document, or video.")
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(status_code=413, detail="File is too large. Maximum size is 10 MB.")
-    evidence_id = next_evidence_id(case.get("evidence", []))
+    if not content:
+        raise HTTPException(status_code=422, detail="The uploaded file is empty.")
+    db = request.app.state.adapters.database
+    def reserve(current):
+        if current["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY"}:
+            raise HTTPException(409, "The case state changed before upload; retry after processing.")
+        number = max(current.get("next_evidence_number", 1), int(next_evidence_id(current.get("evidence", []))[1:]))
+        return {"next_evidence_number": number + 1, "pending_uploads": current.get("pending_uploads", 0) + 1}
+    reservation = db.mutate("cases", case_id, reserve)
+    sequence = reservation["next_evidence_number"] - 1
+    evidence_id = f"E{sequence:03d}"
     storage_key = f"cases/{case_id}/{evidence_id}-{filename}"
-    url = request.app.state.adapters.storage.upload(storage_key, content, file.content_type or "application/octet-stream")
+    try:
+        url = request.app.state.adapters.storage.upload(storage_key, content, file.content_type or "application/octet-stream")
+    except Exception:
+        db.mutate("cases", case_id, lambda current: {"pending_uploads": max(0, current.get("pending_uploads", 1) - 1)})
+        raise HTTPException(503, "Evidence storage failed. Please retry.")
     item = {
         "evidence_id": evidence_id,
         "filename": filename,
@@ -194,10 +216,8 @@ async def upload_evidence(
         "description": description.strip(),
         "uploaded_at": utc_now(),
     }
-    updated = request.app.state.adapters.database.update(
-        "cases", case_id, {"evidence": case.get("evidence", []) + [item], "version": case.get("version", 1) + 1}
-    )
-    return {"evidence": item, "case": updated}
+    updated = db.mutate("cases", case_id, lambda current: {"evidence": current.get("evidence", []) + [item], "pending_uploads": max(0, current.get("pending_uploads", 1) - 1), "version": current.get("version", 1) + 1})
+    return {"evidence": item, "case": client_case(updated)}
 
 
 @router.get("/{case_id}/evidence/{evidence_id}")
@@ -225,7 +245,7 @@ def delete_evidence(case_id: str, evidence_id: str, request: Request, user: dict
     request.app.state.adapters.storage.delete(item["storage_key"])
     remaining = [entry for entry in case.get("evidence", []) if entry["evidence_id"] != evidence_id]
     updated = request.app.state.adapters.database.update("cases", case_id, {"evidence": remaining, "version": case.get("version", 1) + 1})
-    return {"case": updated}
+    return {"case": client_case(updated)}
 
 
 @router.patch("/{case_id}/evidence/{evidence_id}")
@@ -250,4 +270,4 @@ def update_evidence(
     if updated_entry is None:
         raise HTTPException(status_code=404, detail="Evidence not found")
     updated = request.app.state.adapters.database.update("cases", case_id, {"evidence": evidence, "version": case.get("version", 1) + 1})
-    return {"evidence": updated_entry, "case": updated}
+    return {"evidence": updated_entry, "case": client_case(updated)}

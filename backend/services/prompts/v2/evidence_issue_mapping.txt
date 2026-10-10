@@ -1,0 +1,1 @@
+Map every supplied legal issue to actual extracted evidence IDs and describe evidentiary gaps. An allegation is not proof. Unreadable evidence cannot be treated as supporting an issue. Do not create new facts or arguments. Follow the authoritative JSON schema.

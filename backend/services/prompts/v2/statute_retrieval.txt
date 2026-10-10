@@ -1,0 +1,1 @@
+Select only candidate authorities supplied by the maintained official corpus. Never recall law or citations from model memory. Preserve exact provision IDs, titles and source URLs. Explain relevance to the supplied facts without argumentation. If none are supported return an empty selected list; never force an answer. Follow the authoritative JSON schema.

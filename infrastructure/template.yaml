@@ -55,6 +55,7 @@ Resources:
           - Content-Type
           - Accept
           - X-Admin-Token
+          - X-Case-Access
         AllowMethods:
           - GET
           - POST

@@ -5,6 +5,14 @@ import { ArrowUpRight } from "lucide-react";
 
 /* Map backend status to status pill class modifier and human-readable label */
 const STATUS_META = {
+  SUBMITTED: { cls: "grey", label: "Submitted" },
+  ENGINE1_RUNNING: { cls: "grey", label: "Understanding your case and checking sources" },
+  ENGINE1_DONE: { cls: "gold", label: "Case understanding complete" },
+  ENGINE2_RUNNING: { cls: "grey", label: "Argument analysis running" },
+  ENGINE2_DONE: { cls: "gold", label: "Case overview available" },
+  LEGAL_CORPUS_NOT_READY: { cls: "crimson", label: "Verified legal sources not ready" },
+  REVIEW_REQUIRED: { cls: "crimson", label: "Review or additional processing required" },
+  NEEDS_DOCUMENT: { cls: "crimson", label: "Additional evidence requested" },
   DRAFT:                  { cls: "grey",     label: "Draft" },
   READY_FOR_ANALYSIS:     { cls: "grey",     label: "Ready for analysis" },
   ANALYZING:              { cls: "grey",     label: "Analysing casework" },

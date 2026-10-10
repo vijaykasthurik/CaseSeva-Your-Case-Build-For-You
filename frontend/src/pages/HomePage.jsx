@@ -41,8 +41,8 @@ export default function HomePage() {
               </h1>
 
               <p className="hero-description">
-                CaseSeva analyses client casework against verified Indian statutory acts,
-                retrieves grounded section citations, and constructs court-ready complaint drafts —
+                CaseSeva organizes client casework, checks available legal sources,
+                and helps advocates prepare professional documents —
                 audited by enrolled advocates.
               </p>
 
@@ -78,7 +78,7 @@ export default function HomePage() {
                   <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>INDIAN STATUTES</span>
                 </div>
                 <div style={{ fontSize: "0.78rem", fontWeight: 600, color: "#333", marginBottom: "0.4rem" }}>Section 35 · Consumer Protection Act, 2019</div>
-                <div style={{ fontSize: "0.72rem", color: "#707070", lineHeight: 1.4 }}>Verified statutory grounding against official indiacode.nic.in gazettes.</div>
+                <div style={{ fontSize: "0.72rem", color: "#707070", lineHeight: 1.4 }}>Only checked official sources may establish applicable law. Missing coverage requires advocate review.</div>
               </div>
 
               <div className="geometric-panel-2">
@@ -130,7 +130,7 @@ export default function HomePage() {
 
             <div className="editorial-card">
               <FileText size={28} color="#000000" style={{ marginBottom: "1.25rem" }} />
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.6rem" }}>Court-Ready Drafts</h3>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.6rem" }}>Advocate-Reviewed Documents</h3>
               <p style={{ fontSize: "0.88rem", color: "var(--gray-text)", lineHeight: 1.6 }}>
                 Generates a complete Legal Intelligence Report and statutory complaint draft formatted for the appropriate District or State Commission.
               </p>
@@ -140,7 +140,7 @@ export default function HomePage() {
               <ShieldCheck size={28} color="#C0A030" style={{ marginBottom: "1.25rem" }} />
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.6rem" }}>Advocate Verification</h3>
               <p style={{ fontSize: "0.88rem", color: "var(--gray-text)", lineHeight: 1.6 }}>
-                Enrolled legal advocates review facts, statutory sections, and evidence before document finalization to guarantee quality.
+                Advocates review facts, statutory sections, and evidence before document finalization. Filing requirements may still need confirmation.
               </p>
             </div>
           </div>

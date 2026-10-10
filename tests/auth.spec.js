@@ -57,7 +57,7 @@ test("invalid signup input shows field errors", async ({ page }) => {
 
 test("correct credentials reach dashboard", async ({ page, request }) => {
   const email = uniqueEmail();
-  await request.post("http://127.0.0.1:8000/api/auth/signup", {
+  await request.post(`${process.env.TEST_API_BASE_URL || "http://127.0.0.1:8000"}/api/auth/signup`, {
     data: {
       full_name: "Login Client",
       email,

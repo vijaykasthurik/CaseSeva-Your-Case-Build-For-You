@@ -19,6 +19,7 @@ class RealStorageAdapter(StorageAdapter):
             Key=key,
             Body=data,
             ContentType=content_type,
+            ServerSideEncryption="AES256",
         )
         return f"s3://{self.bucket_name}/{key}"
 

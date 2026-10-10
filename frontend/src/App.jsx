@@ -7,15 +7,13 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import SignupPage from "./pages/SignupPage";
-import CaseCreatePage from "./pages/CaseCreatePage";
-import CaseDetailPage from "./pages/CaseDetailPage";
-import Preview1Page from "./pages/Preview1Page";
-import Preview2Page from "./pages/Preview2Page";
+import CaseCreatePage from "./pages/CommonInputPage";
+import CaseDetailPage from "./pages/EngineCasePage";
 import AdvocateDirectoryPage from "./pages/AdvocateDirectoryPage";
 import AdvocateInboxPage from "./pages/AdvocateInboxPage";
-import AdvocateReviewPage from "./pages/AdvocateReviewPage";
-import AdminAdvocatesPage from "./pages/AdminAdvocatesPage";
-import DocumentsPage from "./pages/DocumentsPage";
+import AdvocateReviewPage from "./pages/AdvocateWorkspacePage";
+import AdminAdvocatesPage from "./pages/VerificationAdminPage";
+import DocumentsPage from "./pages/CaseOutputsPage";
 import AdvocateDashboardPage from "./pages/AdvocateDashboardPage";
 
 function useCurrentUser() {
@@ -99,8 +97,8 @@ export default function App() {
         {/* Shared / Case detail routes */}
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/cases/:caseId" element={<CaseDetailPage />} />
-        <Route path="/cases/:caseId/preview1" element={<Preview1Page />} />
-        <Route path="/cases/:caseId/preview2" element={<Preview2Page />} />
+        <Route path="/cases/:caseId/preview1" element={<CaseDetailPage />} />
+        <Route path="/cases/:caseId/preview2" element={<CaseDetailPage />} />
         <Route path="/cases/:caseId/documents" element={<DocumentsPage />} />
         <Route path="/admin/advocates" element={<AdminAdvocatesPage />} />
       </Route>

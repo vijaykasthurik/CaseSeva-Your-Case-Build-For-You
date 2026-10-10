@@ -1,0 +1,5 @@
+{
+  "india_code": {"tier":"PRIMARY","enabled":false,"hosts":["www.indiacode.nic.in","indiacode.nic.in"],"access_method":"reviewed official download","terms_reviewed":false,"robots_reviewed":false,"rate_limit_per_minute":2,"refresh_days":30},
+  "gazette": {"tier":"PRIMARY","enabled":false,"hosts":["egazette.gov.in","egazette.nic.in"],"access_method":"reviewed official download","terms_reviewed":false,"robots_reviewed":false,"rate_limit_per_minute":2,"refresh_days":7},
+  "supreme_court": {"tier":"PRIMARY","enabled":false,"hosts":["www.sci.gov.in","sci.gov.in"],"access_method":"reviewed official download","terms_reviewed":false,"robots_reviewed":false,"rate_limit_per_minute":2,"refresh_days":7}
+}

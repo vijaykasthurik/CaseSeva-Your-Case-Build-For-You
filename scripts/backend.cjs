@@ -7,9 +7,13 @@ if (!fs.existsSync(python)) {
   console.error('Create .venv and install backend/requirements.txt first; see README.md.');
   process.exit(1);
 }
-const child = spawn(python, ['-m', 'uvicorn', 'backend.main:app', '--host', '127.0.0.1', '--port', '8000'], {
+const mock = process.argv.includes('--mock');
+const portIndex = process.argv.indexOf('--port');
+const port = portIndex >= 0 ? process.argv[portIndex + 1] : '8000';
+if (!/^\d+$/.test(port) || Number(port) < 1 || Number(port) > 65535) throw new Error('Invalid backend port');
+const child = spawn(python, ['-m', 'uvicorn', 'backend.main:app', '--host', '127.0.0.1', '--port', port], {
   cwd: root, stdio: 'inherit',
-  env: { ...process.env, USE_MOCK_AWS: 'true', USE_REAL_DATABASE: 'false', USE_REAL_STORAGE: 'false', USE_REAL_LLM: 'false' }
+  env: mock ? { ...process.env, USE_MOCK_AWS: 'true', USE_REAL_DATABASE: 'false', USE_REAL_STORAGE: 'false', USE_REAL_LLM: 'false' } : process.env
 });
 child.on('error', error => { console.error(error); process.exit(1); });
 child.on('exit', code => process.exit(code ?? 1));

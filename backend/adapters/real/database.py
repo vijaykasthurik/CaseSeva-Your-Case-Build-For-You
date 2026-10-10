@@ -61,15 +61,28 @@ class RealDatabaseAdapter(DatabaseAdapter):
         return _decimals_to_floats(item)
 
     def update(self, collection: str, record_id: str, changes: dict[str, Any]) -> dict[str, Any]:
-        current = self.get(collection, record_id)
-        if current is None:
-            raise KeyError(record_id)
-        current.update(changes)
-        item = _floats_to_decimals(dict(current))
-        item["PK"] = collection
-        item["SK"] = record_id
-        self.table.put_item(Item=item)
-        return current
+        return self.mutate(collection, record_id, lambda current: changes)
+
+    def mutate(self, collection: str, record_id: str, transform) -> dict[str, Any]:
+        for attempt in range(10):
+            current = self.get(collection, record_id)
+            if current is None:
+                raise KeyError(record_id)
+            revision = current.get("_revision")
+            current.update(transform(dict(current)))
+            current["_revision"] = (revision or 0) + 1
+            item = _floats_to_decimals(dict(current))
+            item.update({"PK": collection, "SK": record_id})
+            options = {"ConditionExpression": "attribute_exists(PK) AND " + ("attribute_not_exists(#rev)" if revision is None else "#rev = :previous"), "ExpressionAttributeNames": {"#rev": "_revision"}}
+            if revision is not None:
+                options["ExpressionAttributeValues"] = {":previous": revision}
+            try:
+                self.table.put_item(Item=item, **options)
+                return current
+            except ClientError as exc:
+                if exc.response["Error"]["Code"] != "ConditionalCheckFailedException":
+                    raise
+        raise RuntimeError("Concurrent database updates could not be resolved; retry the operation.")
 
     def delete(self, collection: str, record_id: str) -> bool:
         try:
@@ -86,6 +99,9 @@ class RealDatabaseAdapter(DatabaseAdapter):
             KeyConditionExpression=Key("PK").eq(collection)
         )
         items = response.get("Items", [])
+        while response.get("LastEvaluatedKey"):
+            response = self.table.query(KeyConditionExpression=Key("PK").eq(collection), ExclusiveStartKey=response["LastEvaluatedKey"])
+            items.extend(response.get("Items", []))
         results = []
         for item in items:
             item.pop("PK", None)

@@ -33,27 +33,7 @@ def start_legal_analysis(case_id: str, request: Request, user: dict = Depends(ge
 
 @router.get("/{case_id}/preview2")
 def get_preview2(case_id: str, request: Request, user: dict = Depends(get_current_user)):
-    case = owned(request, case_id, user)
-    if case["status"] not in {"AWAITING_PREVIEW_2", "NEEDS_DOCUMENT", "PREVIEW_2_APPROVED", "LEGAL_ANALYSIS_FAILED", "OUT_OF_SCOPE"}:
-        raise HTTPException(status_code=409, detail="Preview 2 is not available yet")
-    legal_sections = case.get("legal_sections")
-    rejected = legal_sections.get("rejected", []) if isinstance(legal_sections, dict) else []
-    return {
-        "status": case["status"],
-        "domain": case.get("legal_domain", {}),
-        "issues": case.get("legal_issues", []),
-        "verified_provisions": case.get("verified_legal_sections", []),
-        "rejected_provisions": rejected,
-        "citation_verification": case.get("citation_verification", {}),
-        "forum": case.get("forum", {}),
-        "limitation": case.get("limitation", {}),
-        "evidence_matrix": case.get("evidence_issue_mapping", []),
-        "arguments": case.get("arguments", {}),
-        "neutral_evaluation": case.get("neutral_evaluation", {}),
-        "document_requests": case.get("document_requests", []),
-        "error": case.get("legal_analysis_error"),
-        "out_of_scope_message": case.get("out_of_scope_message"),
-    }
+    raise HTTPException(410, "Preview approval screens are retired. Use the Client Case Overview.")
 
 
 @router.post("/{case_id}/evidence-request/{request_id}/resolve")

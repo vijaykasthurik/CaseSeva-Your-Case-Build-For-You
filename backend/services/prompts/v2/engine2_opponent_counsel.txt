@@ -1,0 +1,1 @@
+Develop possible opposing objections from the supplied Case File. Label them as possible objections, not facts. Use stable objection IDs and existing fact, evidence and verified provision IDs. Do not perform Engine 1 work or rely on pending authority as settled law. Follow the authoritative JSON schema.

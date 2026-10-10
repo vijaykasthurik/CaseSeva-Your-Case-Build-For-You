@@ -11,6 +11,9 @@ from .routes.analysis import router as analysis_router
 from .routes.legal_analysis import router as legal_analysis_router
 from .routes.advocates import router as advocates_router
 from .routes.documents import router as documents_router
+from .routes.engines import router as engines_router
+from .routes.sharing import router as sharing_router
+from .routes.review import router as review_router
 
 
 @asynccontextmanager
@@ -46,3 +49,6 @@ app.include_router(analysis_router)
 app.include_router(legal_analysis_router)
 app.include_router(advocates_router)
 app.include_router(documents_router)
+app.include_router(engines_router)
+app.include_router(sharing_router)
+app.include_router(review_router)

@@ -75,21 +75,13 @@ def rerun_preview_stages(case_id: str, request: Request, user: dict = Depends(ge
 @router.get("/{case_id}/status")
 def analysis_status(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
-    return {"status": case["status"], "stage_statuses": case.get("stage_statuses", {}), "document_generation_stage": case.get("document_generation_stage"), "error": case.get("analysis_error") or case.get("legal_analysis_error")}
+    from ..services.overview import public_processing_error
+    return {"status": case["status"], "stage_statuses": case.get("stage_statuses", {}), "input_statuses": case.get("input_statuses", {}), "active_engine": case.get("active_engine"), "current_stage": case.get("current_stage"), "processing_mode": request.app.state.adapters.mode, "document_generation_stage": case.get("document_generation_stage"), "error": public_processing_error(case.get("processing_error") or case.get("analysis_error") or case.get("legal_analysis_error"))}
 
 
 @router.get("/{case_id}/preview1")
 def preview1(case_id: str, request: Request, user: dict = Depends(get_current_user)):
-    case = owned(request, case_id, user)
-    if case["status"] not in {"AWAITING_PREVIEW_1", "PREVIEW_1_APPROVED", "AWAITING_PREVIEW_2", "NEEDS_DOCUMENT", "PREVIEW_2_APPROVED"}:
-        raise HTTPException(status_code=409, detail="Preview 1 is not available yet")
-    evidence_by_id = {item["evidence_id"]: {"evidence_id": item["evidence_id"], "filename": item["filename"]} for item in case.get("evidence", [])}
-    facts = []
-    for fact in case.get("facts", []):
-        if fact.get("removed"):
-            continue
-        facts.append({**fact, "evidence": [evidence_by_id[eid] for eid in fact.get("evidence_ids", []) if eid in evidence_by_id]})
-    return {"facts": facts, "timeline": case.get("timeline", []), "parties": case.get("parties", {})}
+    raise HTTPException(410, "Preview approval screens are retired. Use the Client Case Overview.")
 
 
 @router.patch("/{case_id}/facts/{fact_id}")

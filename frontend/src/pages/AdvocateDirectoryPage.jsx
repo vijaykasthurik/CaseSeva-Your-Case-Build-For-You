@@ -224,7 +224,7 @@ export default function AdvocateDirectoryPage() {
                 {/* Verified status — default state on this page, marked with weight and neutral check rather than gold */}
                 <span style={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "#000000", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
                   <Check size={15} />
-                  <span>Verified Advocate</span>
+                  <span>Verified by CaseSeva admin review</span>
                 </span>
               </div>
 

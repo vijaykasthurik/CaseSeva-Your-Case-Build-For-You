@@ -1,0 +1,15 @@
+{
+  "consumer":{"ready":false,"corpus":"consumer/provisions.json","source_ids":["india_code","gazette"],"reason":"Legacy summaries lack official text, provenance and freshness validation."},
+  "labour":{"ready":false,"corpus":"labour/provisions.json","source_ids":["india_code","gazette"],"reason":"Legacy summaries lack official text, provenance and freshness validation."},
+  "civil":{"ready":false,"reason":"Verified source set and routing validation pending."},
+  "criminal":{"ready":false,"reason":"Verified source set and BNS/BNSS/BSA historical mappings pending."},
+  "family":{"ready":false,"reason":"Verified source set and routing validation pending."},
+  "property":{"ready":false,"reason":"Verified source set and routing validation pending."},
+  "cheque_bounce":{"ready":false,"reason":"Verified source set and routing validation pending."},
+  "cyber":{"ready":false,"reason":"Verified source set and routing validation pending."},
+  "rti":{"ready":false,"reason":"Verified source set and routing validation pending."},
+  "writ":{"ready":false,"reason":"Verified source set and routing validation pending."},
+  "tenancy":{"ready":false,"reason":"Verified source set and routing validation pending."},
+  "motor_accident":{"ready":false,"reason":"Verified source set and routing validation pending."},
+  "service":{"ready":false,"reason":"Verified source set and routing validation pending."}
+}

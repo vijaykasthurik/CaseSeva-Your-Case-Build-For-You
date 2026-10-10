@@ -124,7 +124,7 @@ export default function ProfilePage() {
                       color: form.verification_status === "REJECTED" ? undefined : form.verification_status === "VERIFIED" ? "#000000" : "var(--text-muted)",
                     }}
                   >
-                    {form.verification_status === "VERIFIED" ? "✓ Verified Advocate" : form.verification_status === "REJECTED" ? "Verification Refused" : "Verification Pending"}
+                    {form.verification_status === "VERIFIED" ? "✓ Verified by CaseSeva admin review" : form.verification_status === "UNVERIFIED" ? "Unverified" : "Verification Pending"}
                   </span>
                 </div>
               </div>

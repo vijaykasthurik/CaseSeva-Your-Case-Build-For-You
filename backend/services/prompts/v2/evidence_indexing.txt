@@ -1,0 +1,1 @@
+Index each supplied evidence ID exactly once. Describe only extracted content and record extraction failure or low-quality/unreadable content explicitly. Suggest links to facts without claiming independent authentication. Do not infer file contents from a filename. Follow the authoritative JSON schema supplied with this request.
