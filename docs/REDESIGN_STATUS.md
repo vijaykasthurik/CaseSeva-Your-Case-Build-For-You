@@ -1,5 +1,7 @@
 # Repository analysis and phased migration
 
+See [expanded specification phase status](REDESIGN_PHASE_2.md) for changes after this historical baseline.
+
 Analysis was returned in the conversation before redesign edits. This records the discovered design and implementation status as of 2026-10-09. Tests use isolated adapters and do not establish live legal accuracy.
 
 ## 1. Architecture discovered

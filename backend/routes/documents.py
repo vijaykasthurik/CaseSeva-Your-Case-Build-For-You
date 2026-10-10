@@ -42,10 +42,12 @@ def start_engine3(case_id, request, user, regenerate=False):
     from .advocates import accepted_case
     from ..services.jobs import dispatch
     case = accepted_case(request, case_id, user)
+    if case.get("engines", {}).get("1", {}).get("status") == "STALE":
+        raise HTTPException(409, "Update and review the foundation after new client information first.")
     allowed = {"ADVOCATE_APPROVED", "DOCUMENTS_READY", "DOCUMENTS_BLOCKED"} if regenerate else {"ADVOCATE_APPROVED"}
-    if case["status"] not in allowed or case.get("advocate_approved_case_file_version") != case.get("case_file", {}).get("version"):
+    if not case.get("case_file", {}).get("version") or case["status"] not in allowed or case.get("advocate_approved_case_file_version") != case.get("case_file", {}).get("version"):
         raise HTTPException(409, "The current Case File must be approved by an advocate first.")
-    if case.get("engine2_stale"):
+    if case.get("engine2") and case.get("engine2_stale"):
         raise HTTPException(409, "Rerun stale argument analysis before generating documents.")
     if case.get("engine2"):
         require_access(request, case_id, user, "engine2")

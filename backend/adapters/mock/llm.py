@@ -27,6 +27,8 @@ class MockLLMAdapter(LLMAdapter):
                 return {"parties": {"client_role": "unknown", "opposite_party": "unknown", "relationship": "unknown"}}
             if stage == "missing_information":
                 return {"questions": []}
+            if stage == "reconciliation":
+                return {"facts": case.get("facts", []), "timeline": case.get("timeline", []), "parties": case.get("parties", {}), "changes": ["Development only: answers recorded without live reconciliation."]}
             if stage == "engine1_domain_router":
                 return {"domains": [], "reasoning": "Mock mode does not establish legal domain readiness.", "requires_review": True}
             if stage == "legal_issue_identification":

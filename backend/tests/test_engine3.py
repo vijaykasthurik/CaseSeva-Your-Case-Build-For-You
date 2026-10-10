@@ -47,6 +47,18 @@ class Engine3Tests(unittest.TestCase):
         self.assertTrue(all(item["note"] == FILING_CONFIRMATION for item in result))
         self.assertTrue(all(not item["items"] for item in result))
 
+    def test_no_challenge_report_has_exact_note_and_no_invented_argument_section(self):
+        from backend.services.engine3 import approved_content
+        content = approved_content(self.app.state.adapters.database.get('cases', self.id))
+        self.assertNotIn('argument_results', content)
+        self.assertEqual(content['argument_analysis_note'], 'Case Challenge / Argument Analysis was not run.')
+
+    def test_missing_official_refresh_is_pending_without_sample_law(self):
+        from backend.services.law_refresh import refresh
+        result = refresh({'case_file': {'applicable_law': [{'provision_id': 'TEST', 'source_url': 'https://example.invalid/law'}]}})
+        self.assertEqual(result['status'], 'PENDING')
+        self.assertNotIn('official_text', result['items'][0])
+
     def test_invented_sections_and_annexures_block_documents(self):
         draft = {"cited_provision_ids": ["FAKE"], "annexure_references": ["Annexure Z"], "sections": [{"heading": heading, "paragraphs": ["Section 999 applies"], "fact_ids": [], "provision_ids": []} for heading in MANDATORY_SECTIONS]}
         checks = consistency(draft, {"applicable_law": [], "facts": [], "annexures": [], "forum": {}})
@@ -79,9 +91,10 @@ class Engine3Tests(unittest.TestCase):
         db.update("cases", self.id, {"case_file": file, "advocate_approved_items": ["fact:F001", "provision:TEST-1"], "engine3_advocate_id": "seed-verified-advocate", "engine3_grant_id": grant["id"]})
         self.app.state.adapters.mode = "real"
         self.app.state.adapters.llm.generate = lambda *args: {"title": "Test pleading", "sections": [{"heading": heading, "paragraphs": ["TEST FORUM" if heading == "Forum" else "[TO BE COMPLETED: checked details]"], "fact_ids": [], "provision_ids": []} for heading in MANDATORY_SECTIONS], "cited_provision_ids": ["TEST-1"], "annexure_references": []}
-        run_engine3(self.app, self.id)
-        self.assertEqual(db.get("cases", self.id)["status"], "DOCUMENTS_READY")
-        run_engine3(self.app, self.id)
+        with patch('backend.services.law_refresh.refresh', return_value={'status': 'COMPLETE', 'items': [], 'test_double': True}):
+            run_engine3(self.app, self.id)
+            self.assertEqual(db.get("cases", self.id)["status"], "DOCUMENTS_READY")
+            run_engine3(self.app, self.id)
         self.assertEqual(db.get("cases", self.id)["document_version"], 2)
         versioned = [item for item in db.list("documents") if item.get("case_file_version")]
         self.assertEqual(len(versioned), 4)

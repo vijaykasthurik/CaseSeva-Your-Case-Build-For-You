@@ -9,7 +9,7 @@ from .legal_knowledge import LegalKnowledge, source_record
 
 FILING_CONFIRMATION = "Current filing requirement requires advocate confirmation."
 MANDATORY_SECTIONS = ["Forum", "Parties", "Facts", "Legal grounds", "Relief requested", "Evidence", "Verification"]
-ENGINE3_STAGES = ["FILTER_CONTENT", "CASE_INTELLIGENCE_REPORT", "PROFESSIONAL_LEGAL_DRAFT", "EVIDENCE_ANNEXURES", "E_FILING_READINESS_PACK", "CONSISTENCY_CHECKS", "CLIENT_CASE_OVERVIEW"]
+ENGINE3_STAGES = ["FILTER_CONTENT", "CURRENT_LAW_REFRESH", "CASE_INTELLIGENCE_REPORT", "PROFESSIONAL_LEGAL_DRAFT", "EVIDENCE_ANNEXURES", "E_FILING_READINESS_PACK", "CONSISTENCY_CHECKS", "CLIENT_CASE_OVERVIEW"]
 
 
 def escape(value):
@@ -35,7 +35,12 @@ def approved_content(case):
             number, digit = divmod(number - 1, 26)
             label = chr(65 + digit) + label
         item["label"] = "Annexure " + label
-    return {"facts": facts, "applicable_law": laws, "parties": file.get("parties", {}), "forum": file.get("forum", {}), "limitation": file.get("limitation", {}), "annexures": annexures, "pending_advocate_verification": file.get("pending_advocate_verification", []), "argument_results": case.get("engine2", {}), "case_file_version": file["version"]}
+    result = {"facts": facts, "applicable_law": laws, "parties": file.get("parties", {}), "forum": file.get("forum", {}), "limitation": file.get("limitation", {}), "annexures": annexures, "pending_advocate_verification": file.get("pending_advocate_verification", []), "case_file_version": file["version"]}
+    if case.get("engine2", {}).get("overview_ready") and not case.get("engine2_stale"):
+        result["argument_results"] = case["engine2"]
+    else:
+        result["argument_analysis_note"] = "Case Challenge / Argument Analysis was not run."
+    return result
 
 
 def filing_pack(forum, knowledge=None):
@@ -92,6 +97,8 @@ def build_professional(adapters, case):
         raise RuntimeError("Professional drafting is pending: mock mode cannot produce a completed professional legal document.")
     draft = DraftOutput.model_validate(adapters.llm.generate(prompt, {"stage": "engine3_draft_generation", "json_schema": DraftOutput.model_json_schema(), "workflow_version": 2, "max_tokens": 8000})).model_dump()
     checks = consistency(draft, content)
+    if case.get("law_refresh"):
+        checks.append({"check": "current_law_refresh", "result": "PASS" if case["law_refresh"]["status"] == "COMPLETE" else "FAIL", "detail": "Current official law must be checked before professional documents are ready."})
     pack = filing_pack(content["forum"])
     report = "<h2>Case Intelligence Report</h2><pre>" + escape(json.dumps(content, ensure_ascii=False, indent=2)) + "</pre><h2>Review record</h2><pre>" + escape(json.dumps(case.get("advocate_audit", []), ensure_ascii=False, indent=2)) + "</pre>"
     pleading = "<h2>Professional Legal Draft</h2>" + "".join("<article><h3>" + escape(section["heading"]) + "</h3>" + "".join("<p>" + escape(paragraph) + "</p>" for paragraph in section["paragraphs"]) + "</article>" for section in draft["sections"])
@@ -115,10 +122,12 @@ def run_engine3(app, case_id):
     db = app.state.adapters.database
     adapters = app.state.adapters
     case = db.get("cases", case_id)
+    from .blackboard import engine_state
+    engine_state(db, case_id, 3, "RUNNING", case_file_version=case.get("case_file", {}).get("version"))
     statuses = {name: "WAITING" for name in ENGINE3_STAGES}
     db.update("cases", case_id, {"status": "GENERATING_DOCUMENTS", "active_engine": "Engine 3 — Advocate-only Professional Documents", "stage_statuses": statuses, "processing_error": None})
     try:
-        for stage in ENGINE3_STAGES[:5]:
+        for stage in ENGINE3_STAGES[:6]:
             statuses[stage] = "RUNNING"
             db.update("cases", case_id, {"current_stage": stage, "stage_statuses": dict(statuses)})
             if stage == "FILTER_CONTENT":
@@ -129,9 +138,13 @@ def run_engine3(app, case_id):
                     raise ValueError("Advocate verification or client consent is no longer valid.")
                 if case.get("advocate_approved_case_file_version") != case.get("case_file", {}).get("version"):
                     raise ValueError("The current Case File requires advocate approval.")
+            elif stage == "CURRENT_LAW_REFRESH":
+                from .law_refresh import refresh
+                case["law_refresh"] = refresh(case)
+                db.update("cases", case_id, {"law_refresh": case["law_refresh"]})
             elif stage == "PROFESSIONAL_LEGAL_DRAFT":
                 professional, checks, draft, pack = build_professional(adapters, case)
-            statuses[stage] = "COMPLETED"
+            statuses[stage] = "PENDING" if stage == "CURRENT_LAW_REFRESH" and case["law_refresh"]["status"] != "COMPLETE" else "COMPLETED"
         version = case.get("document_version", 0) + 1
         from .sharing import active_grant
         current_grant = active_grant(db, case_id, case.get("engine3_advocate_id", ""))
@@ -147,7 +160,11 @@ def run_engine3(app, case_id):
         statuses["CLIENT_CASE_OVERVIEW"] = "COMPLETED"
         blocked = any(item["result"] == "FAIL" for item in checks)
         db.update("cases", case_id, {"status": "DOCUMENTS_BLOCKED" if blocked else "DOCUMENTS_READY", "document_version": version, "documents_outdated": False, "stage_statuses": statuses, "current_stage": None, "filing_requirements_pending": any(item["note"] for item in pack), "document_consistency": checks})
+        engine_state(db, case_id, 3, "FAILED" if blocked else "COMPLETE", outcome="DOCUMENTS_BLOCKED" if blocked else "DOCUMENTS_READY", version=version)
+        from .notifications import notify
+        notify(db, case.get("engine3_advocate_id"), "Professional documents need further review." if blocked else "Professional documents are ready for your review.", case_id, "DOCUMENTS_UPDATED")
     except Exception as exc:
         for stage in statuses:
             if statuses[stage] == "RUNNING": statuses[stage] = "FAILED"
         db.update("cases", case_id, {"status": "DOCUMENTS_BLOCKED", "stage_statuses": statuses, "current_stage": None, "processing_error": {"engine": 3, "message": str(exc)}})
+        engine_state(db, case_id, 3, "FAILED", outcome="DOCUMENTS_BLOCKED")

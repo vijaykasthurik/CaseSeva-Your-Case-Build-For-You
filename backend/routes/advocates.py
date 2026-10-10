@@ -27,7 +27,7 @@ def accepted_case(request: Request, case_id: str, user: dict[str, Any]) -> dict[
     case = request.app.state.adapters.database.get("cases", case_id)
     if not case:
         raise HTTPException(status_code=404, detail="Case not found")
-    if case.get("assigned_advocate_id") != user["id"] or case.get("status") not in {"ADVOCATE_REVIEW", "ADVOCATE_APPROVED", "DOCUMENTS_READY", "DOCUMENTS_BLOCKED", "GENERATING_DOCUMENTS", "REVIEW_REQUIRED", "ENGINE1_RUNNING", "ENGINE2_RUNNING", "NEEDS_DOCUMENT"}:
+    if case.get("assigned_advocate_id") != user["id"] or case.get("status") not in {"SUBMITTED", "READY_TO_FILE", "PREPARING_FOR_FILING", "FILED", "FILING_ACKNOWLEDGED", "DEFECT_CORRECTION_REQUIRED", "CORRECTED_REFILED", "REGISTERED", "PENDING", "HEARING_SCHEDULED", "ORDER_RECEIVED", "CLOSED", "DRAFT", "READY_FOR_ADVOCATE", "ADVOCATE_REVIEW", "ADVOCATE_APPROVED", "DOCUMENTS_READY", "DOCUMENTS_BLOCKED", "GENERATING_DOCUMENTS", "REVIEW_REQUIRED", "ENGINE1_RUNNING", "ENGINE2_RUNNING", "NEEDS_DOCUMENT", "AWAITING_CLIENT_INFO"}:
         raise HTTPException(status_code=403, detail="This case is not assigned to you")
     return case
 
@@ -35,6 +35,19 @@ def accepted_case(request: Request, case_id: str, user: dict[str, Any]) -> dict[
 class VerificationBody(BaseModel):
     status: str
     reason: str = ""
+    official_source_url: str = ""
+    official_record_reference: str = ""
+    reviewer_id: str = ""
+    reviewed_at: str = ""
+
+
+def require_admin(request, user):
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Administrator access required.")
+    configured = os.getenv("ADMIN_TOKEN", "")
+    token = request.headers.get("X-Admin-Token", "")
+    if configured and (not token or not secrets.compare_digest(token, configured)):
+        raise HTTPException(403, "Additional administrator credential required.")
 
 
 class AdvocateRequestBody(BaseModel):
@@ -120,10 +133,7 @@ def directory(request: Request, domain: str | None = None, state: str | None = N
 
 @router.post("/admin/advocates/{advocate_id}/verification")
 def verify_advocate(advocate_id: str, body: VerificationBody, request: Request, user: dict = Depends(get_current_user)):
-    admin_token = request.headers.get("X-Admin-Token")
-    configured = os.getenv("ADMIN_TOKEN", "")
-    if not configured or not admin_token or not secrets.compare_digest(admin_token, configured):
-        raise HTTPException(status_code=403, detail="Admin verification token required")
+    require_admin(request, user)
     if body.status not in {"VERIFIED", "UNVERIFIED", "VERIFICATION_PENDING"}:
         raise HTTPException(status_code=422, detail="Invalid verification status")
     advocate = request.app.state.adapters.database.get("users", advocate_id)
@@ -133,28 +143,38 @@ def verify_advocate(advocate_id: str, body: VerificationBody, request: Request, 
         raise HTTPException(422, "A verification review reason is required.")
     if body.status == "VERIFIED" and not advocate.get("verification_documents"):
         raise HTTPException(409, "Review supporting enrolment documents before verification.")
+    if body.status == "VERIFIED":
+        from urllib.parse import urlparse
+        from datetime import datetime, timezone
+        source = urlparse(body.official_source_url)
+        hosts = {value.strip() for value in os.getenv("ADMIN_VERIFICATION_HOSTS", "").split(",") if value.strip()}
+        if advocate.get("verification_status") != "VERIFICATION_PENDING":
+            raise HTTPException(409, "The advocate must first submit credentials for review.")
+        if source.scheme != "https" or source.hostname not in hosts or source.username or source.password or not body.official_record_reference.strip() or body.reviewer_id != user["id"]:
+            raise HTTPException(422, "Record the registered official source, record reference and authenticated reviewer identity.")
+        try:
+            age = (datetime.now(timezone.utc) - datetime.fromisoformat(body.reviewed_at.replace("Z", "+00:00"))).total_seconds()
+            if age < -300 or age > 600: raise ValueError()
+        except (ValueError, TypeError): raise HTTPException(422, "A current timezone-aware verification timestamp is required.")
     from uuid import uuid4
     db = request.app.state.adapters.database
-    db.create("verification_audit", {"id": uuid4().hex, "advocate_id": advocate_id, "reviewer_id": user["id"], "previous": advocate.get("verification_status"), "new": body.status, "reason": body.reason, "created_at": utc_now()})
-    updated = db.update("users", advocate_id, {"verification_status": body.status, "verification_reason": body.reason})
+    basis = {"official_source_url": body.official_source_url, "official_record_reference": body.official_record_reference, "reviewer_id": user["id"], "reviewed_at": body.reviewed_at, "reason": body.reason}
+    db.create("verification_audit", {"id": uuid4().hex, "advocate_id": advocate_id, "previous": advocate.get("verification_status"), "new": body.status, **basis, "created_at": utc_now()})
+    updated = db.update("users", advocate_id, {"verification_status": body.status, "verification_reason": body.reason, "verification_basis": basis})
+    from ..services.notifications import notify
+    notify(db, advocate_id, "Your credential review was updated: " + body.reason, kind="VERIFICATION_OUTCOME")
     return {"user": {key: value for key, value in updated.items() if key != "password_hash"}}
 
 
 @router.get("/admin/advocates")
 def admin_advocates(request: Request, user: dict = Depends(get_current_user)):
-    token = request.headers.get("X-Admin-Token", "")
-    configured = os.getenv("ADMIN_TOKEN", "")
-    if not configured or not token or not secrets.compare_digest(token, configured):
-        raise HTTPException(status_code=403, detail="Admin verification token required")
+    require_admin(request, user)
     return {"advocates": [{key: value for key, value in item.items() if key != "password_hash"} for item in request.app.state.adapters.database.list("users") if item.get("role") == "advocate"]}
 
 
 @router.get("/admin/advocates/{advocate_id}/documents/{index}")
 def verification_material(advocate_id: str, index: int, request: Request, user: dict = Depends(get_current_user)):
-    token = request.headers.get("X-Admin-Token", "")
-    configured = os.getenv("ADMIN_TOKEN", "")
-    if not configured or not token or not secrets.compare_digest(token, configured):
-        raise HTTPException(403, "Admin verification token required.")
+    require_admin(request, user)
     advocate = request.app.state.adapters.database.get("users", advocate_id)
     documents = (advocate or {}).get("verification_documents", [])
     if index < 0 or index >= len(documents):
@@ -170,7 +190,7 @@ def request_advocate(case_id: str, request: Request, body: AdvocateRequestBody |
     if not advocate_id:
         raise HTTPException(status_code=422, detail="advocate_id is required")
     case = get_case_or_error(request, case_id, user)
-    if user.get("role") != "client" or case["status"] not in {"PREVIEW_2_APPROVED", "ENGINE1_DONE", "ENGINE2_DONE", "LEGAL_CORPUS_NOT_READY", "REVIEW_REQUIRED"} or case.get("processing_error"):
+    if user.get("role") != "client" or case["status"] not in {"READY_FOR_ADVOCATE", "PREVIEW_2_APPROVED", "ENGINE1_DONE", "ENGINE2_DONE", "LEGAL_CORPUS_NOT_READY", "REVIEW_REQUIRED"} or (case.get("processing_error") and not case.get("raw_package")):
         raise HTTPException(status_code=409, detail="Only approved client cases can request an advocate")
     advocate = request.app.state.adapters.database.get("users", advocate_id)
     if not advocate or advocate.get("role") != "advocate" or advocate.get("verification_status") != "VERIFIED":
@@ -217,6 +237,9 @@ def accept_request(case_id: str, request: Request, user: dict = Depends(get_curr
         raise HTTPException(status_code=403, detail="No pending request for this advocate")
     request.app.state.adapters.database.update("advocate_requests", item["id"], {"status": "ACCEPTED"})
     request.app.state.adapters.database.update("cases", case_id, {"status": "AWAITING_ADVOCATE", "assigned_advocate_id": user["id"]})
+    from ..services.notifications import notify
+    case = request.app.state.adapters.database.get("cases", case_id)
+    notify(request.app.state.adapters.database, case["owner_user_id"], "Your advocate accepted. Review what you want to share and allow access.", case_id, "ADVOCATE_ACCEPTED")
     return {"status": "ACCEPTED_AWAITING_CLIENT_CONSENT", "case_id": case_id}
 
 
@@ -284,7 +307,7 @@ def list_advocate_cases(request: Request, user: dict = Depends(get_current_user)
 
         if status == "AWAITING_ADVOCATE" or (case_id in pending_request_case_ids and status not in {"ADVOCATE_REVIEW", "ADVOCATE_APPROVED"}):
             pending_requests.append(summary)
-        elif status == "ADVOCATE_REVIEW":
+        elif status in {"DRAFT", "SUBMITTED", "READY_FOR_ADVOCATE", "ADVOCATE_REVIEW", "ENGINE1_RUNNING", "ENGINE2_RUNNING", "AWAITING_CLIENT_INFO", "NEEDS_DOCUMENT", "READY_TO_FILE", "FILED", "FILING_ACKNOWLEDGED", "DEFECT_CORRECTION_REQUIRED", "CORRECTED_REFILED", "REGISTERED", "PENDING", "HEARING_SCHEDULED", "ORDER_RECEIVED", "CLOSED"}:
             under_review.append(summary)
         elif status in {"ADVOCATE_APPROVED", "DOCUMENTS_READY", "DOCUMENTS_BLOCKED"}:
             finalised.append(summary)

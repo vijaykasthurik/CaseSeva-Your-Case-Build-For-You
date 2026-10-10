@@ -7,6 +7,11 @@ from ..models.case import utc_now
 
 
 def active_grant(db, case_id, advocate_id):
+    case = db.get("cases", case_id)
+    if case and case.get("origin") == "ADVOCATE_WALK_IN" and case.get("assigned_advocate_id") == advocate_id and not case.get("guest_claimed_at"):
+        consent = db.get("walkin_consents", case_id)
+        if consent and not consent.get("revoked_at"):
+            return {**consent, "id": "walkin:" + case_id, "scopes": ["story", "raw_package", "case_file", "engine2", "evidence"], "evidence_ids": [item["evidence_id"] for item in case.get("evidence", [])], "expires_at": None, "permission_type": "WALK_IN_CONSENT"}
     now = datetime.now(timezone.utc)
     for grant in db.list("case_grants"):
         if grant["case_id"] == case_id and grant["advocate_id"] == advocate_id and not grant.get("revoked_at") and datetime.fromisoformat(grant["expires_at"]) > now:
@@ -17,6 +22,9 @@ def active_grant(db, case_id, advocate_id):
 def require_access(request, case_id, user, scope="case_file"):
     if user.get("role") != "advocate" or user.get("verification_status") != "VERIFIED":
         raise HTTPException(403, "A verified advocate account is required.")
+    walkin = active_grant(request.app.state.adapters.database, case_id, user["id"])
+    if walkin and walkin.get("permission_type") == "WALK_IN_CONSENT":
+        return walkin
     token = request.headers.get("X-Case-Access", "")
     if not token:
         raise HTTPException(403, "A scoped case access token is required.")
@@ -43,7 +51,7 @@ def grant_access(db, case, user, scopes, evidence_ids, hours):
     allowed = {item["evidence_id"] for item in case.get("evidence", [])}
     if not set(evidence_ids).issubset(allowed):
         raise HTTPException(422, "Unknown evidence ID in sharing selection.")
-    if not scopes or not set(scopes).issubset({"story", "case_file", "engine2", "evidence"}):
+    if not scopes or not set(scopes).issubset({"story", "raw_package", "case_file", "engine2", "evidence"}):
         raise HTTPException(422, "Choose valid sharing scopes.")
     if evidence_ids and "evidence" not in scopes:
         raise HTTPException(422, "Evidence sharing scope is required.")
@@ -68,8 +76,23 @@ def shared_case(case, grant):
     result["advocate_audit"] = [entry for entry in case.get("advocate_audit", []) if allowed_entry(entry)]
     if "story" in grant["scopes"]:
         result["client_story"] = case.get("client_story", "")
+    if "raw_package" in grant["scopes"]:
+        raw = dict(case.get("raw_package", {}))
+        raw["evidence"] = [item for item in raw.get("evidence", []) if "evidence" in grant["scopes"] and item["evidence_id"] in grant["evidence_ids"]]
+        # Combined extraction text includes every file; expose only selected originals.
+        raw.pop("original_text", None)
+        raw.pop("english_working_text", None)
+        if "story" not in grant["scopes"]: raw.pop("original_story", None)
+        result["raw_package"] = raw
     if "case_file" in grant["scopes"]:
         result["case_file"] = case.get("case_file", {})
+        result["clarification"] = (case.get("clarification_rounds") or [None])[-1]
+        result["engines"] = case.get("engines", {})
+        result["professional_notes"] = case.get("professional_notes", [])
+        result["information_requests"] = case.get("information_requests", [])
+        result["filing_update"] = case.get("filing_update")
+        result["origin"] = case.get("origin", "CITIZEN_SELF_SERVICE")
+        result["public_case_id"] = case.get("public_case_id", case["case_id"])
         for key in ("facts", "timeline", "parties", "legal_issues", "verified_legal_sections", "forum", "limitation", "evidence_issue_mapping"):
             result[key] = case.get(key)
     if "engine2" in grant["scopes"]:

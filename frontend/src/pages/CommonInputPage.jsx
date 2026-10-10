@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { createCase, getCase, updateCase, submitCase, uploadEvidence, deleteEvidence } from "../api";
 
 const stages = [["NEW_CONSULTATION", "New / Consultation"], ["COMPLAINT_FIR", "Complaint / FIR exists"], ["EXISTING_OLD_CASE", "Existing / Old case"]];
@@ -8,6 +8,8 @@ const optionalFields = { COMPLAINT_FIR: [["reference_number", "FIR or reference 
 export default function CommonInputPage() {
   const { caseId } = useParams();
   const navigate = useNavigate();
+  const walkin = useLocation().pathname.startsWith("/advocate/");
+  const [client, setClient] = useState({ client_name: "", client_email: "", client_mobile: "", preferred_language: "English", consent: false });
   const id = useRef(caseId);
   const creating = useRef(null);
   const recorder = useRef(null);
@@ -37,9 +39,9 @@ export default function CommonInputPage() {
 
   async function ensureCase() {
     if (id.current) return id.current;
-    if (!creating.current) creating.current = createCase().then(({ case: item }) => {
+    if (!creating.current) creating.current = createCase(walkin ? { origin: "ADVOCATE_WALK_IN", ...client } : undefined).then(({ case: item }) => {
       id.current = item.case_id;
-      window.history.replaceState(null, "", `/cases/${item.case_id}/edit`);
+      window.history.replaceState(null, "", walkin ? `/advocate/intake/${item.case_id}` : `/cases/${item.case_id}/edit`);
       return item.case_id;
     }).finally(() => { creating.current = null; });
     return creating.current;
@@ -95,7 +97,7 @@ export default function CommonInputPage() {
 
   async function submit(event) {
     event.preventDefault(); setBusy(true); setMessage("");
-    try { const activeId = await save(); await submitCase(activeId); navigate(`/cases/${activeId}`); }
+    try { const activeId = await save(); const path = event.nativeEvent.submitter?.value || "understand"; await submitCase(activeId, path); navigate(walkin ? `/advocate/cases/${activeId}` : path === "legal_help" ? `/advocates?caseId=${activeId}` : `/cases/${activeId}`); }
     catch (error) { setMessage([error.message, ...Object.values(error.fields || {})].join(" ")); }
     finally { setBusy(false); }
   }
@@ -103,10 +105,11 @@ export default function CommonInputPage() {
   if (!ready) return <main className="main-container"><p>{message || "Loading draft…"}</p></main>;
   return <main className="main-container content-narrow" style={{ paddingBottom: "5rem" }}>
     <h1>Tell us about your case</h1>
-    <p>Use English, Tamil, or both. Type your story, record it, or upload files. At least one input is needed.</p>
+    <p>Use English, Tamil, or both. Type your story or provide an audio/video narration. You can add supporting files too.</p>
     <p>AI-assisted legal information, not legal advice. An advocate reviews the case before filing.</p>
     <form onSubmit={submit}>
-      <label>Case stage<select value={stage} onChange={event => { changed.current = true; setStage(event.target.value); setDetails({}); }}>
+      {walkin && <fieldset><legend>Walk-in client and consent</legend>{[["client_name", "Client name"], ["client_email", "Client email (optional)"], ["client_mobile", "Client mobile (optional)"], ["preferred_language", "Client preferred language"]].map(([key, label]) => <label key={key} style={{ display: "block" }}>{label}<input value={client[key]} onChange={event => setClient({ ...client, [key]: event.target.value })} /></label>)}<label><input type="checkbox" checked={client.consent} onChange={event => setClient({ ...client, consent: event.target.checked })} /> I have the client's consent to record and process this case. This declaration is recorded under my advocate account.</label></fieldset>}
+      <label>What best describes your situation?<select aria-label="Case stage" value={stage} onChange={event => { changed.current = true; setStage(event.target.value); setDetails({}); }}>
         {stages.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
       </select></label>
       <label style={{ display: "block", marginTop: "1.5rem" }}>Your story<textarea rows={9} value={story} onChange={event => { changed.current = true; setStory(event.target.value); }} placeholder="What happened? Include only what you know. Unknown dates or names can stay unknown." /></label>
@@ -116,7 +119,7 @@ export default function CommonInputPage() {
       <label style={{ display: "block", margin: "1.5rem 0" }}>Upload evidence or your story
         <input type="file" multiple accept=".pdf,.docx,.txt,.csv,image/*,audio/*,video/*" disabled={busy || recording} onChange={event => { upload(Array.from(event.target.files)); event.target.value = ""; }} />
       </label>
-      <p>Up to 10 MB per file. Files are processed after submission. Unreadable files or unavailable transcription/OCR services will be marked pending.</p>
+      <p>Up to 10 MB per file. Files are read when uploaded. Unreadable files or unavailable transcription/OCR services will be marked pending.</p>
       <ul>{evidence.map(item => <li key={item.evidence_id}>{item.evidence_id}: {item.filename} <button type="button" disabled={busy} onClick={async () => {
         try { const result = await deleteEvidence(id.current, item.evidence_id); setEvidence(result.case.evidence); }
         catch (error) { setMessage(error.message); }
@@ -125,7 +128,7 @@ export default function CommonInputPage() {
         {[...(optionalFields[stage] || []), ["amount", "Amount (if known)"], ["opposite_party", "Opposite party (if known)"]].map(([key, label]) => <label key={key} style={{ display: "block", margin: "1rem 0" }}>{label}<input value={details[key] || ""} onChange={event => { changed.current = true; setDetails({ ...details, [key]: event.target.value }); }} /></label>)}
       </details>
       {message && <p role="alert">{message}</p>}
-      <button className="btn-pill-primary" disabled={busy || recording} style={{ marginTop: "1.5rem" }}>{busy ? "Saving…" : "Submit case"}</button>
+      {walkin ? <button value="legal_help" className="btn-pill-primary" disabled={busy || recording} style={{ marginTop: "1.5rem" }}>Save Client Intake</button> : <><button value="understand" className="btn-pill-primary" disabled={busy || recording} style={{ marginTop: "1.5rem" }}>{busy ? "Saving…" : "Understand My Case"}</button><button value="legal_help" className="btn-pill-secondary" disabled={busy || recording}>Get Legal Help</button><p>You can understand your case first or go straight to an advocate. Both choices stay available.</p></>}
     </form>
   </main>;
 }

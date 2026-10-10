@@ -25,6 +25,10 @@ def handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
             app.state.adapters = load_adapters()
 
         try:
+            if action == "engine0":
+                from .services.ingestion import run_ingestion
+                run_ingestion(app, case_id, understand=event.get("understand", False))
+                return {"statusCode": 200}
             if action in {"engine1", "engine2", "engine3"}:
                 if action == "engine1":
                     from .services.engine1 import run_engine1 as target

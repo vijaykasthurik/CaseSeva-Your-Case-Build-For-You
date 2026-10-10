@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMe, listCases } from "../api";
 import { ArrowUpRight } from "lucide-react";
+import AccountActivity from "../components/AccountActivity";
+import { citizenStatus } from "../citizenLanguage";
 
 /* Map backend status to status pill class modifier and human-readable label */
 const STATUS_META = {
@@ -31,7 +33,7 @@ const STATUS_META = {
 };
 
 function StatusPill({ status }) {
-  const meta = STATUS_META[status] || { cls: "grey", label: status };
+  const meta = { cls: STATUS_META[status]?.cls || "grey", label: citizenStatus(status).label };
   return (
     <span className={`status-pill status-pill--${meta.cls}`}>
       {meta.label}
@@ -50,6 +52,7 @@ export default function DashboardPage() {
 
   return (
     <main className="main-container">
+      <AccountActivity />
       {/* Editorial Stacked Headline Greeting */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "2rem", marginBottom: "3rem" }}>
         <div>
@@ -135,7 +138,6 @@ export default function DashboardPage() {
                     </div>
                     <p className="case-card__preview">{item.preview || "No narrative details recorded yet."}</p>
                     {/* Raw status text hidden for automated test assertions */}
-                    <span style={{ display: "none" }}>{item.status}</span>
                   </article>
                 </Link>
               ))}

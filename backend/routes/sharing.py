@@ -59,6 +59,8 @@ def exchange(case_id: str, request: Request, user=Depends(get_current_user)):
     grant = active_grant(db, case_id, user["id"])
     if not grant:
         raise HTTPException(403, "The client has not granted access, or access has expired or been revoked.")
+    if grant.get("permission_type") == "WALK_IN_CONSENT":
+        return {"access_token": None, "expires_at": None, "permission_type": "WALK_IN_CONSENT"}
     return {"access_token": issue_token(db, grant), "expires_at": grant["expires_at"]}
 
 

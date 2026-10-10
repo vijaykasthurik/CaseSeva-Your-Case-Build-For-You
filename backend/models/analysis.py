@@ -14,6 +14,13 @@ class Fact(BaseModel):
     evidence_quotes: list[EvidenceQuote] = []
     human_corrected: bool = False
     removed: bool = False
+    incident_id: str | None = None
+
+
+class Incident(BaseModel):
+    incident_id: str
+    description: str
+    fact_ids: list[str] = []
 
 
 class TimelineEvent(BaseModel):
@@ -42,6 +49,7 @@ class IntakeOutput(BaseModel):
 
 class FactExtractionOutput(BaseModel):
     facts: list[Fact]
+    incidents: list[Incident] = []
 
 
 class TimelineOutput(BaseModel):

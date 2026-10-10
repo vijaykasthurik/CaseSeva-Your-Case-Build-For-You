@@ -1,6 +1,6 @@
 def public_processing_error(error):
-    if error and error.get("engine") in {2, 3}:
-        return {"engine": error["engine"], "stage": error.get("stage"), "message": "Processing could not be completed. Your advocate can review the details and retry."}
+    if error and error.get("engine") in {1, 2, 3}:
+        return {"engine": error["engine"], "message": "We could not complete the requested processing. Your saved information is preserved; you can retry or ask an advocate for help."}
     return error
 
 
@@ -35,9 +35,15 @@ def client_overview(case: dict) -> dict:
 
 def client_case(case: dict) -> dict:
     # Explicit projection: new internal fields are private by default.
-    keys = ("case_id", "owner_user_id", "created_at", "status", "stage", "stage_details", "client_story", "evidence", "version", "workflow_version", "stage_statuses", "input_statuses", "active_engine", "current_stage", "processing_error", "engine2_choice", "assigned_advocate_id", "requested_advocate_id", "documents_outdated", "document_version", "engine2_stale")
+    keys = ("case_id", "public_case_id", "origin", "preferred_language", "journey_stage", "owner_user_id", "created_at", "status", "stage", "stage_details", "client_story", "evidence", "version", "workflow_version", "stage_statuses", "input_statuses", "active_engine", "current_stage", "processing_error", "engine2_choice", "assigned_advocate_id", "requested_advocate_id", "documents_outdated", "document_version", "engine2_stale")
     output = {key: case.get(key) for key in keys if key in case}
     output["processing_error"] = public_processing_error(case.get("processing_error"))
     output["overview"] = client_overview(case)
     output["engine1_available"] = bool(case.get("case_file"))
+    output["client_messages"] = [item for item in case.get("professional_notes", []) if item.get("visibility") == "SHARED_WITH_CLIENT"]
+    output["information_requests"] = case.get("information_requests", [])
+    output["filing_update"] = case.get("filing_update")
+    batches = case.get("clarification_rounds", [])
+    if batches and batches[-1].get("answering_user_id") == case["owner_user_id"]:
+        output["clarification"] = batches[-1]
     return output

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Check, Clock, AlertTriangle, ShieldCheck, FileText, ChevronRight } from "lucide-react";
+import AccountActivity from "../components/AccountActivity";
 import {
   acceptAdvocateRequest,
   declineAdvocateRequest,
@@ -68,6 +69,8 @@ export default function AdvocateDashboardPage() {
 
   return (
     <main className="main-container" style={{ paddingTop: "2.5rem", paddingBottom: "5rem" }}>
+      <AccountActivity professional />
+      {!isPending && <p><Link className="btn-pill-primary" to="/advocate/cases/new">Add Walk-In Client / Create Client Case</Link></p>}
       {/* Header with Stacked Treatment */}
       <header style={{ marginBottom: "2.5rem" }}>
         <span className="eyebrow-label">ADVOCATE WORKSPACE</span>

@@ -11,7 +11,7 @@ from .dependencies import get_current_user
 from .advocates import accepted_case
 
 router = APIRouter(prefix="/api/advocate/cases")
-DEPENDENCIES = {"fact": "FACT_EXTRACTION", "timeline": "TIMELINE_CONSTRUCTION", "party": "PARTY_IDENTIFICATION", "provision": "CITATION_VERIFICATION", "forum": "JURISDICTION_FORUM", "limitation": "LIMITATION_CHECK", "mapping": "EVIDENCE_ISSUE_MAPPING"}
+DEPENDENCIES = {"fact": "FACT_EXTRACTION", "incident": "FACT_EXTRACTION", "timeline": "TIMELINE_CONSTRUCTION", "party": "PARTY_IDENTIFICATION", "issue": "LEGAL_ISSUE_IDENTIFICATION", "provision": "CITATION_VERIFICATION", "temporal_law": "TEMPORAL_LAW_CHECK", "forum": "JURISDICTION_FORUM", "limitation": "LIMITATION_CHECK", "mapping": "EVIDENCE_ISSUE_MAPPING"}
 
 
 class ReviewBody(BaseModel):
@@ -40,10 +40,11 @@ def review(case_id: str, body: ReviewBody, request: Request, user=Depends(get_cu
     previous = None
     target = None
     collections = {"fact": ("facts", "fact_id"), "timeline": ("timeline", "event_id"), "provision": ("applicable_law", "provision_id"), "mapping": ("evidence_issue_mapping", "issue_id"), "pending": ("pending_advocate_verification", "provision_id")}
+    collections.update({"issue": ("legal_issues", "issue_id"), "incident": ("incidents", "incident_id")})
     if body.kind in collections:
         collection, key = collections[body.kind]
         target = next((item for item in file.get(collection, []) if item.get(key) == body.target_id), None)
-    elif body.kind in {"forum", "limitation"}:
+    elif body.kind in {"forum", "limitation", "temporal_law"}:
         target = file.get(body.kind)
     elif body.kind == "party":
         target = file.get("parties")
@@ -63,7 +64,7 @@ def review(case_id: str, body: ReviewBody, request: Request, user=Depends(get_cu
             raise HTTPException(404, "Review item not found.")
     previous = copy.deepcopy(target)
     if body.action == "verify":
-        if body.kind not in {"pending", "forum", "limitation"}:
+        if body.kind not in {"pending", "forum", "limitation", "temporal_law"}:
             raise HTTPException(422, "Explicit verification applies to pending law, forum, or limitation.")
         proof = body.value
         required = {"source_url", "retrieved_at", "official_text", "quote"}
@@ -94,7 +95,7 @@ def review(case_id: str, body: ReviewBody, request: Request, user=Depends(get_cu
             raise HTTPException(422, "Identity and verification metadata cannot be changed through ordinary edits.")
         target.update(body.value)
         target["human_corrected"] = True
-        if body.kind in {"provision", "forum", "limitation"}:
+        if body.kind in {"provision", "forum", "limitation", "temporal_law"}:
             target["verification_status"] = "PENDING_ADVOCATE_VERIFICATION"
             if body.kind == "provision":
                 file["applicable_law"].remove(target)
@@ -102,7 +103,7 @@ def review(case_id: str, body: ReviewBody, request: Request, user=Depends(get_cu
     elif body.action == "remove":
         target["removed"] = True
     elif body.action == "approve":
-        if body.kind in {"provision", "pending", "forum", "limitation"} and target.get("verification_status") != "VERIFIED":
+        if body.kind in {"provision", "pending", "forum", "limitation", "temporal_law"} and target.get("verification_status") != "VERIFIED":
             raise HTTPException(409, "Verify the official legal basis explicitly before approving this item.")
         target["advocate_approved"] = True
         if body.kind == "fact":
@@ -120,13 +121,19 @@ def review(case_id: str, body: ReviewBody, request: Request, user=Depends(get_cu
     changes = {"case_file": file, "advocate_approved_items": sorted(approved), "advocate_removed_items": sorted(removed), "advocate_audit": case.get("advocate_audit", []) + [entry], "documents_outdated": bool(case.get("document_version")), "status": "ADVOCATE_REVIEW"}
     if body.kind == "argument":
         changes["engine2"] = case["engine2"]
+    if body.kind == "evidence": changes["evidence"] = case["evidence"]
+    if body.action != "approve":
+        changes["professional_overrides"] = case.get("professional_overrides", []) + [entry]
     if changed_foundation:
         changes["engine2_stale"] = True
         changes["recommended_engine1_start"] = DEPENDENCIES.get(body.kind, "CITATION_VERIFICATION")
     for key in ("facts", "timeline", "parties", "forum", "limitation", "evidence_issue_mapping"):
         changes[key] = file.get(key, case.get(key))
     changes["verified_legal_sections"] = file.get("applicable_law", [])
-    request.app.state.adapters.database.update("cases", case_id, changes)
+    from ..services.blackboard import write, engine_state
+    write(request.app.state.adapters.database, case_id, changes, user["id"], "professional_review")
+    if changed_foundation and case.get("engine2"): engine_state(request.app.state.adapters.database, case_id, 2, "STALE", reason=body.reason)
+    if case.get("document_version"): engine_state(request.app.state.adapters.database, case_id, 3, "STALE", outcome="OUTDATED", reason=body.reason)
     return {"status": "saved", "recommended_engine1_start": changes.get("recommended_engine1_start"), "engine2_stale": changed_foundation}
 
 
@@ -148,7 +155,9 @@ def rerun(case_id: str, body: RerunBody, request: Request, user=Depends(get_curr
     else:
         require_access(request, case_id, user, "engine2")
     entry = {"advocate_id": user["id"], "action": "rerun", "target": f"engine{body.engine}", "previous": case["status"], "new": body.start_stage or "ALL", "timestamp": utc_now()}
-    request.app.state.adapters.database.update("cases", case_id, {"status": f"ENGINE{body.engine}_RUNNING", "documents_outdated": bool(case.get("document_version")), "advocate_audit": case.get("advocate_audit", []) + [entry]})
+    if body.engine == 2 and not case.get("case_file"):
+        raise HTTPException(409, "Complete the case foundation before running Case Challenge.")
+    request.app.state.adapters.database.update("cases", case_id, {"status": f"ENGINE{body.engine}_RUNNING", "analysis_requested_by": user["id"], "documents_outdated": bool(case.get("document_version")), "advocate_audit": case.get("advocate_audit", []) + [entry]})
     try:
         dispatch(request.app, body.engine, case_id, start_stage=body.start_stage)
     except Exception:
@@ -165,6 +174,10 @@ def approve(case_id: str, request: Request, user=Depends(get_current_user)):
     if case.get("engine2") and case.get("engine2_stale"):
         raise HTTPException(409, "Rerun Engine 2 after foundation changes before final approval.")
     file = case.get("case_file", {})
+    if case.get("engines", {}).get("1", {}).get("status") == "STALE":
+        raise HTTPException(409, "Update the case foundation after new client information before approval.")
+    if not file.get("version"):
+        raise HTTPException(409, "Run and review the case foundation before final approval.")
     required = {f"fact:{item['fact_id']}" for item in file.get("facts", []) if not item.get("removed")}
     required |= {f"provision:{item['provision_id']}" for item in file.get("applicable_law", []) if not item.get("removed")}
     missing = required - set(case.get("advocate_approved_items", []))

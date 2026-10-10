@@ -4,6 +4,10 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from pydantic import BaseModel
+from typing import Literal
+from starlette.concurrency import run_in_threadpool
+from ..services.blackboard import initial_board, write, engine_state
+from ..services.input_layer import extract_content
 
 from ..models.case import utc_now
 from ..services.overview import client_case
@@ -29,6 +33,19 @@ class EvidenceUpdateBody(BaseModel):
     description: str = ""
 
 
+class CreateBody(BaseModel):
+    origin: Literal["CITIZEN_SELF_SERVICE", "CITIZEN_DIRECT_ADVOCATE", "ADVOCATE_WALK_IN"] = "CITIZEN_SELF_SERVICE"
+    client_name: str = ""
+    client_email: str = ""
+    client_mobile: str = ""
+    preferred_language: str = "English"
+    consent: bool = False
+
+
+class SubmitBody(BaseModel):
+    path: Literal["understand", "legal_help"] = "understand"
+
+
 def field_error(fields: dict[str, str]) -> HTTPException:
     return HTTPException(status_code=422, detail={"message": "Please complete the highlighted fields.", "fields": fields})
 
@@ -52,8 +69,9 @@ def validate_stage(stage: str | None, details: dict[str, Any] | None) -> dict[st
 
 def validate_complete(case: dict[str, Any]) -> dict[str, str]:
     errors = validate_stage(case.get("stage"), case.get("stage_details"))
-    if not case.get("client_story", "").strip() and not case.get("evidence"):
-        errors["client_story"] = "Provide a story, recording, or at least one file before submitting."
+    media = any(item.get("content_type", "").startswith(("audio/", "video/")) or item.get("filename", "").lower().endswith((".mp3", ".wav", ".m4a", ".ogg", ".flac", ".mp4", ".mov", ".avi", ".webm")) for item in case.get("evidence", []))
+    if not case.get("client_story", "").strip() and not media:
+        errors["client_story"] = "Tell your story by typing, recording, or uploading audio/video narration. Supporting documents alone are not a story."
     if case.get("pending_uploads"):
         errors["evidence"] = "Wait for evidence uploads to finish before submitting."
     return errors
@@ -69,7 +87,15 @@ def get_owned_case(request: Request, case_id: str, user: dict) -> dict:
 
 
 @router.post("")
-def create_case(request: Request, user: dict = Depends(get_current_user)) -> dict[str, Any]:
+def create_case(request: Request, body: CreateBody | None = None, user: dict = Depends(get_current_user)) -> dict[str, Any]:
+    body = body or CreateBody()
+    if user.get("role") == "advocate":
+        if user.get("verification_status") != "VERIFIED":
+            raise HTTPException(403, "Credential verification is required before creating a professional case.")
+        if body.origin != "ADVOCATE_WALK_IN" or not body.consent or not body.client_name.strip():
+            raise HTTPException(422, "Provide a client name and record consent for this walk-in case.")
+    elif user.get("role") != "client" or body.origin == "ADVOCATE_WALK_IN":
+        raise HTTPException(403, "Only a verified advocate can create a walk-in case.")
     case = {
         "id": uuid4().hex,
         "case_id": uuid4().hex,
@@ -92,6 +118,12 @@ def create_case(request: Request, user: dict = Depends(get_current_user)) -> dic
         "workflow_version": 2,
     }
     case["id"] = case["case_id"]
+    case.update(initial_board(case["case_id"], body.origin, user["id"], body.preferred_language if body.origin == "ADVOCATE_WALK_IN" else user.get("preferred_language", "English")))
+    if body.origin == "ADVOCATE_WALK_IN":
+        guest_id = uuid4().hex
+        request.app.state.adapters.database.create("guest_clients", {"id": guest_id, "name": body.client_name.strip(), "email": body.client_email.strip().lower(), "mobile": body.client_mobile.strip(), "preferred_language": body.preferred_language, "created_by": user["id"], "created_at": utc_now()})
+        case.update({"owner_user_id": guest_id, "guest_client_id": guest_id, "created_by_advocate_id": user["id"], "assigned_advocate_id": user["id"]})
+        request.app.state.adapters.database.create("walkin_consents", {"id": case["case_id"], "case_id": case["case_id"], "advocate_id": user["id"], "client_id": guest_id, "type": "ADVOCATE_DECLARATION", "recorded_by": user["id"], "created_at": utc_now(), "revoked_at": None})
     request.app.state.adapters.database.create("cases", case)
     return {"case": case}
 
@@ -136,12 +168,14 @@ def update_case(case_id: str, body: CaseUpdateBody, request: Request, user: dict
     changes["stage"] = merged_stage
     changes["stage_details"] = merged_details
     changes["version"] = case.get("version", 1) + 1
-    updated = request.app.state.adapters.database.update("cases", case_id, changes)
+    changes["input_version"] = case.get("input_version", 1) + 1
+    updated = write(request.app.state.adapters.database, case_id, changes, user["id"], "intake_updated")
     return {"case": client_case(updated)}
 
 
 @router.post("/{case_id}/submit")
-def submit_case(case_id: str, request: Request, user: dict = Depends(get_current_user)) -> dict[str, Any]:
+def submit_case(case_id: str, request: Request, body: SubmitBody | None = None, user: dict = Depends(get_current_user)) -> dict[str, Any]:
+    body = body or SubmitBody()
     case = get_owned_case(request, case_id, user)
     if case["status"] != "DRAFT":
         raise HTTPException(status_code=409, detail="Only draft cases can be submitted")
@@ -149,11 +183,19 @@ def submit_case(case_id: str, request: Request, user: dict = Depends(get_current
     if errors:
         raise field_error(errors)
     state = "SUBMITTED" if case.get("workflow_version") == 2 else "READY_FOR_ANALYSIS"
-    updated = request.app.state.adapters.database.update("cases", case_id, {"status": state, "version": case.get("version", 1) + 1})
+    origin = case.get("origin", "CITIZEN_SELF_SERVICE")
+    if body.path == "legal_help" and origin != "ADVOCATE_WALK_IN":
+        origin = "CITIZEN_DIRECT_ADVOCATE"
+    updated = write(request.app.state.adapters.database, case_id, {"status": state, "origin": origin, "journey_stage": "SUBMITTED", "version": case.get("version", 1) + 1}, user["id"], "intake_submitted")
     if case.get("workflow_version") == 2:
         from ..services.jobs import dispatch
         try:
-            dispatch(request.app, 1, case_id)
+            if origin == "ADVOCATE_WALK_IN":
+                dispatch(request.app, 0, case_id, understand=True)
+            elif body.path == "legal_help":
+                dispatch(request.app, 0, case_id)
+            else:
+                dispatch(request.app, 1, case_id)
         except Exception:
             updated = request.app.state.adapters.database.update("cases", case_id, {"status": "REVIEW_REQUIRED", "processing_error": {"stage": "DISPATCH", "message": "Could not start the processing job. Retry is required."}})
     return {"case": client_case(updated)}
@@ -179,7 +221,7 @@ async def upload_evidence(
     user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     case = get_owned_case(request, case_id, user)
-    if case["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY"}:
+    if case["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "AWAITING_CLIENT_INFO", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY"}:
         raise HTTPException(status_code=409, detail="Evidence can only be added during draft or Preview 1")
     filename = (file.filename or "upload").replace("\\", "/").split("/")[-1]
     filename = re.sub(r'[\x00-\x1f<>:"|?*]', "_", filename)
@@ -193,7 +235,7 @@ async def upload_evidence(
         raise HTTPException(status_code=422, detail="The uploaded file is empty.")
     db = request.app.state.adapters.database
     def reserve(current):
-        if current["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY"}:
+        if current["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "AWAITING_CLIENT_INFO", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY"}:
             raise HTTPException(409, "The case state changed before upload; retry after processing.")
         number = max(current.get("next_evidence_number", 1), int(next_evidence_id(current.get("evidence", []))[1:]))
         return {"next_evidence_number": number + 1, "pending_uploads": current.get("pending_uploads", 0) + 1}
@@ -215,8 +257,13 @@ async def upload_evidence(
         "url": url,
         "description": description.strip(),
         "uploaded_at": utc_now(),
+        "uploaded_by": user["id"],
+        "source_type": "ADVOCATE_UPLOAD" if user.get("role") == "advocate" else "CLIENT_UPLOAD",
+        "extraction": await run_in_threadpool(extract_content, content, filename, file.content_type or ""),
     }
-    updated = db.mutate("cases", case_id, lambda current: {"evidence": current.get("evidence", []) + [item], "pending_uploads": max(0, current.get("pending_uploads", 1) - 1), "version": current.get("version", 1) + 1})
+    updated = db.mutate("cases", case_id, lambda current: {"evidence": current.get("evidence", []) + [item], "pending_uploads": max(0, current.get("pending_uploads", 1) - 1), "version": current.get("version", 1) + 1, "input_version": current.get("input_version", 1) + 1, "engine2_stale": bool(current.get("engine2")), "documents_outdated": bool(current.get("document_version"))})
+    if case.get("case_file"):
+        engine_state(db, case_id, 1, "STALE", reason="New uploaded information")
     return {"evidence": item, "case": client_case(updated)}
 
 

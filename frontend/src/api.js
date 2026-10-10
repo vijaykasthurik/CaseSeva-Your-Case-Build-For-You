@@ -56,6 +56,14 @@ async function request(path, options = {}, { redirectOn401 = true } = {}) {
 }
 
 export const getHealth = () => request("/api/health", {}, { redirectOn401: false });
+export const getNotifications = () => request("/api/notifications");
+export const addCaseNote = (id, payload) => request(`/api/advocate/cases/${id}/notes`, { method: "POST", body: JSON.stringify(payload) });
+export const requestCaseInformation = (id, payload) => request(`/api/advocate/cases/${id}/information-requests`, { method: "POST", body: JSON.stringify(payload) });
+export const answerCaseInformation = (id, requestId, payload) => request(`/api/cases/${id}/information-requests/${requestId}/answer`, { method: "POST", body: JSON.stringify(payload) });
+export const saveFilingUpdate = (id, payload) => request(`/api/advocate/cases/${id}/filing`, { method: "POST", body: JSON.stringify(payload) });
+export const requestCaseDeletion = id => request(`/api/cases/${id}/deletion-request`, { method: "POST" });
+export const startGuestClaim = case_id => request("/api/guest-claims", { method: "POST", body: JSON.stringify({ case_id }) });
+export const confirmGuestClaim = (claim_id, code) => request("/api/guest-claims/confirm", { method: "POST", body: JSON.stringify({ claim_id, code }) });
 
 export const signup = (payload) =>
   request("/api/auth/signup", {
@@ -79,13 +87,13 @@ export const updateProfile = (payload) =>
     body: JSON.stringify(payload),
   });
 
-export const createCase = () => request("/api/cases", { method: "POST" });
+export const createCase = (payload) => request("/api/cases", { method: "POST", ...(payload ? { body: JSON.stringify(payload) } : {}) });
 export const listCases = () => request("/api/cases");
 export const getCase = (caseId) => request(`/api/cases/${caseId}`);
 export const updateCase = (caseId, payload) =>
   request(`/api/cases/${caseId}`, { method: "PATCH", body: JSON.stringify(payload) });
-export const submitCase = (caseId) =>
-  request(`/api/cases/${caseId}/submit`, { method: "POST" });
+export const submitCase = (caseId, path = "understand") =>
+  request(`/api/cases/${caseId}/submit`, { method: "POST", body: JSON.stringify({ path }) });
 export const deleteCase = (caseId) =>
   request(`/api/cases/${caseId}`, { method: "DELETE" });
 export const uploadEvidence = (caseId, file, description = "") => {
@@ -104,6 +112,7 @@ export const updateEvidence = (caseId, evidenceId, description) =>
 export const startAnalysis = (caseId) => request(`/api/cases/${caseId}/analyze`, { method: "POST" });
 export const retryAnalysis = (caseId) => request(`/api/cases/${caseId}/analyze/retry`, { method: "POST" });
 export const getCaseStatus = (caseId) => request(`/api/cases/${caseId}/status`);
+export const answerClarifications = (caseId, answers) => request(`/api/cases/${caseId}/clarifications`, { method: "POST", body: JSON.stringify({ answers }) });
 export const chooseEngine2 = (caseId, run) => request(`/api/cases/${caseId}/engine2`, { method: "POST", body: JSON.stringify({ run }) });
 export const reprocessInput = caseId => request(`/api/cases/${caseId}/reprocess-input`, { method: "POST" });
 export const migrateCaseWorkflow = caseId => request(`/api/cases/${caseId}/migrate-workflow`, { method: "POST" });
@@ -128,7 +137,7 @@ export const correctPreview2Fact = (caseId, factId, text) =>
 export const listAdvocates = (filters = {}) => request(`/api/advocates?${new URLSearchParams(filters)}`);
 export const requestAdvocate = (caseId, advocateId) => request(`/api/cases/${caseId}/request-advocate`, { method: "POST", body: JSON.stringify({ advocate_id: advocateId }) });
 export const cancelAdvocateRequest = (caseId) => request(`/api/cases/${caseId}/cancel-advocate-request`, { method: "POST" });
-export const verifyAdvocate = (advocateId, status, reason = "") => request(`/api/admin/advocates/${advocateId}/verification`, { method: "POST", headers: { "X-Admin-Token": window.sessionStorage.getItem("admin_token") || "" }, body: JSON.stringify({ status, reason }) });
+export const verifyAdvocate = (advocateId, status, reason = "", proof = {}) => request(`/api/admin/advocates/${advocateId}/verification`, { method: "POST", headers: { "X-Admin-Token": window.sessionStorage.getItem("admin_token") || "" }, body: JSON.stringify({ status, reason, ...proof }) });
 export const listAdminAdvocates = () => request("/api/admin/advocates", { headers: { "X-Admin-Token": window.sessionStorage.getItem("admin_token") || "" } });
 export const getAdvocateRequests = () => request("/api/advocate/requests");
 export const getAdvocateCases = () => request("/api/advocate/cases");

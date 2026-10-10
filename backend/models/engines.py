@@ -1,5 +1,6 @@
 from typing import Literal, Any
 from pydantic import BaseModel, Field
+from .analysis import Fact, TimelineEvent, Parties
 
 
 class Intake(BaseModel):
@@ -13,6 +14,26 @@ class EvidenceIndex(BaseModel):
 
 class MissingInformation(BaseModel):
     questions: list[str] = Field(default_factory=list)
+
+
+class ClarificationQuestion(BaseModel):
+    question_id: str
+    incident_id: str
+    question: str
+    control: Literal["short_text", "date", "month", "single_choice", "upload"] = "short_text"
+    choices: list[str] = Field(default_factory=list)
+    legal_reason: str
+
+
+class ClarificationOutput(BaseModel):
+    questions: list[ClarificationQuestion] = Field(default_factory=list, max_length=12)
+
+
+class ReconciliationOutput(BaseModel):
+    facts: list[Fact]
+    timeline: list[TimelineEvent]
+    parties: Parties
+    changes: list[str]
 
 
 class Routing(BaseModel):
@@ -79,5 +100,5 @@ class Replies(BaseModel):
     rebuttals: list[Reply]
 
 
-ENGINE1_STAGES = ["INTAKE_CLEANING", "EVIDENCE_INDEXING", "FACT_EXTRACTION", "TIMELINE_CONSTRUCTION", "PARTY_IDENTIFICATION", "MISSING_INFORMATION", "DOMAIN_ROUTER", "LEGAL_ISSUE_IDENTIFICATION", "STATUTE_RETRIEVAL", "CITATION_VERIFICATION", "JURISDICTION_FORUM", "LIMITATION_CHECK", "EVIDENCE_ISSUE_MAPPING", "CASE_FILE_ASSEMBLY"]
+ENGINE1_STAGES = ["INTAKE_CLEANING", "EVIDENCE_INDEXING", "FACT_EXTRACTION", "TIMELINE_CONSTRUCTION", "PARTY_IDENTIFICATION", "MISSING_INFORMATION", "RECONCILIATION", "DOMAIN_ROUTER", "LEGAL_ISSUE_IDENTIFICATION", "STATUTE_RETRIEVAL", "CITATION_VERIFICATION", "TEMPORAL_LAW_CHECK", "JURISDICTION_FORUM", "LIMITATION_CHECK", "EVIDENCE_ISSUE_MAPPING", "CASE_FILE_ASSEMBLY"]
 ENGINE2_STAGES = ["CLAIMANT_COUNSEL", "OPPONENT_COUNSEL", "EVIDENCE_CHALLENGER", "REBUTTAL", "NEUTRAL_EVALUATION", "OVERVIEW_BUILDER"]

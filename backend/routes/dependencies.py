@@ -21,5 +21,9 @@ def get_case_or_error(request: Request, case_id: str, user: dict) -> dict:
     if case is None:
         raise HTTPException(status_code=404, detail="Case not found")
     if case["owner_user_id"] != user["id"]:
-        raise HTTPException(status_code=403, detail="You do not have access to this case")
+        if case.get("origin") == "ADVOCATE_WALK_IN" and user.get("role") == "advocate" and user.get("id") == case.get("created_by_advocate_id"):
+            from ..services.sharing import require_access
+            require_access(request, case_id, user, "case_file")
+        else:
+            raise HTTPException(status_code=403, detail="You do not have access to this case")
     return case

@@ -1,0 +1,1 @@
+Reconcile the extracted Case File with the complete answered clarification batches. Preserve UNKNOWN, NOT_AVAILABLE and LATER as unknowns; never infer a date, person, amount, event or legal conclusion. Record each factual change and its answer provenance. Treat professional overrides as authoritative. Return the supplied schema. No argumentation.

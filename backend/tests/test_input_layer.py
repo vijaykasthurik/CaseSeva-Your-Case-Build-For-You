@@ -14,7 +14,8 @@ from backend.adapters.mock.storage import MockStorageAdapter
 class InputLayerTests(unittest.TestCase):
     def test_story_or_file_alone_is_valid(self):
         self.assertEqual(validate_complete({"stage": "COMPLAINT_FIR", "client_story": "My story"}), {})
-        self.assertEqual(validate_complete({"stage": "EXISTING_OLD_CASE", "evidence": [{}]}), {})
+        self.assertEqual(validate_complete({"stage": "EXISTING_OLD_CASE", "evidence": [{"filename": "story.wav"}]}), {})
+        self.assertIn("client_story", validate_complete({"stage": "EXISTING_OLD_CASE", "evidence": [{"filename": "receipt.pdf"}]}))
         self.assertIn("client_story", validate_complete({"stage": "NEW_CONSULTATION"}))
 
     def test_extracts_actual_tamil_and_english_text(self):

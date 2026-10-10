@@ -21,7 +21,9 @@ OCR needs Tesseract on PATH and both `eng` and `tam` language data. Audio/video 
 
 ## Workflow
 
-Common Input -> Engine 1 (automatic factual/legal Case File) -> optional Engine 2 (arguments only) -> Client Case Overview -> Find Advocate -> acceptance plus scoped client consent -> advocate review and optional targeted reruns -> Engine 3 (advocate only).
+Common Input -> Understand My Case (Engine 1 with clarification) -> optional Check My Case Further (Engine 2) -> Case Overview -> Find Advocate -> acceptance plus scoped client consent -> advocate review and optional targeted reruns -> Engine 3 (advocate only).
+
+Get Legal Help prepares the intake and goes directly to advocate discovery without running either analysis. Verified advocates can create a walk-in case with recorded client consent; ingestion then runs the case foundation. Guest clients can claim the existing case through email verification, after which citizen sharing controls apply. In explicit mock mode the verification code is visibly labelled development-only and no email delivery is claimed.
 
 Clients receive Output A, Client Case Overview. Output B, Professional Legal Draft including the internal report and E-Filing Readiness Pack, is advocate-only. Unverified law remains pending.
 
@@ -39,4 +41,6 @@ Browser tests start isolated servers on ports 8001/5174 with separate ignored st
 
 PDF download needs the installed Node/Playwright Chromium renderer; HTML and DOCX exports also exist. PDF rendering in a Python-only Lambda deployment remains pending.
 
-Admin advocate verification requires a server-configured `ADMIN_TOKEN`, supporting documents, and a recorded reason on `/admin/advocates`. There is no built-in admin credential. Development demo advocates do not represent real credential verification.
+Admin verification requires a signed-in account with the `admin` role. Provision an existing operator account from the host using `.venv\Scripts\python.exe -m backend.admin_command --email operator@example.com`. Do not run this for an ordinary client or advocate. Set `ADMIN_VERIFICATION_HOSTS` to the official credential-record hosts reviewed by the operator. Verification requires supporting documents, an official record reference/URL, reviewer identity, current timestamp and notes. `ADMIN_TOKEN`, when configured, is an additional check; it never grants the admin role. Development demo advocates do not represent real credential verification.
+
+Set `APP_ENV=production` to refuse mock or hybrid startup. Guest claiming in live mode requires `OTP_FROM_EMAIL` and authorized SES delivery. `CASE_RETENTION_DAYS` and `AUDIT_RETENTION_DAYS` configure deletion eligibility and restricted audit retention. Automatic scheduled deletion and audit expiry are pending; recorded requests can be retried once eligible. See [the latest phase status](docs/REDESIGN_PHASE_2.md) for validation and unfinished requirements.

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getAdvocateCase, reviewCaseItem, rerunEngine, generateDocuments, saveAdvocateNote } from "../api";
 import { approveReviewedCase, downloadSharedEvidence } from "../api";
+import ClarificationPanel from "../components/ClarificationPanel";
+import CaseCommunication from "../components/CaseCommunication";
 
 export default function AdvocateWorkspacePage() {
   const { caseId } = useParams();
@@ -13,7 +15,7 @@ export default function AdvocateWorkspacePage() {
   const load = async () => { const result = await getAdvocateCase(caseId); setItem(result.case); };
   useEffect(() => { load().catch(failure => setError(failure.message)); }, [caseId]);
   useEffect(() => {
-    if (!["ENGINE1_RUNNING", "ENGINE2_RUNNING", "GENERATING_DOCUMENTS"].includes(item?.status)) return;
+    if (!["SUBMITTED", "ENGINE1_RUNNING", "ENGINE2_RUNNING", "GENERATING_DOCUMENTS"].includes(item?.status)) return;
     const timer = setInterval(() => load().catch(failure => setError(failure.message)), 1500);
     return () => clearInterval(timer);
   }, [item?.status]);
@@ -39,9 +41,12 @@ export default function AdvocateWorkspacePage() {
   const controls = (kind, id, current) => <span>{["approve", "edit", "remove"].map(name => <button key={name} disabled={busy || running} onClick={() => review(kind, id, name, current)}>{name}</button>)}</span>;
   return <main className="main-container content-narrow" style={{ paddingBottom: "5rem" }}>
     <h1>Advocate review workspace</h1><p>Status: {item.status}</p>
+    {item.public_case_id && <p>Case ID: {item.public_case_id}</p>}
+    <CaseCommunication item={item} professional onSaved={load} />
+    <ClarificationPanel caseId={caseId} batch={item.clarification} evidence={item.evidence} onSaved={load} />
     {error && <p role="alert">{error}</p>}
     {item.processing_error && <p role="alert">{item.processing_error.message}</p>}
-    <p>Client consent expires {new Date(item.grant.expires_at).toLocaleString()}. Shared scopes: {item.grant.scopes.join(", ")}.</p>
+    <p>{item.grant.permission_type === "WALK_IN_CONSENT" ? "Walk-in client consent is recorded under your advocate account." : `Client consent expires ${new Date(item.grant.expires_at).toLocaleString()}.`} Shared scopes: {item.grant.scopes.join(", ")}.</p>
     {item.documents_outdated && <p role="alert">Earlier documents are outdated. Review the changes and regenerate a new version.</p>}
     {item.client_story !== undefined && <section><h2>Client story</h2><p style={{ whiteSpace: "pre-wrap" }}>{item.client_story}</p></section>}
     <section><h2>Shared evidence, OCR and transcripts</h2>{item.evidence?.map(evidence => <article key={evidence.evidence_id}><h3>{evidence.evidence_id}: {evidence.filename}</h3><p>Extraction: {evidence.extraction?.status || "Not processed"}</p><p style={{ whiteSpace: "pre-wrap" }}>{evidence.extraction?.original_text || evidence.extraction?.reason}</p><button onClick={() => action(() => downloadSharedEvidence(caseId, evidence))}>Download shared original</button>{controls("evidence", evidence.evidence_id, {})}</article>)}</section>

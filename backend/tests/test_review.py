@@ -64,3 +64,22 @@ class ReviewTests(unittest.TestCase):
         for action in ("approve", "remove"):
             response = self.client.post(f"/api/advocate/cases/{self.id}/evidence/E001/{action}", headers=self.access)
             self.assertEqual(response.status_code, 410)
+
+    def test_correction_survives_when_rerun_omits_the_original_fact(self):
+        self.client.post(f'/api/advocate/cases/{self.id}/review', headers=self.access, json={'kind': 'fact', 'target_id': 'F001', 'action': 'edit', 'value': {'text': 'Keep this professional correction'}, 'reason': 'Checked original record'})
+        original = self.app.state.adapters.llm.generate
+        self.app.state.adapters.llm.generate = lambda prompt, schema: {'facts': []} if schema['stage'] == 'fact_extraction' else original(prompt, schema)
+        run_engine1(self.app, self.id, start_stage='FACT_EXTRACTION')
+        case = self.app.state.adapters.database.get('cases', self.id)
+        self.assertEqual(case['case_file']['facts'][0]['text'], 'Keep this professional correction')
+        self.assertEqual(case['professional_overrides'][0]['reason'], 'Checked original record')
+
+    def test_advocate_can_run_challenge_after_citizen_skipped_it(self):
+        db = self.app.state.adapters.database
+        grant = db.list('case_grants')[0]
+        db.update('case_grants', grant['id'], {'scopes': ['case_file', 'engine2']})
+        db.update('cases', self.id, {'engine2_choice': 'DECLINED'})
+        with patch('backend.routes.review.dispatch') as dispatch:
+            response = self.client.post(f'/api/advocate/cases/{self.id}/rerun', headers=self.access, json={'engine': 2})
+        self.assertEqual(response.status_code, 200)
+        dispatch.assert_called_once_with(self.app, 2, self.id, start_stage=None)

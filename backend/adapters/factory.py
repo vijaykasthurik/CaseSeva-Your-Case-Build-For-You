@@ -54,6 +54,8 @@ def load_adapters() -> AdapterSet:
     use_real_llm = is_explicitly_true("USE_REAL_LLM")
     use_real_database = is_explicitly_true("USE_REAL_DATABASE")
     use_real_storage = is_explicitly_true("USE_REAL_STORAGE")
+    if os.getenv("APP_ENV", "development").lower() in {"production", "prod"} and use_mock:
+        raise RuntimeError("Production configuration refuses mock or hybrid processing.")
 
 
 

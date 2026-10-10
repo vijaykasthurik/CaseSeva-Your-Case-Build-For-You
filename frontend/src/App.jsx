@@ -90,6 +90,9 @@ export default function App() {
         {/* Advocate-only workspace */}
         <Route element={<AdvocateRoute />}>
           <Route path="/advocate/dashboard" element={<AdvocateDashboardPage />} />
+          <Route path="/advocate/cases/new" element={<CaseCreatePage />} />
+          <Route path="/advocate/intake/:caseId" element={<CaseCreatePage />} />
+          <Route path="/advocate/cases/:caseId" element={<AdvocateReviewPage />} />
           <Route path="/advocate/inbox" element={<AdvocateInboxPage />} />
           <Route path="/advocate/review/:caseId" element={<AdvocateReviewPage />} />
         </Route>

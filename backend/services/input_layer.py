@@ -164,8 +164,10 @@ def build_raw_package(case: dict, adapters, progress=None) -> dict:
     for item in case.get("evidence", []):
         if progress:
             progress(item["evidence_id"], "RUNNING")
-        content = adapters.storage.download(item["storage_key"])
-        extraction = extract_content(content, item["filename"], item.get("content_type", ""))
+        extraction = item.get("extraction")
+        if not extraction or extraction.get("status") != "COMPLETED":
+            content = adapters.storage.download(item["storage_key"])
+            extraction = extract_content(content, item["filename"], item.get("content_type", ""))
         evidence.append({**item, "extraction": extraction})
         if extraction["status"] != "COMPLETED":
             pending.append({"evidence_id": item["evidence_id"], "reason": extraction["reason"]})
@@ -176,4 +178,4 @@ def build_raw_package(case: dict, adapters, progress=None) -> dict:
     language = working_text(original, adapters)
     if language["status"] == "PENDING":
         pending.append({"reason": language["reason"]})
-    return {"version": case.get("raw_package", {}).get("version", 0) + 1, "created_at": utc_now(), "original_story": story, "original_text": original, "english_working_text": language["english_text"], "language": language, "evidence": evidence, "case_stage": case.get("stage"), "optional_fields": case.get("stage_details", {}), "pending": pending, "processing_mode": adapters.mode}
+    return {"version": case.get("raw_package", {}).get("version", 0) + 1, "input_version": case.get("input_version", 1), "origin": case.get("origin", "CITIZEN_SELF_SERVICE"), "preferred_language": case.get("preferred_language", "English"), "created_at": utc_now(), "original_story": story, "original_text": original, "english_working_text": language["english_text"], "language": language, "evidence": evidence, "case_stage": case.get("stage"), "optional_fields": case.get("stage_details", {}), "pending": pending, "processing_mode": adapters.mode}
