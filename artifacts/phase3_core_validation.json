@@ -1,0 +1,953 @@
+{
+  "cases": {
+    "english": {
+      "case_status": "REVIEW_REQUIRED",
+      "resumed": true,
+      "clarification_checkpoints": [
+        {
+          "status": "AWAITING_CLIENT_INFO",
+          "questions": 1,
+          "test_response": "UNKNOWN"
+        }
+      ],
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        }
+      },
+      "primary_domain": "CONSUMER",
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "en"
+      ],
+      "facts": 15,
+      "incidents": 3,
+      "timeline": 3,
+      "parties": 3,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 5,
+      "input_tokens": 34753,
+      "output_tokens": 2807,
+      "seconds": 31.8,
+      "checks": {
+        "all_seven_completed": true,
+        "consumer_domain": true,
+        "new_consultation": true,
+        "no_invented_uploads": true,
+        "no_premature_legal_foundation": true,
+        "unknown_dates_not_fabricated": true
+      }
+    },
+    "tamil": {
+      "case_status": "REVIEW_REQUIRED",
+      "resumed": true,
+      "clarification_checkpoints": [
+        {
+          "status": "AWAITING_CLIENT_INFO",
+          "questions": 2,
+          "test_response": "UNKNOWN"
+        },
+        {
+          "status": "AWAITING_CLIENT_INFO",
+          "questions": 2,
+          "test_response": "UNKNOWN"
+        }
+      ],
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        }
+      },
+      "primary_domain": "CONSUMER",
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "ta"
+      ],
+      "facts": 31,
+      "incidents": 5,
+      "timeline": 5,
+      "parties": 4,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 9,
+      "input_tokens": 195712,
+      "output_tokens": 16761,
+      "seconds": 154.3,
+      "checks": {
+        "all_seven_completed": true,
+        "consumer_domain": true,
+        "new_consultation": true,
+        "no_invented_uploads": true,
+        "no_premature_legal_foundation": true,
+        "unknown_dates_not_fabricated": true
+      }
+    },
+    "hindi": {
+      "case_status": "REVIEW_REQUIRED",
+      "resumed": true,
+      "clarification_checkpoints": [
+        {
+          "status": "AWAITING_CLIENT_INFO",
+          "questions": 1,
+          "test_response": "UNKNOWN"
+        },
+        {
+          "status": "AWAITING_CLIENT_INFO",
+          "questions": 1,
+          "test_response": "UNKNOWN"
+        }
+      ],
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        }
+      },
+      "primary_domain": "CONSUMER",
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "hi"
+      ],
+      "facts": 25,
+      "incidents": 10,
+      "timeline": 10,
+      "parties": 3,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 12,
+      "input_tokens": 119004,
+      "output_tokens": 10974,
+      "seconds": 111.2,
+      "checks": {
+        "all_seven_completed": true,
+        "consumer_domain": true,
+        "new_consultation": true,
+        "no_invented_uploads": true,
+        "no_premature_legal_foundation": true,
+        "unknown_dates_not_fabricated": true
+      }
+    },
+    "telugu": {
+      "case_status": "REVIEW_REQUIRED",
+      "resumed": true,
+      "clarification_checkpoints": [
+        {
+          "status": "AWAITING_CLIENT_INFO",
+          "questions": 1,
+          "test_response": "UNKNOWN"
+        }
+      ],
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        }
+      },
+      "primary_domain": "CONSUMER",
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "te"
+      ],
+      "facts": 14,
+      "incidents": 4,
+      "timeline": 4,
+      "parties": 6,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 5,
+      "input_tokens": 39544,
+      "output_tokens": 3328,
+      "seconds": 43.9,
+      "checks": {
+        "all_seven_completed": true,
+        "consumer_domain": true,
+        "new_consultation": true,
+        "no_invented_uploads": true,
+        "no_premature_legal_foundation": true,
+        "unknown_dates_not_fabricated": true
+      }
+    },
+    "mixed": {
+      "case_status": "REVIEW_REQUIRED",
+      "resumed": true,
+      "clarification_checkpoints": [
+        {
+          "status": "AWAITING_CLIENT_INFO",
+          "questions": 2,
+          "test_response": "UNKNOWN"
+        },
+        {
+          "status": "AWAITING_CLIENT_INFO",
+          "questions": 1,
+          "test_response": "UNKNOWN"
+        }
+      ],
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        }
+      },
+      "primary_domain": "CONSUMER",
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "ta",
+        "en"
+      ],
+      "facts": 28,
+      "incidents": 6,
+      "timeline": 6,
+      "parties": 4,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 12,
+      "input_tokens": 92490,
+      "output_tokens": 9120,
+      "seconds": 86.5,
+      "checks": {
+        "all_seven_completed": true,
+        "consumer_domain": true,
+        "new_consultation": true,
+        "no_invented_uploads": true,
+        "no_premature_legal_foundation": true,
+        "unknown_dates_not_fabricated": true
+      }
+    }
+  },
+  "scope": "Fictional data, local persistence, real Bedrock only",
+  "prior_runs": [
+    {
+      "language": "english",
+      "case_status": "AWAITING_CLIENT_INFO",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "NEEDS_USER_INPUT",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "en"
+      ],
+      "facts": 13,
+      "incidents": 4,
+      "timeline": 4,
+      "parties": 3,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 7,
+      "input_tokens": 32244,
+      "output_tokens": 4894,
+      "seconds": 29.4
+    },
+    {
+      "language": "english",
+      "case_status": "REVIEW_REQUIRED",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "en"
+      ],
+      "facts": 0,
+      "incidents": 0,
+      "timeline": 0,
+      "parties": 0,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 3,
+      "input_tokens": 4271,
+      "output_tokens": 2793,
+      "seconds": 14.1
+    },
+    {
+      "language": "hindi",
+      "case_status": "REVIEW_REQUIRED",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "hi"
+      ],
+      "facts": 0,
+      "incidents": 0,
+      "timeline": 0,
+      "parties": 0,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 3,
+      "input_tokens": 4295,
+      "output_tokens": 3213,
+      "seconds": 17.1
+    },
+    {
+      "language": "telugu",
+      "case_status": "REVIEW_REQUIRED",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "te"
+      ],
+      "facts": 0,
+      "incidents": 0,
+      "timeline": 0,
+      "parties": 0,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 3,
+      "input_tokens": 4600,
+      "output_tokens": 2967,
+      "seconds": 17.2
+    },
+    {
+      "language": "mixed",
+      "case_status": "REVIEW_REQUIRED",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": null,
+      "detected_languages": null,
+      "facts": 11,
+      "incidents": 3,
+      "timeline": 3,
+      "parties": 3,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 6,
+      "input_tokens": 21674,
+      "output_tokens": 4254,
+      "seconds": 26.9
+    },
+    {
+      "language": "tamil",
+      "case_status": "REVIEW_REQUIRED",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": null,
+      "detected_languages": null,
+      "facts": 0,
+      "incidents": 0,
+      "timeline": 0,
+      "parties": 0,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 3,
+      "input_tokens": 11920,
+      "output_tokens": 8471,
+      "seconds": 48.0
+    },
+    {
+      "language": "english",
+      "case_status": "AWAITING_CLIENT_INFO",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "NEEDS_USER_INPUT",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "en"
+      ],
+      "facts": 15,
+      "incidents": 3,
+      "timeline": 3,
+      "parties": 3,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 9,
+      "input_tokens": 39330,
+      "output_tokens": 7405,
+      "seconds": 40.3
+    },
+    {
+      "language": "hindi",
+      "case_status": "REVIEW_REQUIRED",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "hi"
+      ],
+      "facts": 13,
+      "incidents": 5,
+      "timeline": 5,
+      "parties": 3,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 9,
+      "input_tokens": 44828,
+      "output_tokens": 9392,
+      "seconds": 56.6
+    },
+    {
+      "language": "telugu",
+      "case_status": "REVIEW_REQUIRED",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "te"
+      ],
+      "facts": 14,
+      "incidents": 4,
+      "timeline": 4,
+      "parties": 3,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 8,
+      "input_tokens": 44053,
+      "output_tokens": 6774,
+      "seconds": 51.3
+    },
+    {
+      "language": "mixed",
+      "case_status": "AWAITING_CLIENT_INFO",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "NEEDS_USER_INPUT",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "ta",
+        "en"
+      ],
+      "facts": 10,
+      "incidents": 3,
+      "timeline": 3,
+      "parties": 3,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 7,
+      "input_tokens": 27859,
+      "output_tokens": 4270,
+      "seconds": 28.5
+    },
+    {
+      "language": "tamil",
+      "case_status": "REVIEW_REQUIRED",
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": null,
+      "detected_languages": null,
+      "facts": 0,
+      "incidents": 0,
+      "timeline": 0,
+      "parties": 0,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 5,
+      "input_tokens": 21224,
+      "output_tokens": 12298,
+      "seconds": 67.5
+    },
+    {
+      "language": "tamil",
+      "case_status": "REVIEW_REQUIRED",
+      "resumed": true,
+      "clarification_checkpoints": [],
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "BLOCKED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "primary_domain": null,
+      "stage": "NEW_CONSULTATION",
+      "detected_languages": [
+        "ta"
+      ],
+      "facts": 0,
+      "incidents": 0,
+      "timeline": 0,
+      "parties": 0,
+      "uploaded_evidence_ids": [],
+      "legal_foundation": "PENDING",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "provider_attempts": 3,
+      "input_tokens": 13969,
+      "output_tokens": 8747,
+      "seconds": 49.8,
+      "checks": {
+        "all_seven_completed": false,
+        "consumer_domain": false,
+        "new_consultation": true,
+        "no_invented_uploads": true,
+        "no_premature_legal_foundation": true,
+        "unknown_dates_not_fabricated": true
+      }
+    }
+  ]
+}
