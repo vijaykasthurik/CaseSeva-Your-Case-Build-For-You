@@ -47,6 +47,13 @@ class UnderstandingSourceTests(unittest.TestCase):
             checked_date(Dated(precision="UNKNOWN", normalized="2026-09-03"), refs, indexed)
         self.assertIsNone(checked_date(Dated(), refs, indexed)["normalized"])
 
+    def test_relative_words_cannot_be_resolved_against_worker_clock(self):
+        indexed = passages(self.raw('The product failed today.'))
+        refs = ground([SourceSpan(passage=0)], indexed)
+        value = checked_date(Dated(expression='today', precision='EXACT_DATE', normalized='2026-10-11'), refs, indexed)
+        self.assertIsNone(value['normalized'])
+        self.assertTrue(value['normalization_review_required'])
+
     def test_ids_are_preserved_and_new_items_do_not_renumber_old(self):
         a = {"identity_anchor": "a", "semantic_key": "purchase", "source_refs": []}
         b = {"identity_anchor": "b", "semantic_key": "delivery", "source_refs": []}

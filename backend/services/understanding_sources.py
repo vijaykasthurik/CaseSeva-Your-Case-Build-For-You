@@ -87,6 +87,10 @@ def checked_date(candidate, refs, indexed):
         raise ValueError("A dated record requires an original expression")
     if not normalized:
         return {**value, "normalization_review_required": True}
+    # Relative words must never be resolved using the worker's current clock.
+    # Written-out dates without numeric components remain reviewable originals.
+    if not re.search(r"\d", expression):
+        return {**value, "normalized": None, "normalization_review_required": True}
     # A year may come from the same original narrative only if unambiguous.
     source_ids = {r["source_id"] for r in refs}
     years = set(re.findall(r"(?<!\d)(?:19|20)\d{2}(?!\d)", " ".join(p["text"] for p in indexed if p["source_id"] in source_ids)))
