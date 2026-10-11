@@ -152,3 +152,10 @@ class CaseFileProvenance(BaseModel):
     dependency_versions: dict[str, int]
     generated_at: str
     status: Literal["CURRENT", "STALE"] = "CURRENT"
+
+    @model_validator(mode="after")
+    def required_versions(self):
+        required = {"facts", "parties", "timeline", "legal_issues", "legal_sources", "evidence_mapping"}
+        if not required.issubset(self.dependency_versions):
+            raise ValueError("Case File requires all foundation section versions")
+        return self

@@ -229,7 +229,9 @@ class CaseBlackboard:
         from ..models.orchestration import CaseFileProvenance
         provenance = CaseFileProvenance.model_validate(provenance).model_dump()
         def transform(board):
-            if board["version"] != provenance["board_version"] or versions(board, provenance["dependency_versions"]) != provenance["dependency_versions"]:
+            if (board["version"] != provenance["board_version"]
+                    or provenance["input_version"] != board["data"]["input"]["input_version"]
+                    or versions(board, provenance["dependency_versions"]) != provenance["dependency_versions"]):
                 raise VersionConflict("Case File dependencies changed")
             board["case_file"] = provenance
         return self.change(case_id, transform, kind="CASE_FILE_REFERENCED")
@@ -237,7 +239,8 @@ class CaseBlackboard:
     @staticmethod
     def add_conflict(board, field, values, sources, *, agents=(), facts=(), execution_id=None):
         record = {"field": field, "values": values, "sources": sources, "agents": list(agents),
-                  "facts": list(facts), "execution_id": execution_id}
+                  "facts": list(facts), "execution_id": execution_id,
+                  "observed_value": copy.deepcopy(value_at(board["data"], field))}
         cid = digest(record)
         board["conflicts"].setdefault(cid, {**record, "conflict_id": cid, "status": "CONFLICT_FOUND", "resolution": None})
         return cid
@@ -268,12 +271,19 @@ class CaseBlackboard:
                 return
             path = conflict["field"]
             # Refuse a decision against a superseded human edit.
-            if value_at(board["data"], path) != conflict["values"][0]:
+            if value_at(board["data"], path) != conflict.get("observed_value", conflict["values"][0]):
                 raise VersionConflict("The protected value changed; review the conflict again")
             value = conflict["values"][0] if decision == "KEEP" else conflict["values"][1] if decision == "REPLACE" else merged_value
             paths, affected = set_values(board, {path: value})
             board["protected"][path] = {"actor": actor, "reason": reason, "value": value, "timestamp": utc_now()}
             conflict["status"] = "RESOLVED"
             conflict["resolution"] = {"decision": decision, "actor": actor, "reason": reason, "value": value, "timestamp": utc_now()}
+            for name in conflict["agents"]:
+                node = board["nodes"].get(name)
+                if node and (node.get("pending_result") or {}).get("status") == "CONFLICT_FOUND" and not any(
+                    name in other["agents"] and not other["resolution"] for other in board["conflicts"].values()
+                ):
+                    node.update(status="STALE", stale=True, claim_token=None,
+                                review_generation=node.get("review_generation", 0) + 1)
             return {"changed_paths": paths, "affected_outputs": affected, "before": conflict["values"], "after": value}
         return self.change(case_id, transform, actor=actor, kind="CONFLICT_RESOLVED", reason=reason)

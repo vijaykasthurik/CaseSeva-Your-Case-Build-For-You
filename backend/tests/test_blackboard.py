@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from unittest.mock import patch
 from backend.adapters.mock.database import MockDatabaseAdapter
 from backend.models.orchestration import AgentContract
 from backend.services.agent_registry import AgentRegistry
@@ -86,6 +87,22 @@ class BlackboardTests(unittest.TestCase):
             self.assertEqual(board["data"]["facts"]["F001"], expected)
             with self.assertRaises(ValueError):
                 self.store.append_change("c", {"facts": {}}, actor="agent", reason="overwrite")
+
+    def test_crash_before_head_advance_does_not_publish_orphan_snapshot(self):
+        first = self.store.read_board("c")
+        with patch.object(self.db, "mutate", side_effect=RuntimeError("simulated worker interruption")):
+            with self.assertRaises(RuntimeError):
+                self.store.append_change("c", {"facts.F1": "uncommitted"}, actor="u", reason="interrupted")
+        self.assertEqual(self.store.read_board("c"), first)
+        self.assertEqual(len(self.store.history("c")["events"]), 1)
+        self.store.append_change("c", {"facts.F1": "committed"}, actor="u", reason="resume")
+        self.assertEqual(self.store.read_board("c")["version"], 2)
+
+    def test_large_output_fails_closed_without_overwriting_history(self):
+        before = self.store.read_board("c")
+        with self.assertRaisesRegex(ValueError, "capacity"):
+            self.store.append_change("c", {"facts.large": "x" * 310_000}, actor="u", reason="too large")
+        self.assertEqual(self.store.read_board("c"), before)
 
 
 class RegistryTests(unittest.TestCase):

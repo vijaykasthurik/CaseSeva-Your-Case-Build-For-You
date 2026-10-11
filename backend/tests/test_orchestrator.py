@@ -1,5 +1,6 @@
 """Non-legal test agents only. Never registered by the application."""
 import copy
+import multiprocessing
 import tempfile
 import threading
 import time
@@ -17,6 +18,18 @@ def integer(value):
     if type(value) is not int:
         raise ValueError("Expected an integer")
     return True
+
+
+def resume_in_new_process(path):
+    db = MockDatabaseAdapter(path)
+    board = CaseBlackboard(db).read_board("c")
+    registry = AgentRegistry()
+    for name, node in board["nodes"].items():
+        contract = AgentContract.model_validate(node["contract"])
+        registry.register(contract, lambda c, name=name: AgentResult(status="COMPLETED", outputs={"test." + name: 7}), {"test." + name: integer})
+    controller = MasterLegalOrchestrator(db, registry)
+    controller.tick("c")
+    controller.tick("c")
 
 
 class OrchestratorTests(unittest.TestCase):
@@ -305,3 +318,96 @@ class OrchestratorTests(unittest.TestCase):
         board = o.tick("c")
         self.assertEqual(board["nodes"]["LAW"]["status"], "BLOCKED")
         self.assertEqual(board["nodes"]["UNDERSTAND"]["status"], "COMPLETED")
+
+    def test_source_conflict_can_be_resolved_before_any_value_exists(self):
+        def handler(c):
+            if c["human_decisions"]:
+                return AgentResult(status="COMPLETED", outputs={"test.A": c["human_decisions"][-1]["resolution"]["value"]})
+            return AgentResult(status="CONFLICT_FOUND", conflicts=[{"field": "test.A", "values": [12, 14], "sources": ["story", "file"]}])
+        self.register("A", handler=handler)
+        o = self.orchestrator()
+        o.start("c", ["A"])
+        board = o.tick("c")
+        cid = next(iter(board["conflicts"]))
+        self.store.resolve_conflict("c", cid, "REPLACE", actor="advocate", reason="checked original source")
+        board = o.tick("c")
+        self.assertEqual(board["nodes"]["A"]["status"], "COMPLETED")
+        self.assertEqual(board["data"]["test"]["A"], 14)
+
+    def test_case_file_is_stale_without_regeneration_when_derived_work_changes(self):
+        from backend.services.case_blackboard import versions
+        o = self.graph()
+        for _ in range(3):
+            board = o.tick("c")
+        paths = ("facts", "parties", "timeline", "legal_issues", "legal_sources", "evidence_mapping", "test.D")
+        self.store.record_case_file("c", {"case_file_version": 1, "board_version": board["version"],
+            "input_version": 1, "dependency_versions": versions(board, paths), "generated_at": "test"})
+        board = self.store.append_change("c", {"test.b_input": 22}, actor="u", reason="updated B")
+        self.assertEqual(board["case_file"]["status"], "STALE")
+        self.assertEqual(board["case_file"]["case_file_version"], 1)
+
+    def test_recorded_retry_failure_remains_observable_after_success(self):
+        calls = []
+        def handler(c):
+            calls.append(c)
+            if len(calls) == 1:
+                raise TransientAgentError("retry")
+            return AgentResult(status="COMPLETED", outputs={"test.A": 2})
+        self.register("A", handler=handler, retry_delay_seconds=0)
+        o = self.orchestrator()
+        o.start("c", ["A"])
+        o.tick("c")
+        o.tick("c")
+        diagnostics = o.diagnostics("c")
+        self.assertEqual(diagnostics["last_failure"]["reason"], "TransientAgentError")
+        self.assertEqual(diagnostics["last_success"]["agent"], "A")
+
+    def test_real_case_input_change_fences_claim_without_prior_ui_read(self):
+        self.register("A", reads=("input.input_version",))
+        o = self.orchestrator()
+        o.start("c", ["A"])
+        o.refresh("c")
+        claim = o.claim("c", "A")
+        self.db.update("cases", "c", {"input_version": 2})
+        board = o.write_agent_output(claim, AgentResult(status="COMPLETED", outputs={"test.A": 2}))
+        self.assertEqual(board["nodes"]["A"]["status"], "STALE")
+
+    def test_override_replace_and_merge_resume_with_validated_human_values(self):
+        for name, decision, expected in (("REPLACE", "REPLACE", 1), ("MERGE", "MERGE", 8)):
+            self.register(name)
+            o = self.orchestrator()
+            o.start("c", [name])
+            self.store.apply_human_override("c", "test." + name, 99, actor="advocate", reason="correction")
+            board = o.tick("c")
+            cid = next(k for k, c in board["conflicts"].items() if c["field"] == "test." + name)
+            self.store.resolve_conflict("c", cid, decision, actor="advocate", reason="review", merged_value=8)
+            board = o.resume_review("c", name, actor="advocate")
+            self.assertEqual(board["data"]["test"][name], expected)
+            self.assertEqual(board["nodes"][name]["status"], "COMPLETED")
+
+    def test_actual_new_process_resumes_only_unfinished_nodes(self):
+        o = self.graph()
+        o.tick("c")
+        claim = o.claim("c", "B")
+        before = o.write_agent_output(claim, self.registry.get("B").handler(claim))
+        worker = multiprocessing.get_context("spawn").Process(target=resume_in_new_process, args=(self.path,))
+        worker.start()
+        worker.join(20)
+        self.assertEqual(worker.exitcode, 0)
+        after = self.store.read_board("c")
+        for name in ("A", "B"):
+            self.assertEqual(after["nodes"][name]["execution_id"], before["nodes"][name]["execution_id"])
+            self.assertEqual(after["nodes"][name]["attempts"], 1)
+        self.assertEqual(after["run"]["status"], "COMPLETED")
+
+    def test_dynamic_pack_addition_preserves_completed_work(self):
+        self.register("A")
+        self.register("OPTIONAL", pack="SECONDARY", conditions=(Condition(path="test.missing_record", operator="equals", value=True),))
+        o = self.orchestrator()
+        o.start("c", ["A"])
+        o.tick("c")
+        self.store.append_change("c", {"test.missing_record": True}, actor="u", reason="secondary work required")
+        o.start("c", self.registry.select_pack("SECONDARY"))
+        after = o.tick("c")
+        self.assertEqual(after["nodes"]["OPTIONAL"]["status"], "COMPLETED")
+        self.assertEqual(self.calls.count("A"), 1)

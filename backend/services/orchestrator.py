@@ -77,6 +77,7 @@ class MasterLegalOrchestrator:
         return "READY", None
 
     def refresh(self, case_id):
+        self.store.sync_input(case_id)
         now = self.clock()
         def transform(board):
             for name, node in board["nodes"].items():
@@ -84,6 +85,7 @@ class MasterLegalOrchestrator:
                     if now >= node["lease_until"]:
                         node.update(status="FAILED", claim_token=None, failure_reason="WORKER_LEASE_EXPIRED",
                                     transient=True, finished_at=utc_now(), next_retry_at=now)
+                        board["run"]["last_failure"] = {"agent": name, "timestamp": node["finished_at"], "reason": node["failure_reason"]}
                     else:
                         continue
                 if node["status"] in {"COMPLETED", "NEEDS_USER_INPUT", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "CONFLICT_FOUND"}:
@@ -110,7 +112,7 @@ class MasterLegalOrchestrator:
                 return
             c = self.registry.get(name).contract
             inputs = versions(board, self.registry.watched_paths(name))
-            key = digest([case_id, name, c.version, inputs, board["run"]["action"]])
+            key = digest([case_id, name, c.version, inputs, board["run"]["action"], node.get("review_generation", 0)])
             attempts = node.get("attempts", 0) if node.get("idempotency_key") == key else 0
             if attempts >= c.max_retries + 1:
                 node.update(status="FAILED", failure_reason="RETRY_EXHAUSTED")
@@ -131,6 +133,8 @@ class MasterLegalOrchestrator:
         return {"case_id": case_id, "agent_type": name, "claim_token": token,
                 "execution_id": node["execution_id"], "idempotency_key": node["idempotency_key"],
                 "dependency_versions": node["dependency_versions"], "board_version": board["version"],
+                "human_decisions": [copy.deepcopy(conflict) for conflict in board["conflicts"].values()
+                                    if name in conflict["agents"] and conflict["resolution"]],
                 "inputs": {path: copy.deepcopy(value_at(board["data"], path)) for path in self.registry.watched_paths(name)}}
 
     def fail(self, claim, exc):
@@ -143,6 +147,7 @@ class MasterLegalOrchestrator:
             node.update(status="FAILED", claim_token=None, finished_at=utc_now(),
                         transient=isinstance(exc, TransientAgentError), failure_reason=type(exc).__name__,
                         next_retry_at=self.clock() + c.retry_delay_seconds * (2 ** (node["attempts"] - 1)))
+            board["run"]["last_failure"] = {"agent": name, "timestamp": node["finished_at"], "reason": node["failure_reason"]}
         return self.store.change(case_id, transform, kind="AGENT_FAILED")
 
     def _validate(self, name, result):
@@ -169,6 +174,7 @@ class MasterLegalOrchestrator:
 
     def write_agent_output(self, claim, result, *, reviewed=False, actor="system"):
         name, case_id = claim["agent_type"], claim["case_id"]
+        self.store.sync_input(case_id)
         result = self._validate(name, result)
         c = self.registry.get(name).contract
         def transform(board):
@@ -182,6 +188,7 @@ class MasterLegalOrchestrator:
             if not reviewed and self.clock() >= node["lease_until"]:
                 node.update(status="FAILED", claim_token=None, failure_reason="TIMEOUT", transient=True,
                             finished_at=utc_now(), next_retry_at=self.clock() + c.retry_delay_seconds)
+                board["run"]["last_failure"] = {"agent": name, "timestamp": node["finished_at"], "reason": node["failure_reason"]}
                 return
             outputs = copy.deepcopy(result.outputs)
             unresolved = False
@@ -232,6 +239,7 @@ class MasterLegalOrchestrator:
                         output_versions=versions(board, c.writes), finished_at=utc_now(),
                         claim_token=None, pending_result=None, requests=[], stale=False)
             board["run"]["checkpoint_version"] = board["version"] + 1
+            board["run"]["last_success"] = {"agent": name, "timestamp": node["finished_at"], "execution_id": node["execution_id"]}
             return {"changed_paths": paths, "affected_outputs": affected, "execution_id": node["execution_id"]}
         return self.store.change(case_id, transform, actor=actor, kind="AGENT_RESULT")
 
@@ -305,5 +313,5 @@ class MasterLegalOrchestrator:
                 "failed": [n for n, v in nodes.items() if v["status"] == "FAILED"],
                 "blocked": [n for n, v in nodes.items() if v["status"] == "BLOCKED"],
                 "stale": [n for n, v in nodes.items() if v.get("stale")],
-                "last_success": max((v["finished_at"] for v in nodes.values() if v["status"] == "COMPLETED"), default=None),
-                "last_failure": max((v["finished_at"] for v in nodes.values() if v["status"] == "FAILED" and v.get("finished_at")), default=None)}
+                "last_success": (board["run"] or {}).get("last_success"),
+                "last_failure": (board["run"] or {}).get("last_failure")}
