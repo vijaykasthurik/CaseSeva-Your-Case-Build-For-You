@@ -16,13 +16,14 @@ class Registration:
     enabled: bool = True
     live_validated: bool = False
     available: bool = True
+    granular_writes: tuple = ()
 
 
 class AgentRegistry:
     def __init__(self):
         self._agents = {}
 
-    def register(self, contract, handler=None, validators=None, *, enabled=True, live_validated=False, available=True):
+    def register(self, contract, handler=None, validators=None, *, enabled=True, live_validated=False, available=True, granular_writes=()):
         contract = AgentContract.model_validate(contract)
         name = contract.agent_type
         if name in self._agents:
@@ -31,7 +32,9 @@ class AgentRegistry:
             raise ValueError("Every implemented output needs a validator")
         if live_validated and handler is None:
             raise ValueError("An unavailable agent cannot be live validated")
-        self._agents[name] = Registration(contract, handler, validators, enabled, live_validated, available)
+        if not set(granular_writes).issubset(contract.writes):
+            raise ValueError('Granular writes must be declared owned output paths')
+        self._agents[name] = Registration(contract, handler, validators, enabled, live_validated, available, tuple(granular_writes))
         return self
 
     def get(self, name):

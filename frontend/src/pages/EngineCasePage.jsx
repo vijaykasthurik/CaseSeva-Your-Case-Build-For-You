@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getCase, getCaseStatus, chooseEngine2, grantCaseAccess, getCaseGrants, revokeCaseAccess, uploadEvidence, reprocessInput, migrateCaseWorkflow } from "../api";
+import { getCase, getCaseStatus, chooseEngine2, grantCaseAccess, getCaseGrants, revokeCaseAccess, uploadEvidence, reprocessInput, migrateCaseWorkflow, startLegalFoundation } from "../api";
 import ClarificationPanel from "../components/ClarificationPanel";
 import { citizenStatus, stageLabel, readiness } from "../citizenLanguage";
 import CaseCommunication from "../components/CaseCommunication";
@@ -36,6 +36,7 @@ export default function EngineCasePage() {
     <ClarificationPanel caseId={caseId} batch={item.clarification} evidence={item.evidence} onSaved={async () => setItem((await getCase(caseId)).case)} />
     <p data-testid="case-status">{presentation.label}</p><p>{presentation.explanation}</p><p>Source: {presentation.source}</p>
     {item.legal_foundation_status === "PENDING" && <p>Verified legal analysis is pending. Case understanding does not establish the applicable law.</p>}
+    {item.case_understanding_status === "READY" && item.legal_foundation_status === "PENDING" && <button onClick={async () => { try { await startLegalFoundation(caseId); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }}>Check legal sources</button>}
     <p>Processing mode: {progress?.processing_mode}. {progress?.processing_mode === "mock" && "Development only — live AI analysis has not been performed."}</p>
     {error && <p role="alert">{error}</p>}
     {item.workflow_version !== 2 && <section><h2>Upgrade this existing case</h2><p>Your original story, evidence and history will be preserved while we prepare an updated case explanation.</p><button onClick={async () => { try { await migrateCaseWorkflow(caseId); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }}>Upgrade to the new workflow</button></section>}
@@ -52,14 +53,14 @@ export default function EngineCasePage() {
       <h2>Missing details and unreadable material</h2><ul>{overview.missing_details?.map((question, index) => <li key={index}>{question}</li>)}</ul>
       <p>{overview.argument_analysis_note}</p>
       {overview.argument_analysis_run && <><h2>Issue readiness</h2><ul>{overview.issue_readiness.map(issue => <li key={issue.issue_id}>{issue.level === "Thin" ? "Needs more proof" : issue.level}<p>{readiness(issue.level)}</p><p>{issue.reasons.join(" ")}</p><p>What would improve it: {issue.improvements.join(" ")}</p></li>)}</ul><h2>Key risks</h2><ul>{overview.key_risks.map((risk, index) => <li key={index}>{risk}</li>)}</ul></>}
-      {(!item.engine2_choice || item.engine2_stale) && !progress?.error && !["ENGINE1_RUNNING", "ENGINE2_RUNNING"].includes(item.status) && <section><h2>Want to check your case more deeply?</h2><p>CaseSeva can look at your case from both sides, identify what may be questioned and show where more proof may help.</p>
+      {(!item.engine2_choice || item.engine2_stale) && !item.legal_foundation_status && !progress?.error && !["ENGINE1_RUNNING", "ENGINE2_RUNNING"].includes(item.status) && <section><h2>Want to check your case more deeply?</h2><p>CaseSeva can look at your case from both sides, identify what may be questioned and show where more proof may help.</p>
         {[true, false].map(run => <button key={String(run)} className="btn-pill-secondary" onClick={async () => { try { await chooseEngine2(caseId, run); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }}>{run ? "Check My Case Further" : "Skip This"}</button>)}
       </section>}
       <p>{overview.next_step}</p>
     </>}
     {item.status === "DRAFT" && <Link to={`/cases/${caseId}/edit`}>Continue your draft</Link>}
     <p><Link className="btn-pill-primary" to={`/advocates?caseId=${caseId}`}>Find an advocate</Link></p>
-    {["NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY", "CASE_UNDERSTANDING_READY"].includes(item.status) && <section><h2>Add missing material or retry processing</h2><input aria-label="Additional evidence" type="file" multiple onChange={async event => { try { for (const file of Array.from(event.target.files)) await uploadEvidence(caseId, file); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }} /><button onClick={async () => { try { await reprocessInput(caseId); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }}>Resume Analysis</button></section>}
+    {["NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY", "CASE_UNDERSTANDING_READY", "LEGAL_FOUNDATION_REVIEW_REQUIRED"].includes(item.status) && <section><h2>Add missing material or retry processing</h2><input aria-label="Additional evidence" type="file" multiple onChange={async event => { try { for (const file of Array.from(event.target.files)) await uploadEvidence(caseId, file); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }} /><button onClick={async () => { try { await reprocessInput(caseId); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }}>Resume Analysis</button></section>}
     {item.assigned_advocate_id && <section><h2>Case sharing consent</h2>
       <p>Your advocate has accepted. Choose what to share. Case understanding and deeper-check results may contain information derived from every submitted input.</p>
       {grants.filter(grant => !grant.revoked_at && new Date(grant.expires_at) > new Date()).map(grant => <p key={grant.id}>Shared until {new Date(grant.expires_at).toLocaleString()} <button onClick={async () => { try { await revokeCaseAccess(caseId, grant.id); setGrants((await getCaseGrants(caseId)).grants); } catch (failure) { setError(failure.message); } }}>Revoke access</button></p>)}

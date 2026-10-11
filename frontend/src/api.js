@@ -116,6 +116,7 @@ export const getCaseStatus = (caseId) => request(`/api/cases/${caseId}/status`);
 export const answerClarifications = (caseId, answers) => request(`/api/cases/${caseId}/clarifications`, { method: "POST", body: JSON.stringify({ answers }) });
 export const chooseEngine2 = (caseId, run) => request(`/api/cases/${caseId}/engine2`, { method: "POST", body: JSON.stringify({ run }) });
 export const reprocessInput = caseId => request(`/api/cases/${caseId}/reprocess-input`, { method: "POST" });
+export const startLegalFoundation = caseId => request(`/api/cases/${caseId}/legal-foundation`, { method: "POST" });
 export const migrateCaseWorkflow = caseId => request(`/api/cases/${caseId}/migrate-workflow`, { method: "POST" });
 export const getPreview1 = (caseId) => request(`/api/cases/${caseId}/preview1`);
 export const editFact = (caseId, factId, payload) => request(`/api/cases/${caseId}/facts/${factId}`, { method: "PATCH", body: JSON.stringify(payload) });

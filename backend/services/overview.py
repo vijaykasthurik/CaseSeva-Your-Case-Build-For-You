@@ -33,6 +33,8 @@ def public_statuses(statuses):
 
 def client_overview(case: dict) -> dict:
     file = case.get("case_file", {})
+    if file.get('kind') == 'SOURCE_VERIFIED_ENGINE1' and (not case.get('legal_case_file_current') or file.get('input_version') != case.get('input_version', 1)):
+        file = {}
     ran = bool(case.get("engine2", {}).get("overview_ready")) and case.get("engine2", {}).get("case_file_version") == file.get("version")
     evaluation = case.get("engine2", {}).get("neutral_evaluation", {}) if ran else {}
     missing = list(file.get("missing_information", []))
@@ -63,6 +65,12 @@ def client_overview(case: dict) -> dict:
         output.update(case_understanding_status=state if state in {"BUILDING", "READY", "REVIEW_REQUIRED", "NEEDS_INPUT"} else "PENDING",
                       legal_foundation_status="PENDING", ready_to_find_advocate=False,
                       next_step="Case understanding is being prepared or reviewed. Verified legal analysis is pending.")
+        if case.get('legal_foundation_requested'):
+            state = case.get('legal_foundation_status')
+            output['legal_foundation_status'] = state if state in {'IN_PROGRESS', 'REVIEW_REQUIRED', 'READY'} else 'PENDING'
+            output['ready_to_find_advocate'] = bool(file) and bool(case.get('legal_case_file_current')) and not case.get('processing_error')
+            output['next_step'] = ('Verified source research is ready for advocate review.' if output['ready_to_find_advocate']
+                                   else 'Legal verification is incomplete. Your saved information is preserved for review.')
     return output
 
 
@@ -79,7 +87,8 @@ def client_case(case: dict) -> dict:
     if case.get("engine1_execution") == "ORCHESTRATED_CORE_V1":
         state = case.get("case_understanding_status")
         output["case_understanding_status"] = state if state in {"BUILDING", "READY", "REVIEW_REQUIRED", "NEEDS_INPUT"} else "PENDING"
-        output["legal_foundation_status"] = "PENDING"
+        output["legal_foundation_status"] = output['overview']['legal_foundation_status']
+        output['engine1_available'] = bool(output['overview']['case_file_version']) and bool(case.get('legal_case_file_current'))
     output["client_messages"] = [item for item in case.get("professional_notes", []) if item.get("visibility") == "SHARED_WITH_CLIENT"]
     output["information_requests"] = case.get("information_requests", [])
     output["filing_update"] = case.get("filing_update")

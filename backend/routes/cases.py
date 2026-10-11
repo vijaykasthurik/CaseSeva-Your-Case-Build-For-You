@@ -233,7 +233,7 @@ async def upload_evidence(
     user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     case = get_owned_case(request, case_id, user)
-    if case["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "AWAITING_CLIENT_INFO", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY", "CASE_UNDERSTANDING_READY"}:
+    if case["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "AWAITING_CLIENT_INFO", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY", "CASE_UNDERSTANDING_READY", "LEGAL_FOUNDATION_REVIEW_REQUIRED"}:
         raise HTTPException(status_code=409, detail="Evidence can only be added during draft or Preview 1")
     filename = (file.filename or "upload").replace("\\", "/").split("/")[-1]
     filename = re.sub(r'[\x00-\x1f<>:"|?*]', "_", filename)
@@ -247,7 +247,7 @@ async def upload_evidence(
         raise HTTPException(status_code=422, detail="The uploaded file is empty.")
     db = request.app.state.adapters.database
     def reserve(current):
-        if current["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "AWAITING_CLIENT_INFO", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY", "CASE_UNDERSTANDING_READY"}:
+        if current["status"] not in {"DRAFT", "AWAITING_PREVIEW_1", "AWAITING_CLIENT_INFO", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY", "CASE_UNDERSTANDING_READY", "LEGAL_FOUNDATION_REVIEW_REQUIRED"}:
             raise HTTPException(409, "The case state changed before upload; retry after processing.")
         number = max(current.get("next_evidence_number", 1), int(next_evidence_id(current.get("evidence", []))[1:]))
         return {"next_evidence_number": number + 1, "pending_uploads": current.get("pending_uploads", 0) + 1}

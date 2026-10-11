@@ -25,7 +25,7 @@ class MasterLegalOrchestrator:
         self.store, self.registry = CaseBlackboard(db), registry
         self.max_workers, self.capabilities, self.clock = max_workers, set(capabilities), clock
 
-    def start(self, case_id, selected, *, action="understand", parent_run=None):
+    def start(self, case_id, selected, *, action="understand", parent_run=None, replace_plan=False):
         """Trusted internal entry point. Does not dispatch a legacy engine."""
         graph = self.registry.graph(selected)
         self.store.sync_input(case_id)
@@ -35,6 +35,13 @@ class MasterLegalOrchestrator:
             if not board["run"]:
                 board["run"] = {"run_id": uuid4().hex, "parent_run": parent_run, "action": action,
                                 "created_at": utc_now(), "graph": {}, "checkpoint_version": board["version"] + 1}
+            if replace_plan:
+                for name, node in board['nodes'].items():
+                    if name not in graph:
+                        node.update(inactive=True, claim_token=None)
+                    else:
+                        node['inactive'] = False
+                board['run']['graph'] = {}
             for name, deps in graph.items():
                 contract = self.registry.get(name).contract.model_dump(mode="json")
                 prior = board["nodes"].get(name)
@@ -83,6 +90,8 @@ class MasterLegalOrchestrator:
         now = self.clock()
         def transform(board):
             for name, node in board["nodes"].items():
+                if node.get('inactive'):
+                    continue
                 if node["status"] == "RUNNING":
                     if now >= node["lease_until"]:
                         node.update(status="FAILED", claim_token=None, failure_reason="WORKER_LEASE_EXPIRED",
@@ -101,7 +110,7 @@ class MasterLegalOrchestrator:
                 status, reason = self._eligible_status(board, name)
                 node.update(status=status, blocking_reason=reason)
             if board["run"]:
-                states = [n["status"] for n in board["nodes"].values()]
+                states = [n["status"] for n in board["nodes"].values() if not n.get('inactive')]
                 board["run"]["status"] = ("NO_AGENTS_AVAILABLE" if not states else "COMPLETED" if all(s in {"COMPLETED", "SKIPPED"} for s in states) else "RUNNING" if "RUNNING" in states else "READY" if "READY" in states else "PAUSED")
         return self.store.change(case_id, transform, kind="ELIGIBILITY_CHECK")
 
@@ -109,9 +118,9 @@ class MasterLegalOrchestrator:
         token, now = uuid4().hex, self.clock()
         def transform(board):
             node = board["nodes"][name]
-            if node["status"] != "READY" or self._eligible_status(board, name)[0] != "READY":
+            if node.get('inactive') or node["status"] != "READY" or self._eligible_status(board, name)[0] != "READY":
                 return
-            running = [n for n, item in board["nodes"].items() if item["status"] == "RUNNING"]
+            running = [n for n, item in board["nodes"].items() if item["status"] == "RUNNING" and not item.get('inactive')]
             if len(running) >= self.max_workers or any(not self.registry.compatible(name, other) for other in running):
                 return
             c = self.registry.get(name).contract
@@ -239,7 +248,17 @@ class MasterLegalOrchestrator:
                 return
             # Explicit human decisions may change proposed values; validate again.
             self._validate(name, AgentResult(status="COMPLETED", outputs=outputs))
-            paths, affected = set_values(board, outputs, exclude=(name,), force_version=True)
+            granular = self.registry.get(name).granular_writes
+            ordinary = {p: v for p, v in outputs.items() if p not in granular}
+            paths, affected = set_values(board, ordinary, exclude=(name,), force_version=True)
+            for path in granular:
+                value = outputs[path]
+                old = value_at(board['data'], path) or {}
+                if not isinstance(value, dict) or set(old) - set(value):
+                    raise ValueError('Granular maps must preserve removed records as superseded')
+                changed, stale = set_values(board, {path + '.' + key: item for key, item in value.items()}, exclude=(name,))
+                paths += changed
+                affected += stale
             node.update(status="COMPLETED", output_version=board["version"] + 1,
                         output_versions=versions(board, c.writes), finished_at=utc_now(),
                         claim_token=None, pending_result=None, requests=[], stale=False)
@@ -265,7 +284,7 @@ class MasterLegalOrchestrator:
         board = self.refresh(case_id)
         claims = []
         for name, node in board["nodes"].items():
-            if node["status"] == "READY" and len(claims) < self.max_workers:
+            if not node.get('inactive') and node["status"] == "READY" and len(claims) < self.max_workers:
                 if not _worker_slots.acquire(blocking=False):
                     break
                 try:

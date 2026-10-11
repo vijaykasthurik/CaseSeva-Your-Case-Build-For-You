@@ -17,6 +17,9 @@ def enabled(case):
 
 
 def run_selected_engine1(app, case_id, **legacy_options):
+    if (app.state.adapters.database.get('cases', case_id) or {}).get('legal_foundation_requested'):
+        from .legal_workflow import run_legal_foundation
+        return run_legal_foundation(app, case_id)
     if enabled(app.state.adapters.database.get("cases", case_id) or {}):
         return run_core(app, case_id)
     from .engine1 import run_engine1
@@ -40,7 +43,7 @@ def prepare(app, case_id):
 
 
 def publish_status(db, case_id, board):
-    states = {name: node["status"] for name, node in board["nodes"].items()}
+    states = {name: node["status"] for name, node in board["nodes"].items() if not node.get('inactive')}
     case = db.get("cases", case_id)
     changes = {"legal_foundation_status": "PENDING", "current_stage": None, "stage_statuses": {},
                "active_engine": None, "processing_error": None}
@@ -96,7 +99,7 @@ def run_core(app, case_id, *, max_ticks=24):
         db.update("cases", case_id, {"status": "ENGINE1_RUNNING", "case_understanding_status": "BUILDING", "legal_foundation_status": "PENDING", "processing_error": None, "stage_statuses": {}, "current_stage": None})
         live_or_test = app.state.adapters.mode != "mock" or getattr(app.state.adapters, "phase3_test_double", False)
         controller = MasterLegalOrchestrator(db, production_registry(app.state.adapters), capabilities=("core_reasoning",) if live_or_test else ())
-        controller.start(case_id, ["DOMAIN_ROUTER"])
+        controller.start(case_id, ["DOMAIN_ROUTER"], replace_plan=True)
         if db.get("cases", case_id).get("core_retry_requested"):
             def retry_failed(board):
                 from .case_blackboard import invalidate
