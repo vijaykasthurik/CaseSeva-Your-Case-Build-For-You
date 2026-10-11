@@ -4,6 +4,7 @@ const messages = {
   READY_FOR_ADVOCATE: ["Ready to find an advocate", "Your information is organised. You can choose an advocate without running an analysis."],
   ENGINE1_RUNNING: ["Understanding your case", "We are reading your account and checking what can be established from your information."],
   ENGINE1_DONE: ["Your case explanation is ready", "Read what we understood, then choose a deeper check or find an advocate."],
+  CASE_UNDERSTANDING_READY: ["Your case understanding is ready", "Your information has been structured. Verified legal analysis is still pending; an advocate can review your next steps."],
   AWAITING_CLIENT_INFO: ["We need a few details", "Answer the questions below. Unknown, unavailable and later are valid responses."],
   ENGINE2_RUNNING: ["Checking your case from both sides", "We are checking what may support your position and what may be questioned."],
   ENGINE2_DONE: ["Your deeper case check is ready", "Review the explanation and the evidence that may help, then find an advocate."],

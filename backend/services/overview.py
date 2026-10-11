@@ -85,5 +85,9 @@ def client_case(case: dict) -> dict:
     output["filing_update"] = case.get("filing_update")
     batches = case.get("clarification_rounds", [])
     if batches and batches[-1].get("answering_user_id") == case["owner_user_id"]:
-        output["clarification"] = batches[-1]
+        batch = batches[-1]
+        output["clarification"] = batch
+        if batch.get('core'):
+            output['clarification'] = {key: batch[key] for key in ('round', 'batch_id', 'status', 'created_at', 'answers') if key in batch}
+            output['clarification']['questions'] = [{key: q[key] for key in ('question_id', 'question', 'control', 'choices', 'priority') if key in q} for q in batch['questions']]
     return output

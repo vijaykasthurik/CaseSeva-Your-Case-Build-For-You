@@ -35,6 +35,7 @@ export default function EngineCasePage() {
     <CaseCommunication item={item} onSaved={async () => setItem((await getCase(caseId)).case)} />
     <ClarificationPanel caseId={caseId} batch={item.clarification} evidence={item.evidence} onSaved={async () => setItem((await getCase(caseId)).case)} />
     <p data-testid="case-status">{presentation.label}</p><p>{presentation.explanation}</p><p>Source: {presentation.source}</p>
+    {item.legal_foundation_status === "PENDING" && <p>Verified legal analysis is pending. Case understanding does not establish the applicable law.</p>}
     <p>Processing mode: {progress?.processing_mode}. {progress?.processing_mode === "mock" && "Development only — live AI analysis has not been performed."}</p>
     {error && <p role="alert">{error}</p>}
     {item.workflow_version !== 2 && <section><h2>Upgrade this existing case</h2><p>Your original story, evidence and history will be preserved while we prepare an updated case explanation.</p><button onClick={async () => { try { await migrateCaseWorkflow(caseId); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }}>Upgrade to the new workflow</button></section>}
@@ -58,7 +59,7 @@ export default function EngineCasePage() {
     </>}
     {item.status === "DRAFT" && <Link to={`/cases/${caseId}/edit`}>Continue your draft</Link>}
     <p><Link className="btn-pill-primary" to={`/advocates?caseId=${caseId}`}>Find an advocate</Link></p>
-    {["NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY"].includes(item.status) && <section><h2>Add missing material or retry processing</h2><input aria-label="Additional evidence" type="file" multiple onChange={async event => { try { for (const file of Array.from(event.target.files)) await uploadEvidence(caseId, file); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }} /><button onClick={async () => { try { await reprocessInput(caseId); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }}>Resume Analysis</button></section>}
+    {["NEEDS_DOCUMENT", "REVIEW_REQUIRED", "LEGAL_CORPUS_NOT_READY", "CASE_UNDERSTANDING_READY"].includes(item.status) && <section><h2>Add missing material or retry processing</h2><input aria-label="Additional evidence" type="file" multiple onChange={async event => { try { for (const file of Array.from(event.target.files)) await uploadEvidence(caseId, file); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }} /><button onClick={async () => { try { await reprocessInput(caseId); setItem((await getCase(caseId)).case); } catch (failure) { setError(failure.message); } }}>Resume Analysis</button></section>}
     {item.assigned_advocate_id && <section><h2>Case sharing consent</h2>
       <p>Your advocate has accepted. Choose what to share. Case understanding and deeper-check results may contain information derived from every submitted input.</p>
       {grants.filter(grant => !grant.revoked_at && new Date(grant.expires_at) > new Date()).map(grant => <p key={grant.id}>Shared until {new Date(grant.expires_at).toLocaleString()} <button onClick={async () => { try { await revokeCaseAccess(caseId, grant.id); setGrants((await getCaseGrants(caseId)).grants); } catch (failure) { setError(failure.message); } }}>Revoke access</button></p>)}

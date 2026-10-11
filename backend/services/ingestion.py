@@ -9,7 +9,8 @@ def run_ingestion(app, case_id, understand=False, preserve_status=False):
         def progress(evidence_id, state):
             current = db.get("cases", case_id)
             write(db, case_id, {"input_statuses": {**current.get("input_statuses", {}), evidence_id: state}, "current_stage": "READING_INPUT"}, action="ingestion_progress")
-        raw = build_raw_package(case, adapters, progress)
+        from .core_workflow import enabled
+        raw = build_raw_package(case, adapters, progress, working_language_required=not enabled(case), retry_pending_media=not enabled(case))
         changes = {"raw_package": raw, "evidence": raw["evidence"], "input_status": "PENDING" if raw["pending"] else "COMPLETE", "processing_error": None, "current_stage": None}
         changed_content = bool(case.get("case_file")) and raw.get("canonical_hash") != case.get("raw_package", {}).get("canonical_hash")
         if changed_content:

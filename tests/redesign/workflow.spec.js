@@ -9,6 +9,23 @@ async function signup(page, request) {
   return { Authorization: `Bearer ${account.session_token}` };
 }
 
+test('orchestrated core reports real blocked status in mock mode and keeps legal work pending', async ({ page, request }) => {
+  const headers = await signup(page, request);
+  const created = await (await request.post(`${backend}/api/cases`, { headers })).json();
+  const id = created.case.case_id;
+  await request.patch(`${backend}/api/cases/${id}`, { headers, data: { stage: 'NEW_CONSULTATION', client_story: 'I bought a household refrigerator which stopped cooling.' } });
+  expect((await request.post(`${backend}/api/cases/${id}/core-understanding`, { headers })).ok()).toBeTruthy();
+  await expect.poll(async () => (await (await request.get(`${backend}/api/cases/${id}`, { headers })).json()).case.status).toBe('REVIEW_REQUIRED');
+  await page.goto(`/cases/${id}`);
+  await expect(page.getByTestId('case-status')).toContainText('Professional review or more processing is needed');
+  await expect(page.getByText('Verified legal analysis is pending. Case understanding does not establish the applicable law.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Resume Analysis' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Check My Case Further' })).toHaveCount(0);
+  const result = await (await request.get(`${backend}/api/cases/${id}`, { headers })).json();
+  expect(result.case.engine1_available).toBe(false);
+  expect(result.case.understanding_snapshot).toBeUndefined();
+});
+
 test("single-screen story-only submission, real progress, optional arguments and client consent", async ({ page, request }) => {
   const headers = await signup(page, request);
   await page.goto("/cases/new");

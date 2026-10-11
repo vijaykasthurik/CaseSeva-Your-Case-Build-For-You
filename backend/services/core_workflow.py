@@ -138,7 +138,10 @@ def save_core_answers(db, case, batch, answers, actor):
             record = {**answer, "topic": q["topic"], "batch_id": batch["batch_id"], "actor": actor,
                       "source_id": "ANSWER_" + answer["question_id"], "created_at": utc_now(), "fact_ids": q["fact_ids"],
                       "need": q.get("need", "OPTIONAL_DETAIL")}
-            for name in set(q["affected"] + ["CLARIFICATION"]):
+            # An explicit unknown is recorded for clarification, not treated as
+            # a changed factual claim that regenerates already-grounded records.
+            affected_names = q["affected"] if answer['response'] == 'ANSWER' else []
+            for name in set(affected_names + ["CLARIFICATION"]):
                 path = "human." + name
                 old = additions.get(path, board["data"].get("human", {}).get(name, []))
                 if not any(a["source_id"] == record["source_id"] and a["batch_id"] == record["batch_id"] for a in old):

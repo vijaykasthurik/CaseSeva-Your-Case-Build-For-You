@@ -76,7 +76,10 @@ class CoreAgents:
                        "uploaded_evidence": [{"evidence_id": e["evidence_id"], "readable": e.get("extraction", {}).get("status") == "COMPLETED"} for e in raw.get("evidence", [])],
                        "declared_evidence": raw.get("declared_evidence", []), "unavailable_evidence": raw.get("unavailable_evidence", []),
                        "unknown_details": raw.get("unknown_details", []), "unknown_evidence": raw.get("unknown_evidence", []),
-                       "prior_answers": answers, "human_resolutions": claim["human_decisions"]}
+                       "prior_answers": answers, "human_resolutions": claim["human_decisions"],
+                       "previous_records": {path: {key: {field: record.get(field) for field in ('semantic_key', 'proposition', 'description', 'name', 'role', 'date', 'superseded')}
+                                                   for key, record in (records or {}).items() if isinstance(record, dict)}
+                                            for path, records in claim['previous_outputs'].items() if path in {'facts', 'incidents', 'timeline', 'parties'}}}
             # No duplicate English rendition, provider diagnostics or storage keys.
             context["source_language_metadata"] = {k: context["source_language_metadata"].get(k) for k in ("language", "status", "script_detection")}
             model = SCHEMAS[name]
@@ -85,7 +88,7 @@ class CoreAgents:
             # originals. Optional exact excerpts remain accepted by local callers.
             if 'SourceSpan' in provider_schema.get('$defs', {}):
                 provider_schema['$defs']['SourceSpan']['properties'].pop('excerpt', None)
-            instruction = POLICY + "\nTASK: " + INSTRUCTIONS[name]
+            instruction = POLICY + "\nTASK: " + INSTRUCTIONS[name] + "\nReuse previous_records semantic_key for unchanged logical claims, events and parties. Rephrasing prose does not create a new identity. Changed attributes of the same event retain its key; distinct events require distinct keys."
             # One bounded repair, with the same original sources and strict checks.
             # Invalid candidate data never reaches the blackboard.
             for attempt in range(2):
@@ -101,7 +104,7 @@ class CoreAgents:
                 except ValueError as error:
                     if attempt:
                         raise
-                    instruction += "\nYour previous candidate failed validation: " + str(error)[:1000] + ". Reconstruct using indexed original sources. Omit optional exact_values rather than translate them. Never weaken date precision or invent support."
+                    instruction += "\nYour previous candidate failed validation: " + str(error)[:5000] + ". Reconstruct using indexed original sources. Omit optional exact_values rather than translate them. Date.expression must also be copied literally; a supported inferred year belongs only in normalized, never inserted into expression. Never weaken date precision or invent support."
         return run
 
     def case_stage(self, claim, result, indexed, raw):
@@ -118,6 +121,18 @@ class CoreAgents:
         keys = [f.key for f in result.facts]
         if len(keys) != len(set(keys)):
             raise ValueError("Fact candidate keys must be unique")
+        problems = []
+        for candidate in result.facts:
+            try:
+                refs = ground(candidate.sources, indexed)
+                bad = [value for value in candidate.exact_values if not any(value in ref['wording'] for ref in refs)]
+                if bad:
+                    problems.append(f'{candidate.key}: omit nonliteral exact_values {bad!r}')
+                checked_date(candidate.date, refs, indexed)
+            except ValueError as error:
+                problems.append(f'{candidate.key}: {error}')
+        if problems:
+            raise ValueError('; '.join(problems))
         items = []
         for candidate in result.facts:
             refs = ground(candidate.sources, indexed)
@@ -203,7 +218,7 @@ class CoreAgents:
         questions, suggestions, suppressed = [], [], []
         for q in result.questions:
             known_ids(q.fact_ids, facts)
-            same_need_answered = any(a.get("need") == q.need and q.fact_ids and set(a.get("fact_ids", [])) == set(q.fact_ids) for a in prior)
+            same_need_answered = any(a.get("need") == q.need and set(a.get("fact_ids", [])) & set(q.fact_ids) for a in prior)
             if q.topic in answered or q.already_answered or same_need_answered:
                 continue
             if q.response_kind == "DOCUMENT":
@@ -213,7 +228,8 @@ class CoreAgents:
             item = {**q.model_dump(), "question_id": "Q" + digest([q.topic, q.fact_ids])[:12],
                     "control": "upload" if q.response_kind == "DOCUMENT" else "short_text", "choices": []}
             # Existing explicit UNKNOWN is an answer; no infinite question loop.
-            if q.fact_ids and all(facts[f]["certainty"] == "UNKNOWN" for f in q.fact_ids):
+            stage_known = (claim['inputs'].get('case_understanding.stage') or {}).get('stage') not in {None, 'UNKNOWN'}
+            if (q.fact_ids and any(facts[f]["certainty"] == "UNKNOWN" for f in q.fact_ids)) or (q.need == 'PROCEDURAL_STAGE' and stage_known):
                 suggestions.append(item)
             elif q.response_kind != "DOCUMENT" and q.essential and q.priority == "HIGH" and q.need in {"IDENTIFY_EVENT", "IDENTIFY_PARTY", "PROCEDURAL_STAGE", "RESOLVE_CONFLICT"} and len({a.get("batch_id") for a in prior}) < 2:
                 questions.append(item)
