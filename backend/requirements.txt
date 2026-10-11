@@ -2,7 +2,7 @@ fastapi==0.115.6
 uvicorn[standard]==0.34.0
 python-dotenv==1.0.1
 passlib[bcrypt]==1.7.4
-boto3==1.35.81
+boto3[crt]==1.43.111
 mangum==0.17.0
 python-multipart==0.0.9
 requests>=2.32.3,<3

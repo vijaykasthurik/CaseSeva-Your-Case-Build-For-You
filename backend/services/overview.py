@@ -13,11 +13,12 @@ def public_processing_error(error):
 
 def public_evidence(item):
     # Storage locations, diagnostics and future internal fields stay private.
-    result = {key: item[key] for key in ("evidence_id", "filename", "content_type", "size", "description", "uploaded_at", "uploaded_by", "source_type") if key in item}
+    result = {key: item[key] for key in ("evidence_id", "filename", "content_type", "size", "description", "uploaded_at", "uploaded_by", "source_type", "input_source", "duplicate_of", "evidence_state") if key in item}
     extraction = item.get("extraction") or {}
     if extraction:
         status = extraction.get("status")
         result["extraction"] = {"status": status if status in {"COMPLETED", "PENDING", "FAILED", "RUNNING"} else "PENDING"}
+        result["extraction"]["review_required"] = bool(extraction.get("review_required"))
         if status == "COMPLETED":
             result["extraction"]["original_text"] = extraction.get("original_text", "")
         else:
@@ -61,7 +62,7 @@ def client_overview(case: dict) -> dict:
 
 def client_case(case: dict) -> dict:
     # Explicit projection: new internal fields are private by default.
-    keys = ("case_id", "public_case_id", "origin", "preferred_language", "journey_stage", "owner_user_id", "created_at", "status", "stage", "stage_details", "client_story", "evidence", "version", "workflow_version", "stage_statuses", "input_statuses", "active_engine", "current_stage", "processing_error", "engine2_choice", "assigned_advocate_id", "requested_advocate_id", "documents_outdated", "document_version", "engine2_stale")
+    keys = ("case_id", "public_case_id", "origin", "preferred_language", "journey_stage", "owner_user_id", "created_at", "status", "stage", "stage_details", "client_story", "evidence", "version", "workflow_version", "stage_statuses", "input_statuses", "input_status", "active_engine", "current_stage", "processing_error", "engine2_choice", "assigned_advocate_id", "requested_advocate_id", "documents_outdated", "document_version", "engine2_stale")
     output = {key: case.get(key) for key in keys if key in case}
     output["processing_error"] = public_processing_error(case.get("processing_error") or case.get("analysis_error") or case.get("legal_analysis_error"))
     output["evidence"] = [public_evidence(item) for item in case.get("evidence", [])]

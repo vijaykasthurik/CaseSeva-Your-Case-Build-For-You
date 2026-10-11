@@ -1,4 +1,5 @@
 import re
+import hashlib
 from typing import Any
 from uuid import uuid4
 
@@ -72,6 +73,8 @@ def validate_complete(case: dict[str, Any]) -> dict[str, str]:
     media = any(item.get("content_type", "").startswith(("audio/", "video/")) or item.get("filename", "").lower().endswith((".mp3", ".wav", ".m4a", ".ogg", ".flac", ".mp4", ".mov", ".avi", ".webm")) for item in case.get("evidence", []))
     if not case.get("client_story", "").strip() and not media:
         errors["client_story"] = "Tell your story by typing, recording, or uploading audio/video narration. Supporting documents alone are not a story."
+    if case.get("input_status") == "RUNNING":
+        errors["evidence"] = "Wait for input processing to finish before submitting."
     if case.get("pending_uploads"):
         errors["evidence"] = "Wait for evidence uploads to finish before submitting."
     return errors
@@ -168,6 +171,8 @@ def update_case(case_id: str, body: CaseUpdateBody, request: Request, user: dict
     changes["stage_details"] = merged_details
     changes["version"] = case.get("version", 1) + 1
     changes["input_version"] = case.get("input_version", 1) + 1
+    if "client_story" in changes:
+        changes.update({"story_updated_by": user["id"], "story_updated_at": utc_now()})
     updated = write(request.app.state.adapters.database, case_id, changes, user["id"], "intake_updated")
     return {"case": client_case(updated)}
 
@@ -217,6 +222,7 @@ async def upload_evidence(
     request: Request,
     file: UploadFile = File(...),
     description: str = Form(""),
+    input_source: Literal["AUTO", "MICROPHONE", "AUDIO_NARRATION", "VIDEO_NARRATION", "FILE_UPLOAD"] = Form("AUTO"),
     user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     case = get_owned_case(request, case_id, user)
@@ -247,8 +253,25 @@ async def upload_evidence(
     except Exception:
         db.mutate("cases", case_id, lambda current: {"pending_uploads": max(0, current.get("pending_uploads", 1) - 1)})
         raise HTTPException(503, "Evidence storage failed. Please retry.")
+    digest = hashlib.sha256(content).hexdigest()
+    duplicate = next((entry for entry in case.get("evidence", []) if entry.get("content_hash", entry.get("extraction", {}).get("content_hash")) == digest), None)
+    is_media = (file.content_type or "").startswith(("audio/", "video/")) or extension in {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".mp4", ".mov", ".avi", ".webm"}
+    if input_source == "AUTO":
+        input_source = ("VIDEO_NARRATION" if (file.content_type or "").startswith("video/") or extension in {".mp4", ".mov", ".avi"} else "AUDIO_NARRATION") if is_media else "FILE_UPLOAD"
+    if not is_media and input_source in {"MICROPHONE", "AUDIO_NARRATION", "VIDEO_NARRATION"}:
+        input_source = "FILE_UPLOAD"
+    if duplicate and duplicate.get("extraction", {}).get("status") == "COMPLETED":
+        extraction = duplicate["extraction"]
+    elif is_media:
+        # Transcription runs in the shared background ingestion path, not the HTTP upload.
+        extraction = {"status": "PENDING", "original_text": "", "method": "transcription", "content_hash": digest, "reason": "Recording is saved and awaiting input processing.", "language": "unknown", "visual_analysis": "NOT_PERFORMED"}
+    else:
+        extraction = await run_in_threadpool(extract_content, content, filename, file.content_type or "")
     item = {
         "evidence_id": evidence_id,
+        "case_id": case_id, "case_origin": case.get("origin"), "input_source": input_source,
+        "content_hash": digest, "duplicate_of": duplicate["evidence_id"] if duplicate else None,
+        "evidence_state": "UPLOADED_EVIDENCE",
         "filename": filename,
         "content_type": file.content_type or "application/octet-stream",
         "size": len(content),
@@ -258,7 +281,7 @@ async def upload_evidence(
         "uploaded_at": utc_now(),
         "uploaded_by": user["id"],
         "source_type": "ADVOCATE_UPLOAD" if user.get("role") == "advocate" else "CLIENT_UPLOAD",
-        "extraction": await run_in_threadpool(extract_content, content, filename, file.content_type or ""),
+        "extraction": extraction,
     }
     updated = db.mutate("cases", case_id, lambda current: {"evidence": current.get("evidence", []) + [item], "pending_uploads": max(0, current.get("pending_uploads", 1) - 1), "version": current.get("version", 1) + 1, "input_version": current.get("input_version", 1) + 1, "engine2_stale": bool(current.get("engine2")), "documents_outdated": bool(current.get("document_version"))})
     if case.get("case_file"):
@@ -317,3 +340,23 @@ def update_evidence(
         raise HTTPException(status_code=404, detail="Evidence not found")
     updated = request.app.state.adapters.database.update("cases", case_id, {"evidence": evidence, "version": case.get("version", 1) + 1})
     return {"evidence": public_evidence(updated_entry), "case": client_case(updated)}
+
+
+@router.post("/{case_id}/input/retry")
+def retry_input(case_id: str, request: Request, user: dict = Depends(get_current_user)):
+    case = get_owned_case(request, case_id, user)
+    if case["status"] in {"ENGINE1_RUNNING", "ENGINE2_RUNNING", "GENERATING_DOCUMENTS", "SUBMITTED", "DELETED"} or case.get("input_status") == "RUNNING":
+        raise HTTPException(409, "Wait for current processing to finish before retrying input.")
+    from ..services.jobs import dispatch
+    db = request.app.state.adapters.database
+    def reserve_input(current):
+        if current.get("input_status") == "RUNNING" or current["status"] != case["status"]:
+            raise HTTPException(409, "Case processing changed. Please try again later.")
+        return {"input_status": "RUNNING"}
+    db.mutate("cases", case_id, reserve_input)
+    try:
+        dispatch(request.app, 0, case_id, preserve_status=True)
+    except Exception:
+        db.update("cases", case_id, {"input_status": "FAILED", "processing_error": {"engine": 0, "message": "Input retry dispatch failed."}})
+        raise HTTPException(503, "Your case is saved. Input processing could not start; please retry later.")
+    return {"status": "RUNNING", "message": "Your saved inputs are being processed again."}

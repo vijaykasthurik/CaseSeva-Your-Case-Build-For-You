@@ -27,7 +27,7 @@ def handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
         try:
             if action == "engine0":
                 from .services.ingestion import run_ingestion
-                run_ingestion(app, case_id, understand=event.get("understand", False))
+                run_ingestion(app, case_id, understand=event.get("understand", False), preserve_status=event.get("preserve_status", False))
                 return {"statusCode": 200}
             if action in {"engine1", "engine2", "engine3"}:
                 if action == "engine1":
