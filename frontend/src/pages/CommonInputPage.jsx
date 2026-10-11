@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { createCase, getCase, updateCase, submitCase, uploadEvidence, deleteEvidence } from "../api";
+import { createCase, getCase, updateCase, submitCase, uploadEvidence, deleteEvidence, retryInput } from "../api";
 
 const stages = [["NEW_CONSULTATION", "New / Consultation"], ["COMPLAINT_FIR", "Complaint / FIR exists"], ["EXISTING_OLD_CASE", "Existing / Old case"]];
 const optionalFields = { COMPLAINT_FIR: [["reference_number", "FIR or reference number"], ["station_authority", "Police station or authority"], ["filing_date", "Complaint date"]], EXISTING_OLD_CASE: [["case_number", "Case number"], ["court_authority", "Court or tribunal"], ["current_stage", "Current stage"], ["next_date", "Next hearing date"]] };
@@ -37,6 +37,16 @@ export default function CommonInputPage() {
     return () => { stream.current?.getTracks().forEach(track => track.stop()); };
   }, [caseId]);
 
+  useEffect(() => {
+    if (!evidence.some(item => item.extraction?.status !== "COMPLETED")) return;
+    const timer = setInterval(async () => {
+      if (!id.current) return;
+      try { const result = await getCase(id.current); setEvidence(result.case.evidence || []); }
+      catch { /* The next request can recover a temporary connection failure. */ }
+    }, 2500);
+    return () => clearInterval(timer);
+  }, [evidence.some(item => item.extraction?.status !== "COMPLETED")]);
+
   async function ensureCase() {
     if (id.current) return id.current;
     if (!creating.current) creating.current = createCase(walkin ? { origin: "ADVOCATE_WALK_IN", ...client } : undefined).then(({ case: item }) => {
@@ -61,17 +71,17 @@ export default function CommonInputPage() {
 
   useEffect(() => {
     if (!ready || !changed.current) return;
-    setSaved("Saving…");
+    setSaved("Savingâ€¦");
     const timer = setTimeout(() => save().catch(error => { setSaved("Not saved"); setMessage(error.message); }), 600);
     return () => clearTimeout(timer);
   }, [stage, story, details, ready]);
 
-  async function upload(files) {
+  async function upload(files, inputSource = "AUTO") {
     setBusy(true); setMessage("");
     try {
       const activeId = await save();
       for (const file of files) {
-        const result = await uploadEvidence(activeId, file);
+        const result = await uploadEvidence(activeId, file, "", inputSource);
         setEvidence(result.case.evidence);
       }
     } catch (error) { setMessage(error.message); }
@@ -89,10 +99,10 @@ export default function CommonInputPage() {
       recorder.current.onstop = () => {
         stream.current.getTracks().forEach(track => track.stop());
         const type = recorder.current.mimeType || "audio/webm";
-        upload([new File(chunks, `microphone-${Date.now()}.${type.includes("mp4") ? "mp4" : "webm"}`, { type })]);
+        upload([new File(chunks, `microphone-${Date.now()}.${type.includes("mp4") ? "mp4" : "webm"}`, { type })], "MICROPHONE");
       };
       recorder.current.start(); setRecording(true);
-    } catch (error) { setMessage(error.message); }
+    } catch (error) { stream.current?.getTracks().forEach(track => track.stop()); setRecording(false); setMessage("Microphone recording could not start. Check microphone permission or upload an audio file."); }
   }
 
   async function submit(event) {
@@ -102,9 +112,9 @@ export default function CommonInputPage() {
     finally { setBusy(false); }
   }
 
-  if (!ready) return <main className="main-container"><p>{message || "Loading draft…"}</p></main>;
+  if (!ready) return <main className="main-container"><p>{message || "Loading draftâ€¦"}</p></main>;
   return <main className="main-container content-narrow" style={{ paddingBottom: "5rem" }}>
-    <h1>Tell us about your case</h1>
+    <h1>Tell us what happened</h1>
     <p>Use English, Tamil, or both. Type your story or provide an audio/video narration. You can add supporting files too.</p>
     <p>AI-assisted legal information, not legal advice. An advocate reviews the case before filing.</p>
     <form onSubmit={submit}>
@@ -112,23 +122,29 @@ export default function CommonInputPage() {
       <label>What best describes your situation?<select aria-label="Case stage" value={stage} onChange={event => { changed.current = true; setStage(event.target.value); setDetails({}); }}>
         {stages.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
       </select></label>
-      <label style={{ display: "block", marginTop: "1.5rem" }}>Your story<textarea rows={9} value={story} onChange={event => { changed.current = true; setStory(event.target.value); }} placeholder="What happened? Include only what you know. Unknown dates or names can stay unknown." /></label>
+      <label htmlFor="case-story" style={{ display: "block", marginTop: "1.5rem" }}>Your story</label><textarea id="case-story" rows={9} value={story} onChange={event => { changed.current = true; setStory(event.target.value); }} placeholder="What happened? Include only what you know. Unknown dates or names can stay unknown." />
       <p aria-live="polite">{saved}</p>
       <button type="button" className="btn-pill-secondary" onClick={microphone} disabled={busy}>{recording ? "Stop recording and upload" : "Record with microphone"}</button>
-      {recording && <p role="status">Recording… Stop when you are finished.</p>}
-      <label style={{ display: "block", margin: "1.5rem 0" }}>Upload evidence or your story
+      {recording && <p role="status">Recordingâ€¦ Stop when you are finished.</p>}
+      <label style={{ display: "block", margin: "1.5rem 0" }}>Add files / Upload anything
         <input type="file" multiple accept=".pdf,.docx,.txt,.csv,image/*,audio/*,video/*" disabled={busy || recording} onChange={event => { upload(Array.from(event.target.files)); event.target.value = ""; }} />
       </label>
-      <p>Up to 10 MB per file. Files are read when uploaded. Unreadable files or unavailable transcription/OCR services will be marked pending.</p>
-      <ul>{evidence.map(item => <li key={item.evidence_id}>{item.evidence_id}: {item.filename} <button type="button" disabled={busy} onClick={async () => {
+      <p>Up to 10 MB per file. Documents are read when uploaded. Recordings are processed after submission or when you choose Retry reading files. Video processing currently reads audio only.</p>
+      <ul>{evidence.map(item => <li key={item.evidence_id}>{item.evidence_id}: {item.filename} — {item.extraction?.status === "COMPLETED" ? "Read" : "Reading pending"}{item.extraction?.review_required && " — extracted text needs checking"}{item.duplicate_of && " (duplicate upload; kept once in the combined text)"} <button type="button" disabled={busy} onClick={async () => {
         try { const result = await deleteEvidence(id.current, item.evidence_id); setEvidence(result.case.evidence); }
         catch (error) { setMessage(error.message); }
       }}>Remove</button></li>)}</ul>
+      {evidence.some(item => item.extraction?.status !== "COMPLETED") && <button type="button" disabled={busy || recording} onClick={async () => {
+        setBusy(true); setMessage("");
+        try { await save(); await retryInput(id.current); setMessage("Your saved files are being read. You can continue when processing finishes."); }
+        catch (error) { setMessage(error.message); }
+        finally { setBusy(false); }
+      }}>Retry reading files</button>}
       <details><summary>Optional case details</summary>
         {[...(optionalFields[stage] || []), ["amount", "Amount (if known)"], ["opposite_party", "Opposite party (if known)"]].map(([key, label]) => <label key={key} style={{ display: "block", margin: "1rem 0" }}>{label}<input value={details[key] || ""} onChange={event => { changed.current = true; setDetails({ ...details, [key]: event.target.value }); }} /></label>)}
       </details>
       {message && <p role="alert">{message}</p>}
-      {walkin ? <button value="legal_help" className="btn-pill-primary" disabled={busy || recording} style={{ marginTop: "1.5rem" }}>Save Client Intake</button> : <><button value="understand" className="btn-pill-primary" disabled={busy || recording} style={{ marginTop: "1.5rem" }}>{busy ? "Saving…" : "Understand My Case"}</button><button value="legal_help" className="btn-pill-secondary" disabled={busy || recording}>Get Legal Help</button><p>You can understand your case first or go straight to an advocate. Both choices stay available.</p></>}
+      {walkin ? <button value="legal_help" className="btn-pill-primary" disabled={busy || recording} style={{ marginTop: "1.5rem" }}>Save Client Intake</button> : <><button value="understand" className="btn-pill-primary" disabled={busy || recording} style={{ marginTop: "1.5rem" }}>{busy ? "Savingâ€¦" : "Build My Case"}</button><button value="legal_help" className="btn-pill-secondary" disabled={busy || recording}>Get Legal Help</button><p>You can understand your case first or go straight to an advocate. Both choices stay available.</p></>}
     </form>
   </main>;
 }

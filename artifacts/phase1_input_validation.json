@@ -1,0 +1,144 @@
+{
+  "english_image.png": {
+    "status": "COMPLETED",
+    "method": "ocr",
+    "language": "English",
+    "contains_amount": true,
+    "characters": 39,
+    "review_required": true,
+    "reason": null
+  },
+  "english_screenshot.png": {
+    "status": "COMPLETED",
+    "method": "ocr",
+    "language": "English",
+    "contains_amount": true,
+    "characters": 39,
+    "review_required": true,
+    "reason": null
+  },
+  "tamil-case-story.pdf": {
+    "status": "COMPLETED",
+    "method": "pdf",
+    "language": "Tamil-English",
+    "contains_amount": true,
+    "characters": 2111,
+    "review_required": false,
+    "reason": null
+  },
+  "tamil-case-story.png": {
+    "status": "COMPLETED",
+    "method": "ocr",
+    "language": "Tamil-English",
+    "contains_amount": true,
+    "characters": 2262,
+    "review_required": true,
+    "reason": null
+  },
+  "english_scanned.pdf": {
+    "status": "COMPLETED",
+    "method": "pdf_and_ocr",
+    "language": "English",
+    "contains_amount": true,
+    "characters": 39,
+    "review_required": true,
+    "reason": null
+  },
+  "tamil_scanned.pdf": {
+    "status": "COMPLETED",
+    "method": "pdf_and_ocr",
+    "language": "Tamil-English",
+    "contains_amount": true,
+    "characters": 2262,
+    "review_required": true,
+    "reason": null
+  },
+  "mixed.docx": {
+    "status": "COMPLETED",
+    "method": "docx",
+    "language": "Tamil-English",
+    "contains_amount": true,
+    "characters": 36,
+    "review_required": false,
+    "reason": null
+  },
+  "mixed.txt": {
+    "status": "COMPLETED",
+    "method": "text",
+    "language": "Tamil-English",
+    "contains_amount": true,
+    "characters": 36,
+    "review_required": false,
+    "reason": null
+  },
+  "tamil_bedrock": {
+    "language_status": "COMPLETED",
+    "declarations_status": "COMPLETED",
+    "original_preserved": true,
+    "evidence_ids": [],
+    "available": [
+      "Purchase receipt for refrigerator",
+      "Bank transaction record",
+      "Screenshots of text message exchange"
+    ],
+    "unavailable": [
+      "Warranty card",
+      "Audio recording of telephone call to store on September 9",
+      "Written inspection report"
+    ],
+    "unknown": [
+      "Full name of store employee",
+      "All terms and conditions stated by store at time of purchase",
+      "Exact date when store representative visited home",
+      "Reason for refrigerator malfunction"
+    ],
+    "pending": []
+  },
+  "english_bedrock": {
+    "language_status": "COMPLETED",
+    "declarations_status": "COMPLETED",
+    "original_preserved": true,
+    "evidence_ids": [],
+    "available": [
+      "Receipt"
+    ],
+    "unavailable": [
+      "Warranty card"
+    ],
+    "unknown": [
+      "Employee name"
+    ],
+    "pending": []
+  },
+  "mixed_bedrock": {
+    "language_status": "COMPLETED",
+    "declarations_status": "COMPLETED",
+    "original_preserved": true,
+    "evidence_ids": [],
+    "available": [
+      "Receipt for payment"
+    ],
+    "unavailable": [
+      "Warranty card"
+    ],
+    "unknown": [],
+    "pending": []
+  },
+  "bedrock_tokens": {
+    "input": 6627,
+    "output": 1917
+  },
+  "aws": {
+    "sts": "LIVE CONNECTED: us-east-1",
+    "s3": "LIVE INPUT VALIDATED: temporary encrypted object put/get/delete; bucket region ap-southeast-2",
+    "bedrock": "LIVE INPUT VALIDATED: existing ap-southeast-2 model",
+    "dynamodb": "LOCAL VALIDATED — DYNAMODB LIVE ACCESS BLOCKED BY AWS SCP",
+    "transcribe": "BLOCKED BY AWS SCP in ap-southeast-2; no transcription job started"
+  },
+  "scope": {
+    "engine_logic_changed": false,
+    "deployed": false,
+    "microphone": "Chromium synthetic capture/upload passed; speech not validated",
+    "video_visual_analysis": "NOT_IMPLEMENTED"
+  }
+}

@@ -96,10 +96,11 @@ export const submitCase = (caseId, path = "understand") =>
   request(`/api/cases/${caseId}/submit`, { method: "POST", body: JSON.stringify({ path }) });
 export const deleteCase = (caseId) =>
   request(`/api/cases/${caseId}`, { method: "DELETE" });
-export const uploadEvidence = (caseId, file, description = "") => {
+export const uploadEvidence = (caseId, file, description = "", inputSource = "AUTO") => {
   const form = new FormData();
   form.append("file", file, file.name);
   form.append("description", description);
+  form.append("input_source", inputSource);
   return request(`/api/cases/${caseId}/evidence`, { method: "POST", body: form });
 };
 export const deleteEvidence = (caseId, evidenceId) =>
@@ -188,3 +189,5 @@ export const downloadCaseDocument = async (caseId, document, format) => {
   if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.detail || "Document download failed."); }
   const url = URL.createObjectURL(await response.blob()); const a = window.document.createElement("a"); a.href = url; a.download = `${document.type}-v${document.version}.${format}`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
+
+export const retryInput = caseId => request(`/api/cases/${caseId}/input/retry`, { method: "POST" });

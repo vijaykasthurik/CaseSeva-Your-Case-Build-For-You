@@ -15,7 +15,7 @@ test("single-screen story-only submission, real progress, optional arguments and
   await page.getByLabel("Your story", { exact: true }).fill("I paid for a service and need help explaining my dispute.");
   await expect(page.getByLabel("Case stage")).toBeVisible();
   await expect(page.getByRole("button", { name: "Record with microphone" })).toBeVisible();
-  await page.getByRole("button", { name: "Understand My Case", exact: true }).click();
+  await page.getByRole("button", { name: "Build My Case", exact: true }).click();
   await expect(page).toHaveURL(/\/cases\/[a-f0-9]{32}$/);
   const id = new URL(page.url()).pathname.split("/").pop();
   await expect(page.getByTestId("case-status")).toContainText("Professional review or more processing is needed", { timeout: 30000 });
