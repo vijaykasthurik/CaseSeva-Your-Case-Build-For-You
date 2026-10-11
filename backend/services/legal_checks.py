@@ -3,6 +3,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from ..models.orchestration import AgentResult
 from ..models.legal_foundation import ApplicationProposal
+from ..models.legal_outputs import Applications
 from .legal_team import generate
 from .understanding_agents import known_ids
 
@@ -19,6 +20,17 @@ def issue_facts(values):
 class LegalChecks:
     def __init__(self, adapters, corpus):
         self.adapters, self.corpus = adapters, corpus
+
+    def validate_applications(self, value):
+        result = Applications.model_validate(value)
+        for app in result.applications:
+            source = self.corpus.get(app.source_id)
+            if (not source or source['version_id'] != app.source_version
+                or not self.corpus.validate_source({k: v for k, v in source.items() if k != 'version_id'})[0]
+                or any(getattr(app, key) != source[key] for key in ('title', 'section', 'citation'))
+                or app.quote not in source['quote'] or any(e not in source['quote'] for e in app.required_elements)):
+                raise ValueError('Reviewed output still requires independently verified authority')
+        return value
 
     def retrieval(self, issue_id, judgments=False):
         path = ('precedent_candidates.' if judgments else 'legal_sources.candidates.') + issue_id

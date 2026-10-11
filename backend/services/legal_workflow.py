@@ -145,9 +145,16 @@ def run_legal_foundation(app, case_id):
                   'legal_foundation_snapshot': {'board_version': board['version'], 'status': foundation.get('status', 'REVIEW_REQUIRED')},
                   'current_stage': None, 'stage_statuses': {}}
         if case_file:
+            store.record_case_file(case_id, {'case_file_version': case_file['version'], 'board_version': board['version'],
+                'input_version': case_file['input_version'], 'dependency_versions': case_file['dependency_versions'],
+                'generated_at': case_file['created_at'], 'status': 'CURRENT'})
             update['case_file'] = case_file
             update['legal_case_file_current'] = True
-        db.update('cases', case_id, update)
+        def publish(current):
+            if current.get('input_version', 1) != board['data']['input']['input_version']:
+                raise ValueError('Input changed during legal publication')
+            return update
+        db.mutate('cases', case_id, publish)
     except Exception:
         logging.getLogger(__name__).exception('Legal foundation worker requires review: %s', case_id)
         db.update('cases', case_id, {'status': 'LEGAL_FOUNDATION_REVIEW_REQUIRED', 'legal_foundation_status': 'REVIEW_REQUIRED',

@@ -24,7 +24,7 @@ def issue_validator(value):
     return validate_issues(value)
 
 
-def foundation_handler(issue_ids, optional):
+def foundation_handler(issue_ids, optional, corpus):
     def run(claim):
         values, findings, gaps = claim['inputs'], {}, []
         for iid in issue_ids:
@@ -34,8 +34,12 @@ def foundation_handler(issue_ids, optional):
             jurisdiction = values['jurisdiction_remedy.' + iid]
             evidence = values['evidence_law.' + iid]
             limitation = values.get('limitation.' + iid)
+            temporal = values['temporal_findings.' + iid]['decisions']
+            laws = [corpus.get(app['source_id'], app['source_version']) for app in apps['applications']]
+            temporal_ready = bool(laws) and any(s and s['source_type'] != 'JUDGMENT' for s in laws) and all(
+                s and (s['source_type'] == 'JUDGMENT' or temporal.get(s['source_id'], {}).get('status') == 'APPLICABLE') for s in laws)
             ready = (bool(apps['applications']) and not apps['unknowns'] and jurisdiction['status'] == 'SOURCE_VERIFIED'
-                     and not evidence['missing_elements'] and (not optional[iid]['limitation'] or limitation['status'] == 'SOURCE_VERIFIED'))
+                     and temporal_ready and not evidence['missing_elements'] and (not optional[iid]['limitation'] or limitation['status'] == 'SOURCE_VERIFIED'))
             authorities = sorted({app['source_id'] for app in apps['applications']})
             if not set(authorities).issubset(verified):
                 raise ValueError('Established findings require verified citation coverage')
@@ -96,7 +100,7 @@ def legal_registry(adapters, corpus, board=None):
         suffix = '_' + iid + '_' + digest([signature, optional[iid], fact_ids])[:10].upper()
         def operation(prefix, handler, reads, path, dependencies, keys, model=False):
             name = prefix + suffix
-            validator = Applications.model_validate if prefix == 'LEGAL_APPLICATION' else Citations.model_validate if prefix == 'CITATION_VERIFICATION' else object_validator(keys)
+            validator = checks.validate_applications if prefix == 'LEGAL_APPLICATION' else Citations.model_validate if prefix == 'CITATION_VERIFICATION' else object_validator(keys)
             register(name, handler, reads, [path], dependencies, {path: validator}, model=model)
             return name
         ref = 'legal_issues.' + iid
@@ -114,14 +118,14 @@ def legal_registry(adapters, corpus, board=None):
         jurisdiction = operation('JURISDICTION_REMEDY', checks.jurisdiction(iid), [ref, 'legal_applications.' + iid, 'legal_context'], 'jurisdiction_remedy.' + iid, [application], ['issue_id', 'status', 'forums', 'remedies', 'unresolved'])
         evidence = operation('EVIDENCE_LAW', checks.evidence(iid), [ref, 'legal_applications.' + iid, 'evidence_mapping'], 'evidence_law.' + iid, [application], ['issue_id', 'elements', 'declared_not_uploaded', 'unavailable', 'unknown', 'missing_elements', 'review_required'])
         targets += [jurisdiction, evidence]
-        final_reads += [ref, 'legal_applications.' + iid, 'citation_verification.' + iid, 'jurisdiction_remedy.' + iid, 'evidence_law.' + iid]
+        final_reads += [ref, 'legal_applications.' + iid, 'citation_verification.' + iid, 'temporal_findings.' + iid, 'jurisdiction_remedy.' + iid, 'evidence_law.' + iid]
         if issue['limitation_relevant']:
             limit = operation('LIMITATION', checks.limitation(iid), [ref, *fact_reads, 'legal_applications.' + iid, 'limitation_triggers.' + iid], 'limitation.' + iid, [application], ['issue_id', 'status', 'deadline', 'trigger_date', 'source_id', 'reason', 'conditional'])
             targets.append(limit)
             final_reads.append('limitation.' + iid)
     if issue_ids:
-        foundation = 'LEGAL_FOUNDATION_' + digest([signature, targets])[:10].upper()
-        register(foundation, foundation_handler(issue_ids, optional), final_reads, ['legal_foundation'], targets,
+        foundation = 'LEGAL_FOUNDATION_' + digest(['temporal-gate-v2', signature, targets])[:10].upper()
+        register(foundation, foundation_handler(issue_ids, optional, corpus), final_reads, ['legal_foundation'], targets,
                  {'legal_foundation': object_validator(['status', 'findings', 'unresolved_issue_ids', 'further_issues_require_review', 'understanding_reference', 'team_reference', 'execution_id', 'review_state'])})
     else:
         foundation = None

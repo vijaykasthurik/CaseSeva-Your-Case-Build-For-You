@@ -115,3 +115,13 @@ class LegalChecksTests(unittest.TestCase):
     def test_persisted_application_rejects_private_and_unknown_fields(self):
         with self.assertRaises(ValueError):
             Applications.model_validate({'issue_id': 'L001', 'status': 'SOURCE_VERIFIED', 'applications': [], 'unknowns': [], 'output_b': 'private'})
+
+    def test_reviewed_application_cannot_bypass_authority_revalidation(self):
+        app = {k: self.source[k] for k in ('source_id', 'citation', 'title', 'section', 'quote')}
+        app.update(fact_ids=['F001'], explanation='fixture', source_version=self.source['version_id'],
+                   authority_state='SOURCE_VERIFIED', applicability_state='ADVOCATE_REVIEW_REQUIRED')
+        value = {'issue_id': 'L001', 'status': 'SOURCE_VERIFIED', 'applications': [app], 'unknowns': []}
+        self.checks.validate_applications(value)
+        app['quote'] = 'Human-entered invented law'
+        with self.assertRaises(ValueError):
+            self.checks.validate_applications(value)

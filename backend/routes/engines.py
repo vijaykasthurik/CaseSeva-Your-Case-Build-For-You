@@ -98,6 +98,8 @@ def overview(case_id: str, request: Request, user=Depends(get_current_user)):
 @router.post("/{case_id}/engine2")
 def choose_engine2(case_id: str, body: Engine2Choice, request: Request, user=Depends(get_current_user)):
     case = get_case_or_error(request, case_id, user)
+    if case.get('legal_foundation_requested'):
+        raise HTTPException(409, 'Deeper analysis is not yet available for this legal-foundation workflow.')
     if not case.get("case_file") or case["status"] not in {"ENGINE1_DONE", "LEGAL_CORPUS_NOT_READY", "REVIEW_REQUIRED", "ENGINE2_DONE"} or case.get("processing_error"):
         raise HTTPException(409, "Complete the case explanation or resolve the processing problem first.")
     if body.run:

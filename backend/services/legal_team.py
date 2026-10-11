@@ -102,7 +102,8 @@ class LegalTeamAgents:
             values = claim['inputs']
             result = generate(self.adapters, name, SpecialistProposal, values, CATALOG[name]['purpose'] +
                 ' Identify supported observations and issue families only. Offences, ingredients, exemptions and remedies '
-                'are QUESTIONS pending authoritative retrieval, never statements of law. Cite only supplied active Fact/Evidence IDs.')
+                'are QUESTIONS pending authoritative retrieval, never statements of law. Cite only supplied active Fact/Evidence IDs. '
+                'Group related observations; aim for at most ten, each under 500 characters. Avoid repeating the full case history.')
             facts = active(values['facts'])
             evidence = values.get('input.evidence_ids') or []
             for item in result.observations:

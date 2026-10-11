@@ -52,7 +52,7 @@ class SpecialistObservation(Strict):
 
 
 class SpecialistProposal(Strict):
-    observations: list[SpecialistObservation] = Field(max_length=12)
+    observations: list[SpecialistObservation] = Field(max_length=16)
     issue_families: list[str] = Field(max_length=12)
     review_requirements: list[str] = Field(default_factory=list, max_length=15)
 

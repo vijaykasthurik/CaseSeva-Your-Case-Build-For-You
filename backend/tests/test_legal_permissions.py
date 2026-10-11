@@ -48,3 +48,11 @@ class LegalPermissionTests(unittest.TestCase):
         self.assertFalse(case['engine1_available'])
         self.assertNotIn('OUTDATED_LAW', str(case))
         self.assertNotIn('ADVOCATE_INTERNAL_OUTPUT_B', str(case))
+
+    def test_legacy_engine2_cannot_consume_phase4_case_file(self):
+        self.db.update('cases', self.cid, {'legal_foundation_requested': True, 'status': 'LEGAL_CORPUS_NOT_READY',
+                                         'case_file': {'kind': 'SOURCE_VERIFIED_ENGINE1', 'version': 1}})
+        with patch('backend.routes.engines.dispatch') as dispatch:
+            result = self.client.post(f'/api/cases/{self.cid}/engine2', headers=self.headers, json={'run': True})
+            self.assertEqual(result.status_code, 409)
+            dispatch.assert_not_called()
