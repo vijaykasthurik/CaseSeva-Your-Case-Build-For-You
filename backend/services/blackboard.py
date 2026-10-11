@@ -2,6 +2,20 @@
 from ..models.case import utc_now
 
 
+def sync_control_board(db, case_id):
+    """Side-by-side Phase 2 bridge; a failure must not break accepted engines.
+
+    No legal work is dispatched. Diagnostics can retry synchronization on demand.
+    """
+    from .case_blackboard import CaseBlackboard
+    try:
+        return CaseBlackboard(db).sync_input(case_id)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception("Phase 2 Blackboard synchronization pending for case %s", case_id)
+        return None
+
+
 def initial_board(case_id, origin, actor_id, language):
     return {"origin": origin, "public_case_id": "CS-" + utc_now()[:4] + "-" + case_id[:10].upper(), "preferred_language": language,
             "input_version": 1, "board_version": 1, "journey_stage": "DRAFT",

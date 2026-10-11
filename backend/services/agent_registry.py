@@ -67,11 +67,22 @@ class AgentRegistry:
     def select_pack(self, pack):
         return [name for name, r in self._agents.items() if r.contract.pack == pack]
 
+    def watched_paths(self, name):
+        c = self.get(name).contract
+        paths = set(c.watched_paths())
+        for dependency in c.dependencies:
+            outputs = self.get(dependency).contract.writes
+            # Explicit field reads narrow a dependency. Otherwise watch all of
+            # its outputs so a metadata-only edge cannot hide stale input.
+            if not any(overlaps(p, output) for p in paths for output in outputs):
+                paths.update(outputs)
+        return tuple(sorted(paths))
+
     def compatible(self, left, right):
         a, b = self.get(left).contract, self.get(right).contract
         return a.can_run_concurrently and b.can_run_concurrently and not any(
-            overlaps(x, y) for x in a.writes for y in b.writes + b.watched_paths()) and not any(
-            overlaps(x, y) for x in b.writes for y in a.watched_paths())
+            overlaps(x, y) for x in a.writes for y in b.writes + self.watched_paths(right)) and not any(
+            overlaps(x, y) for x in b.writes for y in self.watched_paths(left))
 
 
 def production_registry():

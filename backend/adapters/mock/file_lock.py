@@ -1,7 +1,6 @@
 """Serialize local JSON adapter instances and processes; never used by cloud adapters."""
 import os
 import time
-from contextlib import contextmanager
 from pathlib import Path
 from threading import Lock
 

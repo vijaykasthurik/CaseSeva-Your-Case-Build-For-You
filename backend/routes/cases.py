@@ -151,7 +151,10 @@ def list_cases(request: Request, user: dict = Depends(get_current_user)) -> dict
 
 @router.get("/{case_id}")
 def get_case(case_id: str, request: Request, user: dict = Depends(get_current_user)) -> dict[str, Any]:
-    return {"case": client_case(get_owned_case(request, case_id, user))}
+    case = get_owned_case(request, case_id, user)
+    from ..services.blackboard import sync_control_board
+    sync_control_board(request.app.state.adapters.database, case_id)
+    return {"case": client_case(case)}
 
 
 @router.patch("/{case_id}")

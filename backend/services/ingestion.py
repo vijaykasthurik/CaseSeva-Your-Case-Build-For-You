@@ -23,6 +23,8 @@ def run_ingestion(app, case_id, understand=False, preserve_status=False):
         updated = db.mutate("cases", case_id, commit)
         if updated.get("input_status") == "PENDING" and updated.get("processing_error"):
             return
+        from .blackboard import sync_control_board
+        sync_control_board(db, case_id)
         if changed_content:
             engine_state(db, case_id, 1, "STALE", reason="Input extraction changed after retry")
         if understand:

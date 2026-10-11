@@ -66,23 +66,23 @@ def invalidate(board, paths, exclude=()):
             if name in affected or name in exclude:
                 continue
             contract = node["contract"]
-            watches = contract["reads"] + contract["required_inputs"] + contract["optional_inputs"] + contract["stale_on"]
-            watches += [c["path"] for c in contract["conditions"]]
+            watches = node.get("watched_paths", contract["reads"] + contract["required_inputs"] + contract["optional_inputs"] + contract["stale_on"] + [c["path"] for c in contract["conditions"]])
             if any(overlaps(path, p) for p in watches):
                 affected.add(name)
                 if node["status"] != "WAITING":
                     node.update(status="STALE", claim_token=None, stale=True)
                 pending.extend(contract["writes"])
     provenance = board.get("case_file")
-    if provenance and any(overlaps(p, d) for p in paths for d in provenance["dependency_versions"]):
+    affected_paths = list(paths) + [p for name in affected for p in board["nodes"][name]["contract"]["writes"]]
+    if provenance and any(overlaps(p, d) for p in affected_paths for d in provenance["dependency_versions"]):
         provenance["status"] = "STALE"
     return sorted(affected)
 
 
-def set_values(board, changes, exclude=()):
+def set_values(board, changes, exclude=(), force_version=False):
     changed = []
     for path, value in changes.items():
-        if value_at(board["data"], path) != value:
+        if force_version or value_at(board["data"], path) != value:
             put_path(board["data"], path, value)
             board["path_versions"][path] = board["version"] + 1
             changed.append(path)
@@ -196,7 +196,15 @@ class CaseBlackboard:
         def transform(board):
             # Re-read on CAS retry; a stale caller cannot regress the input bridge.
             case = self.db.get("cases", case_id)
-            paths, affected = set_values(board, {"identity": identity(case), "input": input_references(case)})
+            changes = {"identity." + key: value for key, value in identity(case).items()}
+            changes.update({"input." + key: value for key, value in input_references(case).items()})
+            changes["evidence"] = {item["evidence_id"]: {
+                **board["data"].get("evidence", {}).get(item["evidence_id"], {}),
+                "evidence_id": item["evidence_id"], "source_ref": f"cases/{case_id}/evidence/{item['evidence_id']}",
+                "extraction_status": item.get("extraction", {}).get("status", "PENDING"),
+                "review_state": board["data"].get("evidence", {}).get(item["evidence_id"], {}).get("review_state", "REVIEW_REQUIRED")}
+                for item in case.get("evidence", [])}
+            paths, affected = set_values(board, changes)
             return {"changed_paths": paths, "affected_outputs": affected}
         return self.change(case_id, transform, kind="INPUT_SYNC", reason="Reference existing Phase 1 output")
 
@@ -216,6 +224,15 @@ class CaseBlackboard:
 
     def mark_stale(self, case_id, paths, actor="system"):
         return self.change(case_id, lambda board: {"affected_outputs": invalidate(board, paths), "changed_paths": paths}, actor=actor, kind="STALE")
+
+    def record_case_file(self, case_id, provenance):
+        from ..models.orchestration import CaseFileProvenance
+        provenance = CaseFileProvenance.model_validate(provenance).model_dump()
+        def transform(board):
+            if board["version"] != provenance["board_version"] or versions(board, provenance["dependency_versions"]) != provenance["dependency_versions"]:
+                raise VersionConflict("Case File dependencies changed")
+            board["case_file"] = provenance
+        return self.change(case_id, transform, kind="CASE_FILE_REFERENCED")
 
     @staticmethod
     def add_conflict(board, field, values, sources, *, agents=(), facts=(), execution_id=None):

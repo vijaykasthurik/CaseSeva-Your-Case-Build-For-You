@@ -18,6 +18,7 @@ from .routes.guest_claims import router as guest_claims_router
 from .routes.clarification import router as clarification_router
 from .routes.journey import router as journey_router
 from .routes.retention import router as retention_router
+from .routes.orchestration import router as orchestration_router
 
 
 @asynccontextmanager
@@ -60,3 +61,4 @@ app.include_router(guest_claims_router)
 app.include_router(clarification_router)
 app.include_router(journey_router)
 app.include_router(retention_router)
+app.include_router(orchestration_router)
