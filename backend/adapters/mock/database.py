@@ -2,7 +2,7 @@ import json
 import os
 import time
 from pathlib import Path
-from threading import Lock
+from .file_lock import DatabaseFileLock
 from typing import Any
 
 from ..database import DatabaseAdapter
@@ -12,9 +12,10 @@ class MockDatabaseAdapter(DatabaseAdapter):
     def __init__(self, path: str | Path | None = None):
         self.path = Path(path or os.getenv("MOCK_DATABASE_PATH", ".localdev/database.json"))
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self._lock = Lock()
-        if not self.path.exists():
-            self._write({})
+        self._lock = DatabaseFileLock(self.path)
+        with self._lock:
+            if not self.path.exists():
+                self._write({})
 
     def _read(self) -> dict[str, dict[str, Any]]:
         last_err = None
