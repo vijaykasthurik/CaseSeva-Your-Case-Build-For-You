@@ -155,7 +155,8 @@ class RealLLMAdapter(LLMAdapter):
         # Mode A: Boto3 Bedrock Runtime Client (IAM Role Credentials - Lambda)
         if not self.bearer_token:
             import boto3
-            client = boto3.client("bedrock-runtime", region_name=self.region)
+            from botocore.config import Config
+            client = boto3.client("bedrock-runtime", region_name=self.region, config=Config(connect_timeout=10, read_timeout=90, retries={"max_attempts": 0}))
             payload = {
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": max_tokens,
@@ -213,7 +214,7 @@ class RealLLMAdapter(LLMAdapter):
         for attempt in range(max_attempts):
             req = urllib.request.Request(url, data=data, headers=headers, method="POST")
             try:
-                with urllib.request.urlopen(req) as resp:
+                with urllib.request.urlopen(req, timeout=90) as resp:
                     response_bytes = resp.read()
                     response_json = json.loads(response_bytes.decode("utf-8"))
                     

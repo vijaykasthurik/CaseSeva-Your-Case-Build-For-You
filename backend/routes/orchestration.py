@@ -15,7 +15,7 @@ def diagnostics(case_id: str, request: Request, user=Depends(get_current_user)):
     case = db.get("cases", case_id)
     if not case or case.get("status") == "DELETED":
         raise HTTPException(404, "Case not found")
-    controller = MasterLegalOrchestrator(db, production_registry())
+    controller = MasterLegalOrchestrator(db, production_registry(request.app.state.adapters))
     try:
         controller.store.sync_input(case_id)
         return controller.diagnostics(case_id)

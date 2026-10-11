@@ -28,8 +28,8 @@ def run_ingestion(app, case_id, understand=False, preserve_status=False):
         if changed_content:
             engine_state(db, case_id, 1, "STALE", reason="Input extraction changed after retry")
         if understand:
-            from .engine1 import run_engine1
-            run_engine1(app, case_id)
+            from .core_workflow import run_selected_engine1
+            run_selected_engine1(app, case_id)
     except Exception as exc:
         import logging
         logging.getLogger(__name__).exception("Input preparation failed")

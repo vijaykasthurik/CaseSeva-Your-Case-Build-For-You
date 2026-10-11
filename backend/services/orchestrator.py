@@ -58,6 +58,8 @@ class MasterLegalOrchestrator:
             return "BLOCKED", "AGENT_DISABLED"
         if registration.handler is None:
             return "NOT_IMPLEMENTED", "AGENT_NOT_IMPLEMENTED"
+        if not registration.available:
+            return "BLOCKED", "CAPABILITY_UNAVAILABLE"
         if not set(c.required_capabilities).issubset(self.capabilities):
             return "BLOCKED", "CAPABILITY_UNAVAILABLE"
         language = board["data"]["identity"].get("preferred_language")
@@ -89,6 +91,8 @@ class MasterLegalOrchestrator:
                     else:
                         continue
                 if node["status"] in {"COMPLETED", "NEEDS_USER_INPUT", "NEEDS_DOCUMENT", "REVIEW_REQUIRED", "CONFLICT_FOUND"}:
+                    continue
+                if node["status"] == "BLOCKED" and node.get("agent_blocked"):
                     continue
                 if node["status"] == "FAILED":
                     c = self.registry.get(name).contract
@@ -123,7 +127,7 @@ class MasterLegalOrchestrator:
                         input_version=board["data"]["input"]["input_version"], input_board_version=board["version"],
                         claim_token=token, lease_until=now + c.timeout_seconds,
                         started_at=utc_now(), finished_at=None, stale=False, failure_reason=None,
-                        blocking_reason=None, pending_result=None, requests=[])
+                        blocking_reason=None, pending_result=None, requests=[], agent_blocked=False)
         board = self.store.change(case_id, transform, kind="AGENT_CLAIMED")
         node = board["nodes"][name]
         if node.get("claim_token") != token:
@@ -133,6 +137,7 @@ class MasterLegalOrchestrator:
         return {"case_id": case_id, "agent_type": name, "claim_token": token,
                 "execution_id": node["execution_id"], "idempotency_key": node["idempotency_key"],
                 "dependency_versions": node["dependency_versions"], "board_version": board["version"],
+                "previous_outputs": {path: copy.deepcopy(value_at(board["data"], path)) for path in c.writes},
                 "human_decisions": [copy.deepcopy(conflict) for conflict in board["conflicts"].values()
                                     if name in conflict["agents"] and conflict["resolution"]],
                 "inputs": {path: copy.deepcopy(value_at(board["data"], path)) for path in self.registry.watched_paths(name)}}
@@ -230,7 +235,7 @@ class MasterLegalOrchestrator:
                 node.update(status="REVIEW_REQUIRED", pending_result=result.model_dump(mode="json"), finished_at=utc_now())
                 return
             if result.status != "COMPLETED":
-                node.update(status=result.status, requests=result.requests, blocking_reason=result.reason, finished_at=utc_now())
+                node.update(status=result.status, requests=result.requests, blocking_reason=result.reason, finished_at=utc_now(), agent_blocked=result.status == "BLOCKED")
                 return
             # Explicit human decisions may change proposed values; validate again.
             self._validate(name, AgentResult(status="COMPLETED", outputs=outputs))

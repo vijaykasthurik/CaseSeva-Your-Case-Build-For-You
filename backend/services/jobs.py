@@ -13,8 +13,8 @@ def dispatch(app, engine, case_id, **options):
             from .ingestion import run_ingestion
             target = run_ingestion
         elif engine == 1:
-            from .engine1 import run_engine1
-            target = run_engine1
+            from .core_workflow import run_selected_engine1
+            target = run_selected_engine1
         elif engine == 2:
             from .engine2 import run_engine2
             target = run_engine2

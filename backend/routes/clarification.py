@@ -51,6 +51,17 @@ def answer(case_id: str, body: Answers, request: Request, user=Depends(get_curre
                     datetime.strptime(item.value, format)
                 except ValueError:
                     raise HTTPException(422, "Use a valid date/month, or choose an unknown response.")
+    if batch.get("core"):
+        from ..services.core_workflow import save_core_answers
+        save_core_answers(request.app.state.adapters.database, case, batch, [item.model_dump() for item in body.answers], user["id"])
+        batch.update({"answers": [item.model_dump() for item in body.answers], "status": "ANSWERED", "answered_at": utc_now(), "answered_by": user["id"]})
+        write(request.app.state.adapters.database, case_id, {"clarification_rounds": rounds, "status": "ENGINE1_RUNNING"}, user["id"], "core_clarification_answered")
+        try:
+            dispatch(request.app, 1, case_id)
+        except Exception:
+            write(request.app.state.adapters.database, case_id, {"status": "REVIEW_REQUIRED", "processing_error": {"engine": 1, "message": "Saved answers need processing retry."}}, action="core_resume_failed")
+            raise HTTPException(503, "Your answers are saved. Please retry processing later.")
+        return {"status": "resuming"}
     batch.update({"answers": [item.model_dump() for item in body.answers], "status": "ANSWERED", "answered_at": utc_now(), "answered_by": user["id"]})
     write(request.app.state.adapters.database, case_id, {"clarification_rounds": rounds, "status": "ENGINE1_RUNNING", "input_version": case.get("input_version", 1) + 1, "engine2_stale": bool(case.get("engine2")), "documents_outdated": bool(case.get("document_version"))}, user["id"], "clarification_answered")
     try: dispatch(request.app, 1, case_id, start_stage=batch["resume_stage"])

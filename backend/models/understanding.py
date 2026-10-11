@@ -11,7 +11,7 @@ class Strict(BaseModel):
 
 class SourceSpan(Strict):
     passage: int = Field(ge=0)
-    excerpt: str = Field(min_length=1, max_length=2500)
+    excerpt: str | None = Field(default=None, min_length=1, max_length=2500)
 
 
 class LanguageAssessment(Strict):
@@ -100,6 +100,7 @@ class QuestionCandidate(Strict):
     question: str = Field(min_length=1, max_length=400)
     priority: Literal["HIGH", "MEDIUM", "LOW"]
     essential: bool
+    need: Literal["IDENTIFY_EVENT", "IDENTIFY_PARTY", "PROCEDURAL_STAGE", "RESOLVE_CONFLICT", "OPTIONAL_DETAIL", "DOCUMENT"] = "OPTIONAL_DETAIL"
     response_kind: Literal["DETAIL", "DOCUMENT"]
     fact_ids: list[str] = Field(default_factory=list, max_length=10)
     declaration_index: int | None = None

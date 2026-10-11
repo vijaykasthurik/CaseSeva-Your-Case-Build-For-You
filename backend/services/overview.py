@@ -42,7 +42,7 @@ def client_overview(case: dict) -> dict:
     verified = [item for item in file.get("applicable_law", []) if item.get("verification_status") == "VERIFIED" and not item.get("removed")]
     forum = file.get("forum", {})
     limitation = file.get("limitation", {})
-    return {
+    output = {
         "title": "Client Case Overview", "case_id": case["case_id"], "case_file_version": file.get("version"),
         "summary": file.get("intake", {}).get("narrative") or case.get("client_story", ""),
         "key_facts": [{"text": item["text"], "source_status": item.get("source_status", "UNVERIFIED")} for item in file.get("facts", []) if not item.get("removed")],
@@ -58,6 +58,12 @@ def client_overview(case: dict) -> dict:
         "next_step": "Find an advocate for review." if missing or file.get("pending_advocate_verification") else "The case is ready to proceed to an advocate.",
         "processing_mode": file.get("processing_mode"), "documents_outdated": case.get("documents_outdated", False),
     }
+    if case.get("engine1_execution") == "ORCHESTRATED_CORE_V1":
+        state = case.get("case_understanding_status")
+        output.update(case_understanding_status=state if state in {"BUILDING", "READY", "REVIEW_REQUIRED", "NEEDS_INPUT"} else "PENDING",
+                      legal_foundation_status="PENDING", ready_to_find_advocate=False,
+                      next_step="Case understanding is being prepared or reviewed. Verified legal analysis is pending.")
+    return output
 
 
 def client_case(case: dict) -> dict:
@@ -70,6 +76,10 @@ def client_case(case: dict) -> dict:
         output[field] = public_statuses(case.get(field))
     output["overview"] = client_overview(case)
     output["engine1_available"] = bool(case.get("case_file"))
+    if case.get("engine1_execution") == "ORCHESTRATED_CORE_V1":
+        state = case.get("case_understanding_status")
+        output["case_understanding_status"] = state if state in {"BUILDING", "READY", "REVIEW_REQUIRED", "NEEDS_INPUT"} else "PENDING"
+        output["legal_foundation_status"] = "PENDING"
     output["client_messages"] = [item for item in case.get("professional_notes", []) if item.get("visibility") == "SHARED_WITH_CLIENT"]
     output["information_requests"] = case.get("information_requests", [])
     output["filing_update"] = case.get("filing_update")

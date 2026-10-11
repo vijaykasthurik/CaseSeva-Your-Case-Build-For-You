@@ -182,7 +182,7 @@ def working_text(text: str, adapters) -> dict:
         return {"language": "unknown", "english_text": "", "status": "PENDING", "reason": f"Language processing failed: {exc}"}
 
 
-def build_raw_package(case: dict, adapters, progress=None) -> dict:
+def build_raw_package(case: dict, adapters, progress=None, *, working_language_required=True, retry_pending_media=True) -> dict:
     evidence, pending, sources = [], [], []
     case_id = case.get("case_id", case.get("id", "unknown"))
     origin = case.get("origin", "CITIZEN_SELF_SERVICE")
@@ -204,7 +204,10 @@ def build_raw_package(case: dict, adapters, progress=None) -> dict:
         identifier = item["evidence_id"]
         if progress: progress(identifier, "RUNNING")
         extraction = item.get("extraction") or previous_extractions.get(identifier)
-        if not extraction or extraction.get("status") != "COMPLETED":
+        media_pending = not retry_pending_media and (item.get("content_type", "").startswith(("audio/", "video/")) or item.get("input_source") in {"MICROPHONE", "AUDIO_NARRATION", "VIDEO_NARRATION"})
+        if media_pending and (not extraction or extraction.get("status") != "COMPLETED"):
+            extraction = extraction or {"status": "PENDING", "original_text": "", "method": "transcription", "reason": "Speech capability is unavailable; original recording is preserved."}
+        elif not extraction or extraction.get("status") != "COMPLETED":
             try:
                 content = adapters.storage.download(item["storage_key"])
                 digest = hashlib.sha256(content).hexdigest()
@@ -227,7 +230,7 @@ def build_raw_package(case: dict, adapters, progress=None) -> dict:
     original = canonical["text"]
     digest = text_hash(original)
     language = previous.get("language") if previous.get("canonical_hash") == digest and previous.get("language", {}).get("status") == "COMPLETED" and previous.get("processing_mode") == adapters.mode else None
-    language = language or working_text(original, adapters)
+    language = language or (working_text(original, adapters) if working_language_required else {"language": "undetermined", "english_text": "", "status": "NOT_REQUIRED", "reason": "Core agents reason from original language sources."})
     language["script_detection"] = detect_language(original)
     if language["status"] == "PENDING": pending.append({"kind": "LANGUAGE", "reason": language["reason"]})
     declaration_result = previous.get("declaration_processing") if previous.get("canonical_hash") == digest and [s["source_id"] for s in previous.get("provenance", [])] == [s["source_id"] for s in sources] and previous.get("declaration_processing", {}).get("status") == "COMPLETED" and previous.get("processing_mode") == adapters.mode else None

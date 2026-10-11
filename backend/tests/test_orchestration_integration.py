@@ -20,7 +20,7 @@ class OrchestrationIntegrationTests(unittest.TestCase):
     def tearDown(self):
         self.directory.cleanup()
 
-    def test_admin_only_diagnostics_and_empty_production_registry(self):
+    def test_admin_only_diagnostics_and_production_registry_does_not_autorun(self):
         self.assertEqual(self.client.get(self.path).status_code, 401)
         self.assertEqual(self.client.get(self.path, headers=self.headers).status_code, 403)
         session = self.client.post("/api/auth/login", json={"email": "demo.advocate@caseseva.local", "password": "DemoPassword123"}).json()
@@ -30,8 +30,8 @@ class OrchestrationIntegrationTests(unittest.TestCase):
             self.assertEqual(self.client.get(self.path, headers=self.headers).status_code, 403)
             response = self.client.get(self.path, headers={**self.headers, "X-Admin-Token": "test-admin-only"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["registry"], [])
-        self.assertEqual(production_registry().describe(), [])
+        self.assertEqual(len(response.json()["registry"]), 7)
+        self.assertEqual(len(production_registry().describe()), 7)
         self.assertIsNone(response.json()["checkpoint"])
 
     def test_citizen_read_lazy_initialization_does_not_expose_control_state(self):

@@ -59,8 +59,11 @@ def passages(raw, answers=()):
 def ground(selections, indexed):
     refs = []
     for selection in selections:
-        index, excerpt = selection.passage, selection.excerpt
-        if index >= len(indexed) or excerpt not in indexed[index]["text"]:
+        index = selection.passage
+        if index >= len(indexed):
+            raise ValueError("Source selection is not an exact original passage")
+        excerpt = selection.excerpt if selection.excerpt is not None else indexed[index]["text"]
+        if excerpt not in indexed[index]["text"]:
             raise ValueError("Source selection is not an exact original passage")
         source = indexed[index]
         offset = source["text"].index(excerpt)

@@ -31,7 +31,7 @@ def handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
                 return {"statusCode": 200}
             if action in {"engine1", "engine2", "engine3"}:
                 if action == "engine1":
-                    from .services.engine1 import run_engine1 as target
+                    from .services.core_workflow import run_selected_engine1 as target
                 elif action == "engine2":
                     from .services.engine2 import run_engine2 as target
                 else:

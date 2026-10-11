@@ -15,13 +15,14 @@ class Registration:
     validators: dict | None = None
     enabled: bool = True
     live_validated: bool = False
+    available: bool = True
 
 
 class AgentRegistry:
     def __init__(self):
         self._agents = {}
 
-    def register(self, contract, handler=None, validators=None, *, enabled=True, live_validated=False):
+    def register(self, contract, handler=None, validators=None, *, enabled=True, live_validated=False, available=True):
         contract = AgentContract.model_validate(contract)
         name = contract.agent_type
         if name in self._agents:
@@ -30,7 +31,7 @@ class AgentRegistry:
             raise ValueError("Every implemented output needs a validator")
         if live_validated and handler is None:
             raise ValueError("An unavailable agent cannot be live validated")
-        self._agents[name] = Registration(contract, handler, validators, enabled, live_validated)
+        self._agents[name] = Registration(contract, handler, validators, enabled, live_validated, available)
         return self
 
     def get(self, name):
@@ -40,7 +41,7 @@ class AgentRegistry:
 
     def describe(self):
         return [{**r.contract.model_dump(mode="json"), "registered": True,
-                 "implemented": r.handler is not None, "available": r.enabled and r.handler is not None,
+                 "implemented": r.handler is not None, "available": r.enabled and r.available and r.handler is not None,
                  "enabled": r.enabled, "live_validated": r.live_validated}
                 for r in self._agents.values()]
 
@@ -85,7 +86,6 @@ class AgentRegistry:
             overlaps(x, y) for x in b.writes for y in self.watched_paths(left))
 
 
-def production_registry():
-    # Phase 1 input is a data bridge, not a newly implemented legal agent.
-    # Register real migrated handlers here in later approved phases.
-    return AgentRegistry()
+def production_registry(adapters=None):
+    from .understanding_agents import core_registry
+    return core_registry(adapters)

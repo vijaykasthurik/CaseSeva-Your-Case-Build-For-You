@@ -30,6 +30,12 @@ class UnderstandingSourceTests(unittest.TestCase):
         raw["provenance"].append({"source_id": "E001", "evidence_id": "E001", "original_text": "unreadable guessed text", "extraction_status": "PENDING"})
         self.assertEqual(len(passages(raw)), 1)
 
+    def test_index_only_selection_copies_exact_original(self):
+        indexed = passages(self.raw("என் பெயர் காவியா. Receipt உள்ளது."))
+        self.assertEqual(ground([SourceSpan(passage=0)], indexed)[0]["wording"], indexed[0]["text"])
+        with self.assertRaises(ValueError):
+            ground([SourceSpan(passage=99)], indexed)
+
     def test_dates_are_checked_against_originals_and_unknowns_remain_unknown(self):
         indexed = passages(self.raw())
         refs = ground([SourceSpan(passage=0, excerpt=indexed[0]["text"])], indexed)
