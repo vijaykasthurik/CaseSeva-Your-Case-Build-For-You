@@ -211,6 +211,8 @@ class LegalChecks:
                         'fact_support': {fid: mapping.get('fact_support', {}).get(fid, {'state': 'UNKNOWN', 'evidence_ids': []}) for fid in fact_ids},
                         'element_satisfaction': 'ADVOCATE_REVIEW_REQUIRED'})
             return AgentResult(status='COMPLETED', outputs={'evidence_law.' + issue_id: {'issue_id': issue_id, 'elements': elements,
-                'declared_not_uploaded': mapping.get('declared_evidence', []), 'unavailable': mapping.get('unavailable_evidence', []),
-                'unknown': mapping.get('unknown_evidence', []), 'missing_elements': missing or not bool(elements), 'review_required': True}})
+                'declared_not_uploaded': [{'ref': '/evidence_mapping/declared_evidence/' + str(i)} for i, _ in enumerate(mapping.get('declared_evidence', []))],
+                'unavailable': [{'ref': '/evidence_mapping/unavailable_evidence/' + str(i)} for i, _ in enumerate(mapping.get('unavailable_evidence', []))],
+                'unknown': [{'ref': '/evidence_mapping/unknown_evidence/' + str(i)} for i, _ in enumerate(mapping.get('unknown_evidence', []))],
+                'missing_elements': missing or not bool(elements), 'review_required': True}})
         return run

@@ -110,7 +110,7 @@ class LegalChecksTests(unittest.TestCase):
         output = self.checks.evidence('L001')({'inputs': self.values}).outputs['evidence_law.L001']
         self.assertTrue(output['missing_elements'])
         self.assertEqual(output['elements'][1]['fact_ids'], [])
-        self.assertEqual(output['unavailable'], ['receipt unavailable'])
+        self.assertEqual(output['unavailable'], [{'ref': '/evidence_mapping/unavailable_evidence/0'}])
 
     def test_persisted_application_rejects_private_and_unknown_fields(self):
         with self.assertRaises(ValueError):

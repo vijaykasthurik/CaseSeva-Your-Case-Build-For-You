@@ -7,6 +7,7 @@ from .orchestrator import MasterLegalOrchestrator
 from .verified_corpus import VerifiedCorpus
 from .legal_registry import legal_registry
 from .core_workflow import run_core, prepare
+from .legal_artifacts import compact_specialists
 from ..models.case import utc_now
 
 CORE_NAMES = {'CASE_STAGE', 'FACT_TIMELINE', 'PARTY_RELATIONSHIP', 'EVIDENCE_MAPPING', 'CLARIFICATION', 'RECONCILIATION', 'DOMAIN_ROUTER'}
@@ -103,6 +104,7 @@ def run_legal_foundation(app, case_id):
             db.update('cases', case_id, {'status': 'REVIEW_REQUIRED', 'legal_foundation_status': 'REVIEW_REQUIRED'})
             return
         deadline = time.monotonic() + 600
+        board = compact_specialists(db, store, case_id, board)
         corpus = getattr(adapters, 'verified_corpus', None) or VerifiedCorpus(db)
         db.update('cases', case_id, {'status': 'LEGAL_FOUNDATION_IN_PROGRESS', 'legal_foundation_status': 'IN_PROGRESS',
                                    'current_stage': None, 'stage_statuses': {}, 'processing_error': None,

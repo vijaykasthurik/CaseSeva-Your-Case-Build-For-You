@@ -352,7 +352,7 @@ def update_evidence(
 @router.post("/{case_id}/input/retry")
 def retry_input(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = get_owned_case(request, case_id, user)
-    if case["status"] in {"ENGINE1_RUNNING", "ENGINE2_RUNNING", "GENERATING_DOCUMENTS", "SUBMITTED", "DELETED"} or case.get("input_status") == "RUNNING":
+    if case["status"] in {"ENGINE1_RUNNING", "LEGAL_FOUNDATION_IN_PROGRESS", "ENGINE2_RUNNING", "GENERATING_DOCUMENTS", "SUBMITTED", "DELETED"} or case.get("input_status") == "RUNNING":
         raise HTTPException(409, "Wait for current processing to finish before retrying input.")
     from ..services.jobs import dispatch
     db = request.app.state.adapters.database

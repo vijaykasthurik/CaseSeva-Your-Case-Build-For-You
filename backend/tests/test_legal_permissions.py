@@ -22,6 +22,7 @@ class LegalPermissionTests(unittest.TestCase):
             self.assertEqual(self.client.post(self.url).status_code, 401)
             self.assertEqual(self.client.post(self.url, headers=self.other).status_code, 403)
             self.assertEqual(self.client.post(self.url, headers=self.headers).status_code, 200)
+            self.assertEqual(self.client.post(f'/api/cases/{self.cid}/input/retry', headers=self.headers).status_code, 409)
             self.assertEqual(self.client.post(self.url, headers=self.headers).status_code, 409)
             self.assertEqual(dispatch.call_count, 1)
 

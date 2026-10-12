@@ -8,6 +8,7 @@ from .specialist_packs import CATALOG
 from .legal_team import LegalTeamAgents
 from .legal_checks import LegalChecks
 from .case_blackboard import digest
+from .legal_artifacts import validate_specialist
 
 
 def object_validator(required, optional=()):
@@ -53,7 +54,8 @@ def foundation_handler(issue_ids, optional, corpus):
         extra = values.get('legal_issue_scope', {}).get('further_issues_require_review')
         output = {'status': 'SOURCE_VERIFIED' if findings and not gaps and not extra else 'REVIEW_REQUIRED',
                   'findings': findings, 'unresolved_issue_ids': gaps, 'further_issues_require_review': bool(extra),
-                  'understanding_reference': values.get('understanding_reference'), 'team_reference': values.get('agent_team'),
+                  'understanding_reference': values.get('understanding_reference'),
+                  'team_reference': {'path': 'agent_team', 'execution_id': values['agent_team']['execution_id']},
                   'execution_id': claim['execution_id'], 'review_state': 'ADVOCATE_REVIEW_REQUIRED'}
         return AgentResult(status='COMPLETED', outputs={'legal_foundation': output})
     return run
@@ -75,10 +77,7 @@ def legal_registry(adapters, corpus, board=None):
     # Every specialist is genuinely registered. Only selected names enter a plan.
     for name in CATALOG:
         path = 'specialists.' + name
-        def validate(value):
-            SpecialistProposal.model_validate({k: v for k, v in value.items() if k not in {'agent', 'domain', 'legal_state', 'execution_id'}})
-            return value
-        register(name, team.specialist(name), base + ['agent_team'], [path], ['TEAM_BUILDER'], {path: validate}, model=True, pack=CATALOG[name]['domain'])
+        register(name, team.specialist(name), base + ['agent_team'], [path], ['TEAM_BUILDER'], {path: validate_specialist}, model=True, pack=CATALOG[name]['domain'])
     data = (board or {}).get('data', {})
     selected = sorted(data.get('agent_team', {}).get('selected', {}))
     if not selected:
