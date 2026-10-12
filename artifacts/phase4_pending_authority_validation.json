@@ -1,0 +1,709 @@
+{
+  "checked_at": "2026-10-12T09:14:16.721976+00:00",
+  "state": "REVIEW_REQUIRED",
+  "source_verified_count": 0,
+  "consumer": {
+    "phase3_rerun": false,
+    "team_reused": [
+      "TRANSACTION",
+      "PRODUCT_DEFECT",
+      "WARRANTY_REFUND_REPLACEMENT",
+      "CONSUMER_EVIDENCE",
+      "CONSUMER_REMEDY"
+    ],
+    "case_file_produced": false,
+    "issues": {
+      "L001": {
+        "domain": "CONSUMER",
+        "jurisdiction": "Tamil Nadu, India (Madurai residence, seller location unknown)",
+        "candidate_ids": [
+          "cpa2019_s2_10",
+          "cpa2019_s2_11",
+          "cpa2019_s2_7",
+          "cpa2019_s34",
+          "cpa2019_s39",
+          "cpa_commencement_2351",
+          "cpa_jurisdiction2021_r1",
+          "cpa_jurisdiction2021_r3",
+          "cpa2019_s69"
+        ],
+        "citations": {
+          "issue_id": "L001",
+          "decisions": [
+            {
+              "source_id": "cpa2019_s2_10",
+              "version_id": "b4f5079de892801f5f05478fe708786f02b95611bb67b68dbbf1d63c438d9353",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s2_11",
+              "version_id": "743151b79fbeb11660c63b60530e3036db43ba8d9b25fdc3fae94f15b73205ee",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s2_7",
+              "version_id": "d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s34",
+              "version_id": "3fdd07a059fa3be18328738bb1146722110f96f19eb5fce579d7d8f0af6b8b66",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s39",
+              "version_id": "49f660e732b3e1544838f6817d40964d2f15363099a6b1907c28c52db56db376",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa_commencement_2351",
+              "version_id": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa_jurisdiction2021_r1",
+              "version_id": "8661f1a6256e67794a4c3700a1fd059d6a65e4da51585305bcbfce37ad8fa4fa",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa_jurisdiction2021_r3",
+              "version_id": "2611c410fe4e48a978a000d2419e5ac391675ce8bb8db07d82804c8619df1ec0",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s69",
+              "version_id": "bb561eb9f49cf25ba314deb8bd15243293fdc619950105646c135aac3003776c",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            }
+          ]
+        },
+        "temporal": {
+          "issue_id": "L001",
+          "decisions": {
+            "cpa2019_s2_10": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "b4f5079de892801f5f05478fe708786f02b95611bb67b68dbbf1d63c438d9353",
+              "event_dates": [
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa2019_s2_11": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "743151b79fbeb11660c63b60530e3036db43ba8d9b25fdc3fae94f15b73205ee",
+              "event_dates": [
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa2019_s2_7": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e",
+              "event_dates": [
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa2019_s34": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "3fdd07a059fa3be18328738bb1146722110f96f19eb5fce579d7d8f0af6b8b66",
+              "event_dates": [
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa2019_s39": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "49f660e732b3e1544838f6817d40964d2f15363099a6b1907c28c52db56db376",
+              "event_dates": [
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa_commencement_2351": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+              "event_dates": [
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa_jurisdiction2021_r1": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "8661f1a6256e67794a4c3700a1fd059d6a65e4da51585305bcbfce37ad8fa4fa",
+              "event_dates": [
+                null,
+                null
+              ],
+              "effective_from": null,
+              "effective_until": null
+            },
+            "cpa_jurisdiction2021_r3": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "2611c410fe4e48a978a000d2419e5ac391675ce8bb8db07d82804c8619df1ec0",
+              "event_dates": [
+                null,
+                null
+              ],
+              "effective_from": null,
+              "effective_until": null
+            },
+            "cpa2019_s69": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "bb561eb9f49cf25ba314deb8bd15243293fdc619950105646c135aac3003776c",
+              "event_dates": [
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            }
+          }
+        }
+      },
+      "L002": {
+        "domain": "CONSUMER",
+        "jurisdiction": null,
+        "candidate_ids": [],
+        "citations": {
+          "issue_id": "L002",
+          "decisions": []
+        },
+        "temporal": {
+          "issue_id": "L002",
+          "decisions": {}
+        }
+      },
+      "L003": {
+        "domain": "CONSUMER",
+        "jurisdiction": null,
+        "candidate_ids": [],
+        "citations": {
+          "issue_id": "L003",
+          "decisions": []
+        },
+        "temporal": {
+          "issue_id": "L003",
+          "decisions": {}
+        }
+      },
+      "L004": {
+        "domain": "CONSUMER",
+        "jurisdiction": "Tamil Nadu, India (presumed, requires seller location verification)",
+        "candidate_ids": [
+          "cpa2019_s39",
+          "cpa2019_s2_10",
+          "cpa2019_s34",
+          "cpa_commencement_2351",
+          "cpa2019_s2_11",
+          "cpa2019_s2_7",
+          "cpa_jurisdiction2021_r1",
+          "cpa_jurisdiction2021_r3",
+          "cpa2019_s69"
+        ],
+        "citations": {
+          "issue_id": "L004",
+          "decisions": [
+            {
+              "source_id": "cpa2019_s39",
+              "version_id": "49f660e732b3e1544838f6817d40964d2f15363099a6b1907c28c52db56db376",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s2_10",
+              "version_id": "b4f5079de892801f5f05478fe708786f02b95611bb67b68dbbf1d63c438d9353",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s34",
+              "version_id": "3fdd07a059fa3be18328738bb1146722110f96f19eb5fce579d7d8f0af6b8b66",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa_commencement_2351",
+              "version_id": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s2_11",
+              "version_id": "743151b79fbeb11660c63b60530e3036db43ba8d9b25fdc3fae94f15b73205ee",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s2_7",
+              "version_id": "d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa_jurisdiction2021_r1",
+              "version_id": "8661f1a6256e67794a4c3700a1fd059d6a65e4da51585305bcbfce37ad8fa4fa",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa_jurisdiction2021_r3",
+              "version_id": "2611c410fe4e48a978a000d2419e5ac391675ce8bb8db07d82804c8619df1ec0",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            },
+            {
+              "source_id": "cpa2019_s69",
+              "version_id": "bb561eb9f49cf25ba314deb8bd15243293fdc619950105646c135aac3003776c",
+              "status": "PENDING",
+              "reason": "TEMPORAL_APPLICABILITY_PENDING"
+            }
+          ]
+        },
+        "temporal": {
+          "issue_id": "L004",
+          "decisions": {
+            "cpa2019_s39": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "49f660e732b3e1544838f6817d40964d2f15363099a6b1907c28c52db56db376",
+              "event_dates": [
+                null,
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa2019_s2_10": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "b4f5079de892801f5f05478fe708786f02b95611bb67b68dbbf1d63c438d9353",
+              "event_dates": [
+                null,
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa2019_s34": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "3fdd07a059fa3be18328738bb1146722110f96f19eb5fce579d7d8f0af6b8b66",
+              "event_dates": [
+                null,
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa_commencement_2351": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+              "event_dates": [
+                null,
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa2019_s2_11": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "743151b79fbeb11660c63b60530e3036db43ba8d9b25fdc3fae94f15b73205ee",
+              "event_dates": [
+                null,
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa2019_s2_7": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e",
+              "event_dates": [
+                null,
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            },
+            "cpa_jurisdiction2021_r1": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "8661f1a6256e67794a4c3700a1fd059d6a65e4da51585305bcbfce37ad8fa4fa",
+              "event_dates": [
+                null,
+                null,
+                null
+              ],
+              "effective_from": null,
+              "effective_until": null
+            },
+            "cpa_jurisdiction2021_r3": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "2611c410fe4e48a978a000d2419e5ac391675ce8bb8db07d82804c8619df1ec0",
+              "event_dates": [
+                null,
+                null,
+                null
+              ],
+              "effective_from": null,
+              "effective_until": null
+            },
+            "cpa2019_s69": {
+              "status": "PENDING",
+              "reason": "EVENT_DATE_OR_LEGAL_VERSION_UNRESOLVED",
+              "version_id": "bb561eb9f49cf25ba314deb8bd15243293fdc619950105646c135aac3003776c",
+              "event_dates": [
+                null,
+                null,
+                null
+              ],
+              "effective_from": "2020-07-20",
+              "effective_until": null
+            }
+          }
+        }
+      }
+    }
+  },
+  "corpus": [
+    {
+      "source_id": "cpa2019_s2_7",
+      "domain": "CONSUMER",
+      "jurisdiction": "IN",
+      "family": "consumer_affairs",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": "2020-07-20",
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "cpa2019_s2_10",
+      "domain": "CONSUMER",
+      "jurisdiction": "IN",
+      "family": "consumer_affairs",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": "2020-07-20",
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "b4f5079de892801f5f05478fe708786f02b95611bb67b68dbbf1d63c438d9353",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "cpa2019_s2_11",
+      "domain": "CONSUMER",
+      "jurisdiction": "IN",
+      "family": "consumer_affairs",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": "2020-07-20",
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "743151b79fbeb11660c63b60530e3036db43ba8d9b25fdc3fae94f15b73205ee",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "cpa2019_s34",
+      "domain": "CONSUMER",
+      "jurisdiction": "IN",
+      "family": "consumer_affairs",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": "2020-07-20",
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "3fdd07a059fa3be18328738bb1146722110f96f19eb5fce579d7d8f0af6b8b66",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "cpa2019_s39",
+      "domain": "CONSUMER",
+      "jurisdiction": "IN",
+      "family": "consumer_affairs",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": "2020-07-20",
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "49f660e732b3e1544838f6817d40964d2f15363099a6b1907c28c52db56db376",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "cpa2019_s69",
+      "domain": "CONSUMER",
+      "jurisdiction": "IN",
+      "family": "consumer_affairs",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": "2020-07-20",
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "bb561eb9f49cf25ba314deb8bd15243293fdc619950105646c135aac3003776c",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "cpa_commencement_2351",
+      "domain": "CONSUMER",
+      "jurisdiction": "IN",
+      "family": "consumer_affairs",
+      "source_type": "NOTIFICATION",
+      "court": null,
+      "effective_from": "2020-07-20",
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "cpa_jurisdiction2021_r1",
+      "domain": "CONSUMER",
+      "jurisdiction": "IN",
+      "family": "consumer_affairs",
+      "source_type": "RULE",
+      "court": null,
+      "effective_from": null,
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "8661f1a6256e67794a4c3700a1fd059d6a65e4da51585305bcbfce37ad8fa4fa",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "cpa_jurisdiction2021_r3",
+      "domain": "CONSUMER",
+      "jurisdiction": "IN",
+      "family": "consumer_affairs",
+      "source_type": "RULE",
+      "court": null,
+      "effective_from": null,
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "2611c410fe4e48a978a000d2419e5ac391675ce8bb8db07d82804c8619df1ec0",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "rti2005_s1",
+      "domain": "RTI_ADMINISTRATIVE",
+      "jurisdiction": "IN",
+      "family": "cic",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": null,
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "2f32810c72ebceffcfffb61133f7b848dd83f1ec1ba9d2dd297b3b9a4a2a95a3",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "rti2005_s3",
+      "domain": "RTI_ADMINISTRATIVE",
+      "jurisdiction": "IN",
+      "family": "cic",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": null,
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "adf39cc91611345ea1816724f4aedd552e8626810724fc19fb8f5c5af41a0459",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "rti2005_s6",
+      "domain": "RTI_ADMINISTRATIVE",
+      "jurisdiction": "IN",
+      "family": "cic",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": null,
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "0bb19450f78d211276b45da19301510fc1af33ab1204ba510e9c88293c78d5b5",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "rti2005_s7",
+      "domain": "RTI_ADMINISTRATIVE",
+      "jurisdiction": "IN",
+      "family": "cic",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": null,
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "fa3b7e3fc4e0eb98241ed324cee75c4de596d3d572909566365dc1c1da89bfea",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    },
+    {
+      "source_id": "rti2005_s19",
+      "domain": "RTI_ADMINISTRATIVE",
+      "jurisdiction": "IN",
+      "family": "cic",
+      "source_type": "STATUTE",
+      "court": null,
+      "effective_from": null,
+      "effective_until": null,
+      "corpus_version": "phase4-review-candidate-1",
+      "version_id": "d4df79a75eaf673547e75adf188aad807434fd8adf62e963f610012bf4dc5bae",
+      "status": "PENDING",
+      "review_state": "REVIEW_PENDING",
+      "reason": "Independent primary authority review required"
+    }
+  ],
+  "bedrock_calls_this_run": 5,
+  "domain_filter_probe": {
+    "CONSUMER": [
+      "cpa2019_s2_10",
+      "cpa2019_s2_11",
+      "cpa2019_s2_7",
+      "cpa2019_s34",
+      "cpa2019_s39",
+      "cpa_jurisdiction2021_r3",
+      "cpa2019_s69",
+      "cpa_commencement_2351",
+      "cpa_jurisdiction2021_r1"
+    ],
+    "RTI_ADMINISTRATIVE": [
+      "rti2005_s19",
+      "rti2005_s6",
+      "rti2005_s7",
+      "rti2005_s1",
+      "rti2005_s3"
+    ]
+  },
+  "second_domain": {
+    "case_id": "fictional-rti-phase4-83d02d69",
+    "scope": "Live Phase 4 components over authored existing RTI premise; no full Phase 3 case reconstruction",
+    "team": [
+      "PUBLIC_AUTHORITY",
+      "REQUEST_STRUCTURING",
+      "RTI_APPEAL_FOUNDATION"
+    ],
+    "issues": {
+      "L001": {
+        "domain": "RTI_ADMINISTRATIVE",
+        "jurisdiction": null,
+        "candidate_ids": [],
+        "citations": {
+          "issue_id": "L001",
+          "decisions": []
+        },
+        "temporal": {
+          "issue_id": "L001",
+          "decisions": {}
+        }
+      },
+      "L002": {
+        "domain": "RTI_ADMINISTRATIVE",
+        "jurisdiction": null,
+        "candidate_ids": [],
+        "citations": {
+          "issue_id": "L002",
+          "decisions": []
+        },
+        "temporal": {
+          "issue_id": "L002",
+          "decisions": {}
+        }
+      },
+      "L003": {
+        "domain": "RTI_ADMINISTRATIVE",
+        "jurisdiction": null,
+        "candidate_ids": [],
+        "citations": {
+          "issue_id": "L003",
+          "decisions": []
+        },
+        "temporal": {
+          "issue_id": "L003",
+          "decisions": {}
+        }
+      },
+      "L004": {
+        "domain": "RTI_ADMINISTRATIVE",
+        "jurisdiction": null,
+        "candidate_ids": [],
+        "citations": {
+          "issue_id": "L004",
+          "decisions": []
+        },
+        "temporal": {
+          "issue_id": "L004",
+          "decisions": {}
+        }
+      }
+    },
+    "source_verified": false,
+    "case_file_produced": false
+  },
+  "bedrock_input_tokens": 13286,
+  "bedrock_output_tokens": 5283
+}
