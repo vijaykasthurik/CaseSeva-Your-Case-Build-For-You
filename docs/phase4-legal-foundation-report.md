@@ -1,0 +1,206 @@
+# Phase 4 — Dynamic teams and verified legal foundation
+
+Date: 12 October 2026 (Asia/Calcutta). Scope: Phase 4 only.
+
+**Phase 4 is not fully complete or production legally validated.** The implementation and local verification paths are present. Real Bedrock completed the Tamil team, five specialists and four legal issues. The live case correctly ends at `LEGAL_CORPUS_NOT_READY`, without a Case File or established-law output. Official-source ingestion, reviewed production corpus coverage and full live legal application remain blocked or pending.
+
+## 1. Accepted baseline
+
+Verified starting HEAD: `851306b`. Security Hotfix and Phases 1–3 are preserved. DynamoDB and Transcribe were not retried. Engine 2/3 reasoning and document-generation implementations were not changed.
+
+## 2. Phase 4 commits
+
+- `3c8ef45`: dynamic specialist registration, issue planning, authority gates, worker continuation, permission/status integration and initial regression coverage.
+- `c334cf1`: reviewed-authority revalidation, temporal foundation gate, current Case File publication and legacy Engine 2 isolation.
+- `fbd5798`: immutable specialist artifacts, bounded snapshot migration, artifact security tests and concurrent-input guard.
+- The validation/report commit is identified in Git history and the delivery message.
+
+Commits are local on the existing `main` branch. No push, deployment, replacement database or paid infrastructure provisioning was performed. Existing untracked `output/` content was preserved.
+
+## 3. Every changed or added file
+
+Paths below are relative to the repository root.
+
+| File | Change |
+| --- | --- |
+| `backend/adapters/real/official_sources.py` | Bounded official-host discovery download, redirect checks, extraction and hashes; downloads remain pending review. |
+| `backend/models/legal_foundation.py` | Strict team, specialist, issue, authority and application candidates. |
+| `backend/models/legal_outputs.py` | Persisted team, issue, citation and application validation. |
+| `backend/routes/cases.py` | Permit supporting uploads while legal foundation needs review; block simultaneous input retries during legal processing. |
+| `backend/routes/engines.py` | Authorized opt-in legal continuation/retry; prevent legacy Engine 2 consuming Phase 4 files. |
+| `backend/routes/orchestration.py` | Administrator diagnostics use the case's dynamic registry. |
+| `backend/services/agent_registry.py` | Optional granular output registration. |
+| `backend/services/core_workflow.py` | Dispatch Phase 4 through the existing worker selector and isolate active plans. |
+| `backend/services/legal_artifacts.py` | Immutable, case-bound specialist records; checked references and protected-field-preserving compaction. |
+| `backend/services/legal_checks.py` | Retrieval, temporal, citation, application, jurisdiction, limitation and evidence-law gates. |
+| `backend/services/legal_registry.py` | Dynamic dependency contracts and final foundation assembly. |
+| `backend/services/legal_team.py` | Model-backed team/specialist/issue handlers, grounding and deduplicated original-language context. |
+| `backend/services/legal_workflow.py` | Durable staged continuation, bounded retries, Case File publication and safe status. |
+| `backend/services/orchestrator.py` | Explicit replacement of active plans, inactive-node fencing and granular map writes. |
+| `backend/services/overview.py` | Safe legal status and suppression of outdated Phase 4 Case Files. |
+| `backend/services/specialist_packs.py` | Six packs containing 38 named specialist capabilities. |
+| `backend/services/verified_corpus.py` | Immutable source revisions, retrieval filters, granular readiness and case source fingerprints. |
+| `backend/tests/legal_test_support.py` | Explicitly fictional authority and deterministic model doubles. |
+| `backend/tests/test_legal_artifacts.py` | Artifact integrity, case isolation, protected fields and bounded compaction. |
+| `backend/tests/test_legal_checks.py` | Temporal, citation, jurisdiction, limitation, evidence and reviewed-output regressions. |
+| `backend/tests/test_legal_foundation.py` | Full local worker, six packs, missing corpus, source updates, resume and Case Files. |
+| `backend/tests/test_legal_permissions.py` | Ownership, dispatch, safe projections and Engine 2 isolation. |
+| `backend/tests/test_legal_team.py` | Selection, RTI conditions, stable issue IDs, Tamil originals and source-scoped updates. |
+| `frontend/src/api.js` | Legal-foundation request helper. |
+| `frontend/src/citizenLanguage.js` | Safe legal-processing and review status messages. |
+| `frontend/src/pages/EngineCasePage.jsx` | Opt-in source check, retry state and separate Engine 2 availability. |
+| `scripts/validate-phase4-foundation.py` | Bounded fictional live validation with resume and reused Phase 3 checkpoints. |
+| `artifacts/phase4_live_validation.json` | Recorded live outcomes, failures, token counts and limitations. |
+| `docs/phase4-legal-foundation-report.md` | This report. |
+
+## 4–7. Team builder, selection model, agents and packs
+
+The existing Master Legal Orchestrator remains the scheduler. The model chooses catalog keys using supported Fact IDs and domain context. Unknown agents, unsupported domains, duplicate selections and invented IDs fail validation. A selected team becomes a dependency graph; unselected specialists do not execute.
+
+| Pack | Registered specialist capabilities |
+| --- | --- |
+| Consumer (6) | Consumer Domain; Transaction; Product Defect; Warranty/Refund/Replacement; Consumer Evidence; Consumer Remedy |
+| Labour/Employment (6) | Labour Domain; Employment Relationship; Wage Entitlement; Employment Document; Wage Evidence; Employment Remedy |
+| Property/Tenancy (7) | Property Domain; Ownership/Title; Property Document; Land Records; Possession; Boundary/Survey; Rent/Deposit |
+| Criminal/Police (8) | Criminal Domain; Criminal Incident; Offence Mapping; FIR/Complaint; Legal Ingredient; Digital Evidence; Medical Evidence; Witness |
+| Civil/Contract (6) | Contract Relationship; Clause; Performance/Breach; Payment; Damages/Relief; Notice |
+| RTI/Administrative (5) | Public Authority; RTI Eligibility; Request Structuring; Exemption Risk; RTI Appeal Foundation |
+
+All 38 have registered model-backed handlers with distinct task instructions; they are not 38 separately trained models. Their initial outputs are factual questions and observations with `PENDING_SOURCE`, not verified legal conclusions. Statutory application happens after independent retrieval and verification. Boundary/survey, rent/deposit, medical, digital and witness selection is model-driven using supported facts; this is not an independently verified semantic classifier.
+
+Secondary RTI requires a stated reason, supported public-record Fact IDs and references to actually unavailable records. An uploaded record cannot satisfy that unavailable-record gate. The model's assessment that a record is necessary/public remains reviewable. Uncertain primary domains pause for review.
+
+## 8. Legal issue schema
+
+Issues contain stable server IDs (`L001` onward), semantic keys, statement/category/domain, supporting and contradicting Fact IDs, Party/Evidence IDs, date facts, specialist origins, retrieval query, jurisdiction grounding, optional limitation/precedent flags, unknowns, fingerprint/version and supersession. Repeated unchanged issues keep their IDs/version. Duplicate keys and invented references fail closed. At most four issues are processed per pass; an explicit further-issues flag prevents silent completion when more issues need review.
+
+## 9–11. Source schema, architecture and hierarchy
+
+Authority records carry source/family/type, domain/jurisdiction, title, section or court/citation, registered HTTPS URL, original language/text, exact quotation offsets, hashes, retrieval timestamp, effective interval, temporal supporting records, corpus version and independent review metadata. A working translation does not replace the original.
+
+The existing `LegalKnowledge` registry and database interface are reused. Immutable authority versions have separate current heads. Specialist artifacts and legal Case Files also use the same database interface; there is no replacement persistence architecture or new cloud infrastructure.
+
+Only enabled, reviewed PRIMARY registry records with matching text, identity, quote, hash and freshness can pass the authority gate. Unreviewed/secondary/discovered text remains pending. Existing consumer/labour summaries were not promoted to authority. Automated nationwide source ingestion, judgment treatment history and maintained state-specific coverage are not complete.
+
+## 12–14. Retrieval, hybrid search and embeddings
+
+Implemented retrieval is Unicode lexical overlap over title/excerpt, filtered by domain, jurisdiction and source type, returning versioned candidates. Temporal supporting documents participate in dependency fingerprints. No keyword match alone verifies a legal proposition. Candidate limits are bounded.
+
+**No vector index, hybrid retrieval, Legal-BERT or embedding service was implemented or claimed.** Cross-language semantic retrieval against a populated multilingual legal corpus still requires live validation. Runtime retrieval searches the reviewed local corpus; the separate official downloader does not silently publish scraped text.
+
+## 15. Temporal law
+
+Non-judgment authority needs exact, non-conflicted event dates, reviewed effective intervals and verified temporal supporting records. Unknown/approximate dates remain pending. Pre-commencement and post-expiry dates are not applicable; mixed intervals require review. Full historical statutory transition mappings, including criminal-law transitions, await corpus curation.
+
+## 16. Jurisdiction and remedy
+
+The handler uses reviewed, quoted source rules. Jurisdiction needs grounded location facts. Conditional rules require a review decision tied to the source version and required factual inputs. Missing forum/remedy bases remain review-required. No universal forum or amount threshold is invented. Interpretation remains advocate-reviewable even when source support is verified.
+
+## 17. Limitation
+
+Only selected issues invoke limitation. A computation requires a reviewed source rule, an exact non-conflicted trigger from that issue's date facts, source-version-bound review and reviewed exclusions. Missing/ambiguous triggers produce no deadline. Conflicting computations require review. No production limitation rule set has been independently curated yet.
+
+## 18. Precedents
+
+Selected issues may retrieve judgment candidates. Verification checks official identity, court, citation, original text, current source revision and freshness. Fake judgments fail. Citation existence is not a finding that a decision is binding, still good law or applicable. Production court hierarchy, subsequent treatment and ratio analysis remain pending source coverage; no live precedent proposition was established.
+
+## 19. Citation verification
+
+Fabricated titles, sections, citations, quotes, hashes, stale source versions, mismatched domains/jurisdictions and missing temporal support are rejected or held pending. Application output is independently revalidated at the persisted-output boundary, including after human conflict resolution. Model confidence cannot establish authority.
+
+## 20. Evidence-to-law mapping
+
+Each quoted legal element maps to specific supporting/contradicting Fact IDs and unknowns. Unmapped elements are not assigned every case fact. Fact support remains distinct from legal-element satisfaction, which requires advocate review. Declared, unavailable and unknown evidence retain separate references to existing evidence records; no upload is invented.
+
+## 21. Legal foundation
+
+The foundation records per-issue readiness, verified source IDs, grounded fact/evidence IDs, law excerpts, unresolved issues, further-issue review, understanding/team references and execution provenance. A handler finishing with pending findings is not legal completion. At least applicable non-judgment authority and the relevant temporal, jurisdiction, evidence and limitation gates are required for Case File readiness.
+
+## 22. Versioned Engine 1 Case File
+
+An immutable Case File is produced only after the foundation gates pass and unresolved protected-field conflicts are absent. It records input/board/dependency versions, source revisions and an advocate-review requirement. Snapshot publication is idempotent and the Blackboard receives provenance. Citizens receive an explicit safe overview; pending/outdated Phase 4 files are hidden. The complete path was validated with **fictional test authority only**, not live production law.
+
+## 23. Targeted staleness
+
+Issue-level source fingerprints include matching source revisions, temporal dependencies and freshness. Tests show an unrelated source/query does not invalidate another issue and a source update does not rerun core understanding or specialists. Issue output maps use granular writes; changed optional branches receive distinct contract identities.
+
+**Remaining engineering gap:** inherited whole-map core writes and transitive invalidation can conservatively rerun more legal work after fact changes than the ideal per-fact minimum. Precise semantic reuse across those existing contracts is not complete. The current behavior favors invalidation over stale legal output; it is not reported as fully optimized targeted staleness.
+
+## 24–25. Restart, resume and advocate protection
+
+The existing scheduler supplies dependency eligibility, claims, leases, version fencing, bounded retries, parallel eligible handlers and persisted checkpoints. Explicit retry resets failed work without replaying successful live specialists. Replaced plans deactivate obsolete nodes and fence their claims. KEEP/REPLACE/MERGE protection continues through the existing conflict mechanism; Phase 2/3 protection regressions pass.
+
+Large specialist results now have immutable case-bound references. Integrity/case checks reject tampering or cross-case references. Existing protected specialist content is not compacted or overwritten. The original immutable snapshot retains prior values, avoiding duplication in compaction audit events.
+
+The local JSON adapter becomes slow as snapshot history grows. The final resumed Tamil run took 572.2 seconds and used one additional model call. Its final Blackboard was 252,040 bytes, below the unchanged 300,000-byte snapshot guard before wrapper/event overhead. Larger-case performance and capacity remain production-hardening work; DynamoDB was not used to conceal this limitation.
+
+## 26–28. Languages, cross-domain tests and Tamil result
+
+Original Tamil excerpts are deduplicated, not replaced by translations. Tests assert original text preservation. Domain routing is not a hard-coded English keyword switch.
+
+Six domain packs passed deterministic selection/worker tests with explicit model doubles. This proves contracts and execution selection, **not live legal expertise across six domains**. Full cross-domain live authority validation remains pending.
+
+The fictional Tamil refrigerator case reused its recorded Phase 3 understanding. Real Bedrock selected Transaction, Product Defect, Warranty/Refund/Replacement, Consumer Evidence and Consumer Remedy; five specialists completed and four stable legal issues were created. All active handlers eventually finished, but authority-dependent outputs remained pending. Final case status: `LEGAL_CORPUS_NOT_READY`; `legal_foundation_status=REVIEW_REQUIRED`; no Case File; no verified live law; no Engine 2/3 execution.
+
+The validation record accounts for 11 application-level model calls (181,166 input tokens and 23,410 output tokens); no monetary cost is inferred. Provider transport retries are not separately counted. Live failures were retained in the validation record: invalid agent display names/length limits, an observation-count limit, and snapshot capacity. Catalog-enumerated selection, bounded schema adjustments and immutable artifact references addressed the observed code failures. Resume reused successful reasoning. A completed handler label never converts missing corpus coverage into successful legal verification.
+
+## 29–30. Authoritative-source and fabrication validation
+
+One bounded download from the official India Code PDF URL timed out. It was recorded as `BLOCKED`, not LIVE CONNECTED or SOURCE VERIFIED. Source registry enable/review flags were not fabricated. No downloaded document was promoted to law.
+
+Local tests cover title/section/quote/citation mismatch, invented judgment court/citation, content hashes, section offsets, unreviewed registries, freshness, wrong jurisdiction/domain, historical intervals and missing temporal support. These use explicitly fictional `example.test` authority isolated in temporary databases.
+
+## 31–33. Test and build results
+
+- Existing orchestrator/Blackboard checks: **35 passed**.
+- First complete backend regression: **185 passed**.
+- Subsequent complete backend regression: **193 passed** in 320.820 seconds.
+- New immutable-artifact regressions added afterward: **4 passed**.
+- Final Phase 4 regression across foundation, checks, permissions, team and artifacts: **38 passed** in 417.070 seconds.
+- Browser regression (`npm test`): **17 passed**; explicit development/mock backend, not live legal verification.
+- Frontend (`npm --prefix frontend run build`): **passed**.
+- Targeted checks during development: 10 foundation; 16 checks/permissions; 6 team; 25 permissions/core/orchestration; 23 checks/security; 16 foundation/team; 25 publication/permissions/checks/team; 20 publication/checks/team — all passed on their tested checkpoints. Earlier aggregate fixture execution was stopped and rerun after isolating per-domain test databases; it was not counted as a pass.
+- Final permission/common-input regression after the concurrent-input guard: **21 passed**.
+- `git diff --check`: passed at final delivery.
+
+The 193-test full regression preceded the final reference-storage adjustment; the final Phase 4 suite and four artifact tests validate that adjustment. No claim is made that browser tests used real Bedrock or verified legal sources. Security coverage retains private Output B/internal-note exclusion, scoped nested content restrictions, revoked access denial, retired-route tombstones and safe technical-error projection.
+
+## 34–35. Live services and blockers
+
+| Capability | Status in this phase |
+| --- | --- |
+| Bedrock | LIVE CONNECTED; LIVE INPUT VALIDATED for Tamil selection/specialists/issues, with recorded retries and limits |
+| Local persistence | LOCAL VALIDATED through existing adapter |
+| DynamoDB | **LOCAL VALIDATED — DYNAMODB LIVE ACCESS BLOCKED BY AWS SCP**; adapter preserved; no retry |
+| Transcribe | Prior AWS SCP blocker preserved; not retried |
+| India Code download | BLOCKED by timeout during this validation |
+| Reviewed production legal corpus | NOT READY; no live authority established |
+| S3/STS | Prior accessible-service results preserved; not independently retested in Phase 4 |
+| Gazettes / judgments | No live ingestion or proposition validation claimed |
+
+No organization policy, IAM permission, database design or infrastructure was changed to bypass a blocker.
+
+## 36. Readiness by domain/source
+
+| Domain or source family | Registration/implementation | Legal corpus readiness |
+| --- | --- | --- |
+| Consumer | 6 specialists and generic legal checks implemented/tested; 5 specialists live validated | NOT READY; legacy summaries remain unverified; official download timed out |
+| Labour/Employment | 6 specialists registered/implemented; deterministic tests | NOT READY; reviewed applicable versions/rules missing |
+| Property/Tenancy | 7 specialists registered/implemented; deterministic tests | NOT READY; state, record and statutory coverage missing |
+| Criminal/Police | 8 specialists registered/implemented; deterministic tests | NOT READY; historical/current statutory transition corpus missing |
+| Civil/Contract | 6 specialists registered/implemented; deterministic tests | NOT READY; reviewed provisions/remedies and relevant precedent coverage missing |
+| RTI/Administrative | 5 specialists registered/implemented; deterministic tests | NOT READY; reviewed authority/procedure/exemption corpus missing |
+| India Code registry | Existing PRIMARY registration retained, disabled/unreviewed | BLOCKED/PENDING; no verified imported provisions |
+| Gazette registry | Existing PRIMARY registration retained, disabled/unreviewed | PENDING; no reviewed commencement/amendment records |
+| Supreme Court registry | Existing PRIMARY registration retained, disabled/unreviewed | PENDING; no verified judgments or treatment history |
+| Other configured legal domains | Existing registry entries preserved | PENDING; not silently mapped to Consumer/Labour |
+
+Labels are distinct: **REGISTERED** describes discovery; **IMPLEMENTED** describes code; **UNIT TESTED** and **LOCAL INTEGRATION VALIDATED** describe deterministic checks; **LIVE VALIDATED** applies only to the specific provider behavior observed. **SOURCE VERIFIED**, **END-TO-END VALIDATED with real law**, and **LEGAL CORPUS READY** are not claimed for production. Human interpretation remains **REVIEW REQUIRED**.
+
+## 37. Exact remaining work before Engine 2
+
+Within Phase 4: acquire and independently review official authority records; establish version/temporal/state/court coverage; validate live applications, jurisdiction, limitation and precedents against that corpus; broaden live cross-domain cases; complete fine-grained fact-change reuse; validate larger-case performance and capacity. These remain explicit requirements, not completed features.
+
+Engine 2 itself remains a separately approved phase: consume the current source-backed Case File, implement the adversarial closed loop and evidence challenges under current permissions, preserve advocate-only arguments, and verify rerun/staleness behavior. The legacy Engine 2 route is blocked for Phase 4 cases so it cannot substitute for that work. Engine 3 and professional document work remain outside this phase.
+
+Stop after this report. No subsequent implementation phase is authorized by this delivery.

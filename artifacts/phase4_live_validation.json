@@ -1,0 +1,758 @@
+{
+  "scope": "Fictional cases only; local persistence; bounded Bedrock and official-source HTTP",
+  "timestamp": "2026-10-11T21:59:50.802541+00:00",
+  "persistence": "LOCAL VALIDATED — DYNAMODB LIVE ACCESS BLOCKED BY AWS SCP",
+  "transcribe": "BLOCKED BY AWS SCP — NOT RETRIED",
+  "official_source": {
+    "connectivity": "BLOCKED",
+    "failure_type": "TimeoutError",
+    "authority": "NOT_VERIFIED"
+  },
+  "cases": {
+    "tamil": {
+      "case_status": "LEGAL_CORPUS_NOT_READY",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "calls": 1,
+      "input_tokens": 26491,
+      "output_tokens": 2472,
+      "seconds": 572.2,
+      "core_reused": true,
+      "resumed": true,
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEAM_BUILDER": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CONSUMER_EVIDENCE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CONSUMER_REMEDY": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PRODUCT_DEFECT": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TRANSACTION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "WARRANTY_REFUND_REPLACEMENT": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_ISSUES_DD7D63FABD": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PRECEDENT_RETRIEVAL_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_FOUNDATION_14CBFC6262": {
+          "status": "COMPLETED",
+          "failure": null
+        }
+      },
+      "selected_specialists": [
+        "TRANSACTION",
+        "PRODUCT_DEFECT",
+        "WARRANTY_REFUND_REPLACEMENT",
+        "CONSUMER_EVIDENCE",
+        "CONSUMER_REMEDY"
+      ],
+      "issues": 4,
+      "case_file_created": false,
+      "legal_corpus_ready": false,
+      "legal_foundation_status": "REVIEW_REQUIRED"
+    }
+  },
+  "prior_runs": [
+    {
+      "language": "tamil",
+      "case_status": "LEGAL_FOUNDATION_REVIEW_REQUIRED",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "calls": 1,
+      "input_tokens": 13264,
+      "output_tokens": 1028,
+      "seconds": 13.7,
+      "core_reused": true,
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEAM_BUILDER": {
+          "status": "FAILED",
+          "failure": "ValidationError"
+        }
+      },
+      "selected_specialists": [],
+      "issues": 0,
+      "case_file_created": false,
+      "legal_corpus_ready": false,
+      "legal_foundation_status": "REVIEW_REQUIRED"
+    },
+    {
+      "language": "tamil",
+      "case_status": "LEGAL_FOUNDATION_REVIEW_REQUIRED",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "calls": 6,
+      "input_tokens": 76402,
+      "output_tokens": 14639,
+      "seconds": 85.2,
+      "core_reused": true,
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEAM_BUILDER": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CONSUMER_EVIDENCE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CONSUMER_REMEDY": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PRODUCT_DEFECT": {
+          "status": "FAILED",
+          "failure": "ValidationError"
+        },
+        "TRANSACTION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "WARRANTY_REFUND_REPLACEMENT": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_ISSUES_DD7D63FABD": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "selected_specialists": [
+        "TRANSACTION",
+        "PRODUCT_DEFECT",
+        "WARRANTY_REFUND_REPLACEMENT",
+        "CONSUMER_EVIDENCE",
+        "CONSUMER_REMEDY"
+      ],
+      "issues": 0,
+      "case_file_created": false,
+      "legal_corpus_ready": false,
+      "legal_foundation_status": "REVIEW_REQUIRED"
+    },
+    {
+      "language": "tamil",
+      "case_status": "LEGAL_CORPUS_NOT_READY",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "calls": 2,
+      "input_tokens": 37039,
+      "output_tokens": 4204,
+      "seconds": 271.6,
+      "core_reused": true,
+      "resumed": true,
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEAM_BUILDER": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CONSUMER_EVIDENCE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CONSUMER_REMEDY": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PRODUCT_DEFECT": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TRANSACTION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "WARRANTY_REFUND_REPLACEMENT": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_ISSUES_DD7D63FABD": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PRECEDENT_RETRIEVAL_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L004_F7FD33B478": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "LIMITATION_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_FOUNDATION_46F8E1160D": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "selected_specialists": [
+        "TRANSACTION",
+        "PRODUCT_DEFECT",
+        "WARRANTY_REFUND_REPLACEMENT",
+        "CONSUMER_EVIDENCE",
+        "CONSUMER_REMEDY"
+      ],
+      "issues": 4,
+      "case_file_created": false,
+      "legal_corpus_ready": false,
+      "legal_foundation_status": "REVIEW_REQUIRED"
+    },
+    {
+      "language": "tamil",
+      "case_status": "LEGAL_FOUNDATION_REVIEW_REQUIRED",
+      "model": "au.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "seconds": 19.7,
+      "core_reused": true,
+      "resumed": true,
+      "agents": {
+        "FACT_TIMELINE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PARTY_RELATIONSHIP": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CASE_STAGE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_MAPPING": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CLARIFICATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "RECONCILIATION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "DOMAIN_ROUTER": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEAM_BUILDER": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CONSUMER_EVIDENCE": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CONSUMER_REMEDY": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PRODUCT_DEFECT": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TRANSACTION": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "WARRANTY_REFUND_REPLACEMENT": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_ISSUES_DD7D63FABD": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L001_94BEAA6C87": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L002_8FB19D229B": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LIMITATION_L003_3A4C30FAC6": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "STATUTE_RETRIEVAL_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "TEMPORAL_LAW_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "PRECEDENT_RETRIEVAL_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "CITATION_VERIFICATION_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_APPLICATION_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "JURISDICTION_REMEDY_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "EVIDENCE_LAW_L004_F7FD33B478": {
+          "status": "FAILED",
+          "failure": "ValueError"
+        },
+        "LIMITATION_L004_F7FD33B478": {
+          "status": "COMPLETED",
+          "failure": null
+        },
+        "LEGAL_FOUNDATION_46F8E1160D": {
+          "status": "BLOCKED",
+          "failure": null
+        }
+      },
+      "selected_specialists": [
+        "TRANSACTION",
+        "PRODUCT_DEFECT",
+        "WARRANTY_REFUND_REPLACEMENT",
+        "CONSUMER_EVIDENCE",
+        "CONSUMER_REMEDY"
+      ],
+      "issues": 4,
+      "case_file_created": false,
+      "legal_corpus_ready": false,
+      "legal_foundation_status": "REVIEW_REQUIRED"
+    }
+  ],
+  "initial_schema_rejection": {
+    "language": "tamil",
+    "calls": 1,
+    "input_tokens": 27970,
+    "output_tokens": 1067,
+    "case_file_created": false,
+    "reason": "Invented agent display names and explanation length rejected before publication; recorded from first validation command."
+  },
+  "validation_meaning": "COMPLETED node means its handler ran; pending authority checks are not verified law. No live Case File was created.",
+  "final_snapshot_bytes": 252040,
+  "remaining_phase4_gaps": [
+    "Reviewed authoritative corpus coverage and live verified-law application",
+    "Fine-grained fact-change reuse beyond conservative inherited map invalidation",
+    "Full live cross-domain legal validation",
+    "Local JSON snapshot performance at larger case volumes"
+  ]
+}
