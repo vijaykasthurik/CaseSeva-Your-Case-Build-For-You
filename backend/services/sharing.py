@@ -61,7 +61,7 @@ def grant_access(db, case, user, scopes, evidence_ids, hours):
     return grant
 
 
-def shared_case(case, grant):
+def shared_case(case, grant, db=None):
     keys = ("case_id", "status", "stage", "created_at", "version", "workflow_version", "documents_outdated", "document_version", "advocate_approved_items", "advocate_removed_items", "advocate_review_note", "advocate_document_requests", "stage_statuses", "processing_error", "engine2_stale")
     result = {key: case.get(key) for key in keys if key in case}
     from .overview import public_processing_error, public_evidence
@@ -87,7 +87,10 @@ def shared_case(case, grant):
             raw["optional_fields"] = source.get("optional_fields", {})
         result["raw_package"] = raw
     if "case_file" in grant["scopes"]:
-        result["case_file"] = case.get("case_file", {})
+        from .legal_visibility import current_case_file
+        result["case_file"] = current_case_file(case, db)
+        if case.get('case_file', {}).get('kind') == 'SOURCE_VERIFIED_ENGINE1' and not result['case_file']:
+            result['status'] = 'LEGAL_FOUNDATION_REVIEW_REQUIRED'
         result["clarification"] = (case.get("clarification_rounds") or [None])[-1]
         result["engines"] = case.get("engines", {})
         result["professional_notes"] = case.get("professional_notes", [])

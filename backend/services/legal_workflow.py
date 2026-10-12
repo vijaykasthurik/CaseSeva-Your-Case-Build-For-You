@@ -2,12 +2,13 @@
 import logging
 import time
 from uuid import uuid4
-from .case_blackboard import CaseBlackboard, versions, invalidate
+from .case_blackboard import CaseBlackboard, versions, invalidate, SnapshotCapacityExceeded
 from .orchestrator import MasterLegalOrchestrator
 from .verified_corpus import VerifiedCorpus
 from .legal_registry import legal_registry
 from .core_workflow import run_core, prepare
 from .legal_artifacts import compact_specialists
+from .legal_visibility import authority_manifest
 from ..models.case import utc_now
 
 CORE_NAMES = {'CASE_STAGE', 'FACT_TIMELINE', 'PARTY_RELATIONSHIP', 'EVIDENCE_MAPPING', 'CLARIFICATION', 'RECONCILIATION', 'DOMAIN_ROUTER'}
@@ -22,6 +23,8 @@ def run_plan(db, adapters, corpus, case_id, targets, board, deadline):
             break
         board = controller.tick(case_id)
         active = [n for n in board['nodes'].values() if not n.get('inactive')]
+        if any(n.get('failure_reason') == 'SnapshotCapacityExceeded' for n in active):
+            raise SnapshotCapacityExceeded('Phase 4 output requires capacity review')
         retry = [n for n in active if n['status'] == 'FAILED' and n.get('transient') and n['attempts'] <= n['contract']['max_retries']]
         if not any(n['status'] in {'READY', 'RUNNING'} for n in active) and not retry:
             break
@@ -41,8 +44,6 @@ def assemble_case_file(db, case_id, board, corpus):
     current = case.get('case_file') or {}
     dependencies = versions(board, ('facts', 'parties', 'timeline', 'incidents', 'input', 'domain_classification', 'evidence_mapping',
         'agent_team', 'legal_issues', 'legal_sources', 'citation_verification', 'temporal_findings', 'jurisdiction_remedy', 'limitation', 'legal_foundation'))
-    if current.get('dependency_versions') == dependencies:
-        return current
     for finding in foundation['findings'].values():
         if finding['status'] != 'SOURCE_VERIFIED' or not finding['verified_source_ids']:
             raise ValueError('Case File lacks complete verified-source coverage')
@@ -55,7 +56,11 @@ def assemble_case_file(db, case_id, board, corpus):
             laws[app['source_id']] = {'provision_id': app['source_id'], 'title': source['title'], 'section': source['section'],
                 'source_url': source['official_url'], 'retrieved_at': source['retrieved_at'], 'verification_status': 'VERIFIED',
                 'source_version': source['version_id'], 'explanation': 'Official source checked. Its application to your case requires advocate review.'}
+    authority_versions = authority_manifest(corpus, laws)
+    if current.get('dependency_versions') == dependencies and current.get('authority_versions') == authority_versions:
+        return current
     result = {'version': current.get('version', 0) + 1, 'kind': 'SOURCE_VERIFIED_ENGINE1', 'created_at': utc_now(),
+        'authority_versions': authority_versions,
         'input_version': case.get('input_version', 1), 'board_version': board['version'],
         'understanding_reference': data['understanding_reference'], 'dependency_versions': dependencies,
         'foundation_complete': True, 'review_state': 'ADVOCATE_REVIEW_REQUIRED',
@@ -108,6 +113,7 @@ def run_legal_foundation(app, case_id):
         corpus = getattr(adapters, 'verified_corpus', None) or VerifiedCorpus(db)
         db.update('cases', case_id, {'status': 'LEGAL_FOUNDATION_IN_PROGRESS', 'legal_foundation_status': 'IN_PROGRESS',
                                    'current_stage': None, 'stage_statuses': {}, 'processing_error': None,
+                                   'legal_capacity_review_required': False,
                                    'legal_case_file_current': False})
         if db.get('cases', case_id).get('legal_retry_requested'):
             def retry_failed(checkpoint):
@@ -157,6 +163,10 @@ def run_legal_foundation(app, case_id):
                 raise ValueError('Input changed during legal publication')
             return update
         db.mutate('cases', case_id, publish)
+    except SnapshotCapacityExceeded:
+        db.update('cases', case_id, {'status': 'LEGAL_FOUNDATION_REVIEW_REQUIRED', 'legal_foundation_status': 'REVIEW_REQUIRED',
+            'legal_case_file_current': False, 'legal_capacity_review_required': True,
+            'processing_error': {'engine': 1, 'message': 'This case needs review before legal processing can continue. Saved information is preserved.'}})
     except Exception:
         logging.getLogger(__name__).exception('Legal foundation worker requires review: %s', case_id)
         db.update('cases', case_id, {'status': 'LEGAL_FOUNDATION_REVIEW_REQUIRED', 'legal_foundation_status': 'REVIEW_REQUIRED',

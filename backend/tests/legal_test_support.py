@@ -44,9 +44,28 @@ def authority(**changes):
     text = 'Fictional Test Act\n' + quote
     return {'source_id': 'fixture_act', 'family': 'fictional', 'source_type': 'STATUTE', 'domain': 'CONSUMER',
         'jurisdiction': 'IN', 'title': 'Fictional Test Act', 'section': '1', 'citation': 'Fictional Test Act, section 1',
-        'official_url': 'https://example.test/fixture', 'registry_id': 'fixture', 'source_language': 'en',
+        'official_url': 'https://example.test/fixture', 'final_url': 'https://example.test/fixture', 'registry_id': 'fixture', 'source_language': 'en',
         'official_text': text, 'quote': quote, 'content_hash': hashlib.sha256(text.encode()).hexdigest(),
         'retrieved_at': utc_now(), 'effective_from': '2020-01-01', 'temporal_source_ids': ['fixture_act'],
         'temporal_reviewed': True, 'version_note': 'TEST ONLY', 'corpus_version': 'fixture1',
         'source_reviewed': True, 'reviewed_by': 'TEST ONLY', 'section_start': text.index(quote), 'section_end': len(text),
         'rules_reviewed': True, 'rules': {'forums': [{'quote': 'Fixture Forum'}], 'remedies': [{'quote': 'refund'}]}, **changes}
+
+
+def publish_reviewed(corpus, record):
+    """Explicit fictional test review through the production gate, never live data."""
+    from uuid import uuid4
+    from backend.services.authority_review import AuthorityReview
+    from backend.models.legal_foundation import LegalSource
+    db = corpus.db
+    user = {'id': 'test-independent-admin', 'role': 'admin'}
+    if not db.get('users', user['id']):
+        db.create('users', user)
+    value = LegalSource.model_validate(record).model_dump()
+    value['ingestion_id'] = uuid4().hex
+    db.create('legal_ingestion_requests', {'id': value['ingestion_id'], 'state': 'PARSED',
+        **{k: value[k] for k in ('registry_id', 'official_url', 'final_url', 'retrieved_at', 'raw_hash', 'content_hash', 'official_text')}})
+    workflow = AuthorityReview(corpus)
+    pending = workflow.submit(value, actor='test-fixture-ingestion')
+    return workflow.decide(value['source_id'], pending['version_id'], reviewer=user,
+                           decision='REVIEWED_PRIMARY', note='Fictional unit-test authority only')

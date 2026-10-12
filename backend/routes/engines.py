@@ -92,7 +92,7 @@ def start_legal_foundation(case_id: str, request: Request, user=Depends(get_curr
 @router.get("/{case_id}/client-case-overview")
 def overview(case_id: str, request: Request, user=Depends(get_current_user)):
     from ..services.overview import client_overview
-    return {"overview": client_overview(get_case_or_error(request, case_id, user))}
+    return {"overview": client_overview(get_case_or_error(request, case_id, user), request.app.state.adapters.database)}
 
 
 @router.post("/{case_id}/engine2")

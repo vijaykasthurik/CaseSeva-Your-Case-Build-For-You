@@ -68,6 +68,11 @@ class LegalSource(Strict):
     court: str | None = None
     citation: str
     official_url: str
+    final_url: str | None = None
+    ingestion_id: str | None = None
+    review_state: Literal['DISCOVERED', 'DOWNLOADED', 'PARSED', 'IDENTITY_CHECKED', 'REVIEW_PENDING', 'REVIEWED_PRIMARY', 'REJECTED', 'STALE'] = 'REVIEW_PENDING'
+    review_id: str | None = None
+    reviewed_at: str | None = None
     registry_id: str
     source_language: str
     official_text: str = Field(min_length=1, max_length=250000)

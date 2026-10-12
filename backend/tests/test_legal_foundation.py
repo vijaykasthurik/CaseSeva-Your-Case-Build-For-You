@@ -1,17 +1,18 @@
 import copy
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 from types import SimpleNamespace
 from backend.adapters.mock.database import MockDatabaseAdapter
-from backend.services.case_blackboard import CaseBlackboard
+from backend.services.case_blackboard import CaseBlackboard, SnapshotCapacityExceeded
 from backend.services.core_workflow import run_core
 from backend.services.legal_workflow import run_legal_foundation
 from backend.services.legal_registry import legal_registry
 from backend.services.verified_corpus import VerifiedCorpus
 from backend.services.specialist_packs import PACKS
 from backend.tests.core_test_support import core_case
-from backend.tests.legal_test_support import LegalTestModel, authority, test_knowledge
+from backend.tests.legal_test_support import LegalTestModel, authority, test_knowledge, publish_reviewed
 
 
 class LegalFoundationTests(unittest.TestCase):
@@ -44,7 +45,7 @@ class LegalFoundationTests(unittest.TestCase):
         self.assertEqual(len(board['data']['agent_team']['selected']), 1)
 
     def test_reviewed_fixture_path_and_repeat_are_idempotent(self):
-        self.corpus.publish(authority())
+        publish_reviewed(self.corpus, authority())
         self.run_foundation()
         case = self.db.get('cases', 'c')
         self.assertEqual(case['status'], 'ENGINE1_CASE_FILE_READY')
@@ -54,7 +55,7 @@ class LegalFoundationTests(unittest.TestCase):
         self.assertEqual(self.db.get('cases', 'c')['case_file']['version'], 1)
 
     def test_fake_application_citation_fails_closed(self):
-        self.corpus.publish(authority())
+        publish_reviewed(self.corpus, authority())
         def fake(output, context):
             output['applications'][0]['citation'] = 'Invented Citation'
             return output
@@ -91,10 +92,10 @@ class LegalFoundationTests(unittest.TestCase):
             self.assertEqual(first.get(name).contract, second.get(name).contract)
 
     def test_source_change_reruns_legal_work_but_not_core_or_specialists(self):
-        self.corpus.publish(authority())
+        publish_reviewed(self.corpus, authority())
         self.run_foundation()
         calls = list(self.model.calls)
-        self.corpus.publish(authority(version_note='amended fixture'))
+        publish_reviewed(self.corpus, authority(version_note='amended fixture'))
         self.run_foundation()
         extra = self.model.calls[len(calls):]
         self.assertEqual(extra, ['APPLICATION_L001'])
@@ -108,6 +109,16 @@ class LegalFoundationTests(unittest.TestCase):
         self.assertEqual(calls, self.model.calls)
         self.assertNotIn('case_file', self.db.get('cases', 'c'))
 
+    def test_capacity_failure_is_explicit_review_and_cannot_publish(self):
+        run_core(self.app, 'c')
+        with patch('backend.services.legal_workflow.run_plan', side_effect=SnapshotCapacityExceeded('bounded')):
+            run_legal_foundation(self.app, 'c')
+        case = self.db.get('cases', 'c')
+        self.assertEqual(case['status'], 'LEGAL_FOUNDATION_REVIEW_REQUIRED')
+        self.assertTrue(case['legal_capacity_review_required'])
+        self.assertFalse(case['legal_case_file_current'])
+        self.assertNotIn('case_file', case)
+
 
 class CorpusTests(unittest.TestCase):
     def setUp(self):
@@ -117,22 +128,22 @@ class CorpusTests(unittest.TestCase):
         self.corpus = VerifiedCorpus(self.db, test_knowledge())
 
     def test_identity_hash_offsets_registry_and_freshness_gates(self):
-        self.assertTrue(self.corpus.validate_source(authority())[0])
+        self.assertTrue(self.corpus.validate_identity(authority())[0])
         for change in ({'title': 'Invented Act'}, {'content_hash': 'fake'}, {'section_start': 0}, {'section': '99'},
-                       {'source_reviewed': False}, {'official_url': 'https://malicious.test'}, {'retrieved_at': '2001-01-01T00:00:00Z'},
+                       {'official_url': 'https://malicious.test'}, {'retrieved_at': '2001-01-01T00:00:00Z'},
                        {'registry_id': 'secondary'}, {'effective_until': '2019-01-01'}):
             with self.subTest(change=change):
-                self.assertFalse(self.corpus.validate_source(authority(**change))[0])
+                self.assertFalse(self.corpus.validate_identity(authority(**change))[0])
 
     def test_version_history_is_immutable(self):
-        one = self.corpus.publish(authority())
-        two = self.corpus.publish(authority(version_note='changed'))
+        one = publish_reviewed(self.corpus, authority())
+        two = publish_reviewed(self.corpus, authority(version_note='changed'))
         self.assertNotEqual(one['version_id'], two['version_id'])
         self.assertEqual(self.corpus.get('fixture_act', one['version_id'])['version_note'], 'TEST ONLY')
         self.assertEqual(self.corpus.get('fixture_act')['version_id'], two['version_id'])
 
     def test_metadata_filters_no_global_corpus_ready(self):
-        self.corpus.publish(authority())
+        publish_reviewed(self.corpus, authority())
         self.assertEqual(len(self.corpus.search('CONSUMER', 'IN-TN', 'purchase')), 1)
         self.assertFalse(self.corpus.search('CRIMINAL_POLICE', 'IN', 'purchase'))
         self.assertFalse(self.corpus.search('CONSUMER', None, 'purchase'))

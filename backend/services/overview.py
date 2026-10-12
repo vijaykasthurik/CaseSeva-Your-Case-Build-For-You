@@ -31,10 +31,9 @@ def public_statuses(statuses):
     return {key: value if isinstance(value, str) and value in allowed else "PENDING" for key, value in (statuses or {}).items()}
 
 
-def client_overview(case: dict) -> dict:
-    file = case.get("case_file", {})
-    if file.get('kind') == 'SOURCE_VERIFIED_ENGINE1' and (not case.get('legal_case_file_current') or file.get('input_version') != case.get('input_version', 1)):
-        file = {}
+def client_overview(case: dict, db=None) -> dict:
+    from .legal_visibility import current_case_file
+    file = current_case_file(case, db)
     ran = bool(case.get("engine2", {}).get("overview_ready")) and case.get("engine2", {}).get("case_file_version") == file.get("version")
     evaluation = case.get("engine2", {}).get("neutral_evaluation", {}) if ran else {}
     missing = list(file.get("missing_information", []))
@@ -68,13 +67,15 @@ def client_overview(case: dict) -> dict:
         if case.get('legal_foundation_requested'):
             state = case.get('legal_foundation_status')
             output['legal_foundation_status'] = state if state in {'IN_PROGRESS', 'REVIEW_REQUIRED', 'READY'} else 'PENDING'
+            if state == 'READY' and not file:
+                output['legal_foundation_status'] = 'REVIEW_REQUIRED'
             output['ready_to_find_advocate'] = bool(file) and bool(case.get('legal_case_file_current')) and not case.get('processing_error')
             output['next_step'] = ('Verified source research is ready for advocate review.' if output['ready_to_find_advocate']
                                    else 'Legal verification is incomplete. Your saved information is preserved for review.')
     return output
 
 
-def client_case(case: dict) -> dict:
+def client_case(case: dict, db=None) -> dict:
     # Explicit projection: new internal fields are private by default.
     keys = ("case_id", "public_case_id", "origin", "preferred_language", "journey_stage", "owner_user_id", "created_at", "status", "stage", "stage_details", "client_story", "evidence", "version", "workflow_version", "stage_statuses", "input_statuses", "input_status", "active_engine", "current_stage", "processing_error", "engine2_choice", "assigned_advocate_id", "requested_advocate_id", "documents_outdated", "document_version", "engine2_stale")
     output = {key: case.get(key) for key in keys if key in case}
@@ -82,13 +83,15 @@ def client_case(case: dict) -> dict:
     output["evidence"] = [public_evidence(item) for item in case.get("evidence", [])]
     for field in ("stage_statuses", "input_statuses"):
         output[field] = public_statuses(case.get(field))
-    output["overview"] = client_overview(case)
+    output["overview"] = client_overview(case, db)
     output["engine1_available"] = bool(case.get("case_file"))
     if case.get("engine1_execution") == "ORCHESTRATED_CORE_V1":
         state = case.get("case_understanding_status")
         output["case_understanding_status"] = state if state in {"BUILDING", "READY", "REVIEW_REQUIRED", "NEEDS_INPUT"} else "PENDING"
         output["legal_foundation_status"] = output['overview']['legal_foundation_status']
         output['engine1_available'] = bool(output['overview']['case_file_version']) and bool(case.get('legal_case_file_current'))
+        if case.get('legal_foundation_requested') and case.get('legal_foundation_status') == 'READY' and not output['engine1_available']:
+            output['status'] = 'LEGAL_FOUNDATION_REVIEW_REQUIRED'
     output["client_messages"] = [item for item in case.get("professional_notes", []) if item.get("visibility") == "SHARED_WITH_CLIENT"]
     output["information_requests"] = case.get("information_requests", [])
     output["filing_update"] = case.get("filing_update")

@@ -1,10 +1,11 @@
 import tempfile
 import unittest
+import json
 from pathlib import Path
 from unittest.mock import patch
 from backend.adapters.mock.database import MockDatabaseAdapter
 from backend.services.legal_artifacts import save_specialist, load_specialist, compact_specialists
-from backend.services.case_blackboard import CaseBlackboard
+from backend.services.case_blackboard import CaseBlackboard, MAX_SNAPSHOT_BYTES
 from backend.tests.core_test_support import core_case
 
 
@@ -49,3 +50,23 @@ class LegalArtifactTests(unittest.TestCase):
         with patch('backend.services.case_blackboard.MAX_SNAPSHOT_BYTES', 10000):
             compacted = compact_specialists(self.db, store, 'c', board)
         self.assertEqual(load_specialist(self.db, 'c', compacted['data']['specialists']['CONSUMER_DOMAIN']), self.value)
+
+    def test_large_multilingual_specialist_case_uses_references_without_truncation(self):
+        store = CaseBlackboard(self.db)
+        changes, originals = {}, {}
+        for index in range(12):
+            agent = 'SYNTHETIC_' + str(index)
+            value = {**self.value, 'agent': agent, 'observations': [
+                {'observation': 'தமிழ்' * 190, 'fact_ids': ['F001']} for _ in range(16)]}
+            originals[agent] = value
+            changes['specialists.' + agent] = save_specialist(self.db, 'c', value)
+        self.assertGreater(len(json.dumps(originals, ensure_ascii=False).encode()), MAX_SNAPSHOT_BYTES)
+        board = store.append_change('c', changes, actor='test', reason='Large multilingual case')
+        head = self.db.get('case_board_heads', 'c')
+        snapshot = self.db.get('case_board_snapshots', head['snapshot_id'])
+        self.assertLess(len(json.dumps(snapshot, ensure_ascii=False).encode()), MAX_SNAPSHOT_BYTES)
+        for agent, original in originals.items():
+            self.assertEqual(load_specialist(self.db, 'c', board['data']['specialists'][agent]), original)
+        with self.assertRaisesRegex(ValueError, 'capacity'):
+            store.append_change('c', {'legal_foundation': {'oversized': 'x' * MAX_SNAPSHOT_BYTES}}, actor='test', reason='Over capacity')
+        self.assertEqual(self.db.get('case_board_heads', 'c'), head)

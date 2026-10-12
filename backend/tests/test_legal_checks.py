@@ -6,7 +6,7 @@ from backend.adapters.mock.database import MockDatabaseAdapter
 from backend.models.legal_outputs import validate_issues, Applications
 from backend.services.legal_checks import LegalChecks, compact
 from backend.services.verified_corpus import VerifiedCorpus
-from backend.tests.legal_test_support import authority, test_knowledge
+from backend.tests.legal_test_support import authority, test_knowledge, publish_reviewed
 
 
 class LegalChecksTests(unittest.TestCase):
@@ -15,7 +15,7 @@ class LegalChecksTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         self.db = MockDatabaseAdapter(Path(temp.name) / 'db.json')
         self.corpus = VerifiedCorpus(self.db, test_knowledge())
-        self.source = self.corpus.publish(authority())
+        self.source = publish_reviewed(self.corpus, authority())
         self.checks = LegalChecks(None, self.corpus)
         self.issue = {'domain': 'CONSUMER', 'jurisdiction': 'IN', 'jurisdiction_fact_ids': ['F001'],
                       'date_fact_ids': ['F001'], 'fact_ids': ['F001'], 'contradicting_fact_ids': []}
@@ -45,13 +45,13 @@ class LegalChecksTests(unittest.TestCase):
     def test_precommencement_and_repealed_intervals_not_applicable(self):
         self.fact['date']['normalized'] = '2019-01-01'
         self.assertEqual(self.citation()['status'], 'NOT_APPLICABLE')
-        self.source = self.corpus.publish(authority(effective_until='2025-01-01'))
+        self.source = publish_reviewed(self.corpus, authority(effective_until='2025-01-01'))
         self.values['legal_sources.candidates.L001']['candidates'] = [compact(self.source)]
         self.fact['date']['normalized'] = '2026-01-01'
         self.assertEqual(self.citation()['status'], 'NOT_APPLICABLE')
 
     def test_missing_temporal_support_cannot_establish_law(self):
-        self.source = self.corpus.publish(authority(temporal_source_ids=['missing']))
+        self.source = publish_reviewed(self.corpus, authority(temporal_source_ids=['missing']))
         self.values['legal_sources.candidates.L001']['candidates'] = [compact(self.source)]
         self.assertEqual(self.citation()['status'], 'PENDING')
 
@@ -62,27 +62,27 @@ class LegalChecksTests(unittest.TestCase):
                 self.assertEqual(self.citation()['status'], 'REJECTED')
 
     def test_old_source_version_cannot_publish_as_current(self):
-        self.corpus.publish(authority(version_note='new'))
+        publish_reviewed(self.corpus, authority(version_note='new'))
         self.assertEqual(self.citation()['status'], 'OUTDATED')
 
     def test_wrong_domain_and_state_are_not_applicable(self):
         self.issue['domain'] = 'CRIMINAL_POLICE'
         self.assertEqual(self.citation()['status'], 'NOT_APPLICABLE')
         self.issue['domain'] = 'CONSUMER'
-        self.source = self.corpus.publish(authority(jurisdiction='IN-KA'))
+        self.source = publish_reviewed(self.corpus, authority(jurisdiction='IN-KA'))
         self.values['legal_sources.candidates.L001']['candidates'] = [compact(self.source)]
         self.issue['jurisdiction'] = 'IN-TN'
         self.assertEqual(self.citation()['status'], 'NOT_APPLICABLE')
 
     def test_fake_judgment_court_and_citation_rejected(self):
         for changes in ({'court': 'Imaginary Court'}, {'citation': 'Invented 999'}):
-            self.assertFalse(self.corpus.validate_source(authority(source_type='JUDGMENT', **changes))[0])
+            self.assertFalse(self.corpus.validate_identity(authority(source_type='JUDGMENT', **changes))[0])
 
     def application_values(self, source):
         self.values['legal_applications.L001'] = {'applications': [{'source_id': source['source_id'], 'source_version': source['version_id']}]}
 
     def test_jurisdiction_inputs_need_version_bound_review(self):
-        source = self.corpus.publish(authority(rules={'forums': [{'quote': 'Fixture Forum', 'requires': ['amount']}], 'remedies': [{'quote': 'refund'}]}))
+        source = publish_reviewed(self.corpus, authority(rules={'forums': [{'quote': 'Fixture Forum', 'requires': ['amount']}], 'remedies': [{'quote': 'refund'}]}))
         self.application_values(source)
         self.values['legal_context'] = {'amount': 24500}
         self.assertEqual(self.checks.jurisdiction('L001')({'inputs': self.values}).outputs['jurisdiction_remedy.L001']['status'], 'REVIEW_REQUIRED')
@@ -90,7 +90,7 @@ class LegalChecksTests(unittest.TestCase):
         self.assertEqual(self.checks.jurisdiction('L001')({'inputs': self.values}).outputs['jurisdiction_remedy.L001']['status'], 'SOURCE_VERIFIED')
 
     def test_limitation_requires_reviewed_trigger_version_and_exclusions(self):
-        source = self.corpus.publish(authority(rules={'limitation': {'quote': 'purchase', 'years': 2}}))
+        source = publish_reviewed(self.corpus, authority(rules={'limitation': {'quote': 'purchase', 'years': 2}}))
         self.application_values(source)
         run = lambda: self.checks.limitation('L001')({'inputs': self.values}).outputs['limitation.L001']
         self.assertIsNone(run()['deadline'])

@@ -201,7 +201,7 @@ def request_advocate(case_id: str, request: Request, body: AdvocateRequestBody |
     request.app.state.adapters.database.create("advocate_requests", {"id": f"{case_id}-{advocate_id}", "case_id": case_id, "advocate_id": advocate_id, "client_id": user["id"], "status": "PENDING", "created_at": utc_now()})
     updated = request.app.state.adapters.database.update("cases", case_id, {"status": "AWAITING_ADVOCATE", "requested_advocate_id": advocate_id, "version": case.get("version", 1) + 1})
     from ..services.overview import client_case
-    return {"case": client_case(updated)}
+    return {"case": client_case(updated, request.app.state.adapters.database)}
 
 
 @router.post("/cases/{case_id}/cancel-advocate-request")
@@ -214,7 +214,7 @@ def cancel_request(case_id: str, request: Request, user: dict = Depends(get_curr
     restored_status = "ENGINE2_DONE" if case.get("engine2") else "ENGINE1_DONE"
     updated = request.app.state.adapters.database.update("cases", case_id, {"status": restored_status if case.get("workflow_version") == 2 else "PREVIEW_2_APPROVED", "requested_advocate_id": None, "version": case.get("version", 1) + 1})
     from ..services.overview import client_case
-    return {"case": client_case(updated)}
+    return {"case": client_case(updated, request.app.state.adapters.database)}
 
 
 @router.get("/advocate/requests")
@@ -324,7 +324,7 @@ def list_advocate_cases(request: Request, user: dict = Depends(get_current_user)
 def advocate_case(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = accepted_case(request, case_id, user)
     grant = require_access(request, case_id, user, "case_file")
-    return {"case": shared_case(case, grant)}
+    return {"case": shared_case(case, grant, request.app.state.adapters.database)}
 
 
 def change_review_item(case_id: str, kind: str, target_id: str, new_value: Any, request: Request, user: dict, action: str):
@@ -463,7 +463,7 @@ def create_document_request(case_id: str, body: DocumentRequestBody, request: Re
     case = accepted_case(request, case_id, user)
     item = {"request_id": f"ADR{len(case.get('advocate_document_requests', [])) + 1:03d}", "description": body.description, "affected_stages": body.affected_stages, "resolved": False, "raised_by": user["id"]}
     updated = request.app.state.adapters.database.update("cases", case_id, {"advocate_document_requests": case.get("advocate_document_requests", []) + [item], "version": case.get("version", 1) + 1})
-    return {"request": item, "case": shared_case(updated, require_access(request, case_id, user, "case_file"))}
+    return {"request": item, "case": shared_case(updated, require_access(request, case_id, user, "case_file"), request.app.state.adapters.database)}
 
 
 @router.post("/advocate/cases/{case_id}/review-note")
@@ -471,7 +471,7 @@ def review_note(case_id: str, body: ReviewNoteBody, request: Request, user: dict
     case = accepted_case(request, case_id, user)
     entry = audit(case, user["id"], "review_note", "review_note", case.get("advocate_review_note"), body.note)
     updated = request.app.state.adapters.database.update("cases", case_id, {"advocate_review_note": body.note, "advocate_audit": append_audit(case, entry), "version": case.get("version", 1) + 1})
-    return {"case": shared_case(updated, require_access(request, case_id, user, "case_file"))}
+    return {"case": shared_case(updated, require_access(request, case_id, user, "case_file"), request.app.state.adapters.database)}
 
 
 @router.post("/cases/{case_id}/advocate/finalize", dependencies=[Depends(retired_workflow)])

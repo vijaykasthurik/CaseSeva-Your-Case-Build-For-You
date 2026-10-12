@@ -1,6 +1,7 @@
 """Versioned extension of the existing LegalKnowledge verification boundary."""
 import re
 from datetime import date
+from urllib.parse import urlparse
 from ..models.legal_foundation import LegalSource
 from .legal_knowledge import LegalKnowledge, source_record
 from .case_blackboard import digest, CaseBlackboard
@@ -12,9 +13,32 @@ class VerifiedCorpus:
 
     def validate_source(self, record):
         value = LegalSource.model_validate(record).model_dump()
-        valid, reason = source_record({**value, 'source_id': value['registry_id'], 'source_url': value['official_url']}, self.knowledge.sources)
+        from .authority_review import authority_digest
+        receipt = self.db.get('legal_authority_reviews', value.get('review_id') or '')
+        if (value['review_state'] != 'REVIEWED_PRIMARY' or not value['source_reviewed'] or not receipt
+            or receipt.get('decision') != 'REVIEWED_PRIMARY' or receipt.get('source_id') != value['source_id']
+            or receipt.get('source_digest') != authority_digest(value)
+            or receipt.get('reviewer_id') != value['reviewed_by'] or receipt.get('reviewed_at') != value['reviewed_at']):
+            return False, 'Independent primary authority review required'
+        return self.validate_identity(value)
+
+    def validate_identity(self, record):
+        """Checks source identity only; this method cannot establish verified law.
+
+        A record-specific admin approval replaces global source enablement for
+        this corpus. It does not enable legacy summaries or nationwide coverage.
+        """
+        value = LegalSource.model_validate(record).model_dump()
+        registry = {k: {**v, 'enabled': True} for k, v in self.knowledge.sources.items()}
+        valid, reason = source_record({**value, 'source_id': value['registry_id'], 'source_url': value['official_url'],
+            'source_reviewed': True, 'reviewed_by': 'identity-check-only'}, registry)
         if not valid:
             return False, reason
+        for address in (value['official_url'], value['final_url']):
+            parsed = urlparse(address or '')
+            if (parsed.scheme != 'https' or parsed.hostname not in registry[value['registry_id']]['hosts']
+                or parsed.username or parsed.password or parsed.port not in (None, 443)):
+                return False, 'Official canonical and final URLs must match registered hosts'
         if value['official_text'][value['section_start']:value['section_end']] != value['quote']:
             return False, 'Reviewed section boundary does not match original text'
         compact = lambda s: ' '.join(s.split()).casefold()
@@ -23,8 +47,18 @@ class VerifiedCorpus:
         if value['source_type'] == 'JUDGMENT':
             if not value['court'] or compact(value['citation']) not in compact(value['official_text']) or compact(value['court']) not in compact(value['official_text']):
                 return False, 'Judgment citation/court absent from original'
-        elif value['section'] and not re.search(r'(?:^|\n)\s*' + re.escape(value['section']) + r'(?:[.\s(]|$)', value['quote']):
-            return False, 'Section identifier absent from reviewed section boundary'
+        elif value['section']:
+            subsection = re.fullmatch(r'(\d+)\((\d+)\)', value['section'])
+            if subsection:
+                parent, child = subsection.groups()
+                starts = list(re.finditer(r'(?m)^\s*' + re.escape(parent) + r'\.\s', value['official_text']))
+                preceding = [m for m in starts if m.start() < value['section_start']]
+                following = re.search(r'(?m)^\s*' + str(int(parent) + 1) + r'\.\s', value['official_text'][preceding[-1].end():]) if preceding else None
+                if (not preceding or not following or value['section_end'] > preceding[-1].end() + following.start()
+                    or not value['quote'].lstrip().startswith('(' + child + ')')):
+                    return False, 'Subsection is outside its identified parent section'
+            elif not re.search(r'(?:^|\n)\s*' + re.escape(value['section']) + r'(?:[.\s(]|$)', value['quote']):
+                return False, 'Section identifier absent from reviewed section boundary'
         for key in ('effective_from', 'effective_until'):
             if value[key]:
                 date.fromisoformat(value[key])
@@ -32,7 +66,7 @@ class VerifiedCorpus:
             return False, 'Invalid effective date interval'
         return True, 'Reviewed primary text, identity and section boundary match'
 
-    def publish(self, record):
+    def publish(self, record, *, expected_version=None):
         """Trusted ingestion API only. No citizen/model route may invoke this."""
         value = LegalSource.model_validate(record).model_dump()
         valid, reason = self.validate_source(value)
@@ -43,7 +77,11 @@ class VerifiedCorpus:
             self.db.create('legal_authority_versions', stored)
         head = {'id': value['source_id'], 'version': version}
         if self.db.get('legal_authority_heads', value['source_id']):
-            self.db.update('legal_authority_heads', value['source_id'], head)
+            def advance(current):
+                if expected_version is not None and current['version'] != expected_version:
+                    raise ValueError('Authority changed during review')
+                return head
+            self.db.mutate('legal_authority_heads', value['source_id'], advance)
         else:
             self.db.create('legal_authority_heads', head)
         return {**value, 'version_id': version, 'reason': reason}
@@ -79,7 +117,7 @@ class VerifiedCorpus:
         for source in self.sources():
             valid, reason = self.validate_source({k: v for k, v in source.items() if k != 'version_id'})
             result.append({key: source[key] for key in ('source_id', 'domain', 'jurisdiction', 'family', 'source_type', 'court', 'effective_from', 'effective_until', 'corpus_version', 'version_id')}
-                          | {'status': 'SOURCE_VERIFIED' if valid else 'PENDING', 'reason': reason})
+                          | {'status': 'SOURCE_VERIFIED' if valid else 'PENDING', 'review_state': source['review_state'], 'reason': reason})
         return result
 
     def sync_case(self, case_id):

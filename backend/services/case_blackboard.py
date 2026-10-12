@@ -23,6 +23,11 @@ class VersionConflict(RuntimeError):
     pass
 
 
+class SnapshotCapacityExceeded(ValueError):
+    """Output is preserved externally or requires review; never truncate it."""
+    pass
+
+
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
 
@@ -127,7 +132,7 @@ class CaseBlackboard:
         snapshot = {"case_id": board["case_id"], "board": board, "previous": previous, "event": event}
         snapshot["id"] = digest(snapshot)
         if len(json.dumps(snapshot, ensure_ascii=False).encode()) > MAX_SNAPSHOT_BYTES:
-            raise ValueError("Blackboard checkpoint capacity reached; split agent output into references")
+            raise SnapshotCapacityExceeded("Blackboard checkpoint capacity reached; split agent output into references")
         try:
             self.db.create(SNAPSHOTS, snapshot)
         except ValueError:

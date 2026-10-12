@@ -6,12 +6,24 @@ from types import SimpleNamespace
 from backend.adapters.mock.database import MockDatabaseAdapter
 from backend.services.legal_team import LegalTeamAgents, compact_context
 from backend.services.verified_corpus import VerifiedCorpus
-from backend.services.case_blackboard import CaseBlackboard, path_version
-from backend.tests.legal_test_support import LegalTestModel, test_knowledge, authority
+from backend.services.case_blackboard import CaseBlackboard, path_version, invalidate
+from backend.tests.legal_test_support import LegalTestModel, test_knowledge, authority, publish_reviewed
 from backend.tests.core_test_support import core_case
 
 
 class LegalTeamTests(unittest.TestCase):
+    def test_leaf_fact_change_preserves_distinguishable_unrelated_issue(self):
+        def node(reads, writes):
+            return {'status': 'COMPLETED', 'watched_paths': reads, 'contract': {
+                'reads': reads, 'required_inputs': [], 'optional_inputs': [], 'stale_on': [],
+                'conditions': [], 'writes': writes}}
+        board = {'nodes': {'application_A': node(['facts.F001'], ['legal_applications.L001']),
+            'application_B': node(['facts.F002'], ['legal_applications.L002']),
+            'citation_B': node(['corpus_inputs.L002'], ['citation_verification.L002'])}, 'case_file': None}
+        self.assertEqual(invalidate(board, ['facts.F001']), ['application_A'])
+        self.assertEqual(board['nodes']['application_B']['status'], 'COMPLETED')
+        self.assertEqual(board['nodes']['citation_B']['status'], 'COMPLETED')
+
     def setUp(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
@@ -84,9 +96,9 @@ class LegalTeamTests(unittest.TestCase):
         corpus = VerifiedCorpus(self.db, test_knowledge())
         store.append_change('c', {'legal_issues.L001': {'domain': 'CONSUMER', 'jurisdiction': 'IN', 'query': 'refrigerator'},
                                  'legal_issues.L002': {'domain': 'CONSUMER', 'jurisdiction': 'IN', 'query': 'airplane'}}, actor='test', reason='test')
-        corpus.publish(authority())
+        publish_reviewed(corpus, authority())
         first = corpus.sync_case('c')
-        corpus.publish(authority(version_note='new fixture revision'))
+        publish_reviewed(corpus, authority(version_note='new fixture revision'))
         second = corpus.sync_case('c')
         self.assertGreater(path_version(second, 'corpus_inputs.L001'), path_version(first, 'corpus_inputs.L001'))
         self.assertEqual(path_version(second, 'corpus_inputs.L002'), path_version(first, 'corpus_inputs.L002'))

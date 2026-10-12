@@ -158,7 +158,7 @@ def get_case(case_id: str, request: Request, user: dict = Depends(get_current_us
     case = get_owned_case(request, case_id, user)
     from ..services.blackboard import sync_control_board
     sync_control_board(request.app.state.adapters.database, case_id)
-    return {"case": client_case(case)}
+    return {"case": client_case(case, request.app.state.adapters.database)}
 
 
 @router.patch("/{case_id}")
@@ -181,7 +181,7 @@ def update_case(case_id: str, body: CaseUpdateBody, request: Request, user: dict
     if "client_story" in changes:
         changes.update({"story_updated_by": user["id"], "story_updated_at": utc_now()})
     updated = write(request.app.state.adapters.database, case_id, changes, user["id"], "intake_updated")
-    return {"case": client_case(updated)}
+    return {"case": client_case(updated, request.app.state.adapters.database)}
 
 
 @router.post("/{case_id}/submit")
@@ -209,7 +209,7 @@ def submit_case(case_id: str, request: Request, body: SubmitBody | None = None, 
                 dispatch(request.app, 1, case_id)
         except Exception:
             updated = request.app.state.adapters.database.update("cases", case_id, {"status": "REVIEW_REQUIRED", "processing_error": {"stage": "DISPATCH", "message": "Could not start the processing job. Retry is required."}})
-    return {"case": client_case(updated)}
+    return {"case": client_case(updated, request.app.state.adapters.database)}
 
 
 @router.delete("/{case_id}")
@@ -293,7 +293,7 @@ async def upload_evidence(
     updated = db.mutate("cases", case_id, lambda current: {"evidence": current.get("evidence", []) + [item], "pending_uploads": max(0, current.get("pending_uploads", 1) - 1), "version": current.get("version", 1) + 1, "input_version": current.get("input_version", 1) + 1, "engine2_stale": bool(current.get("engine2")), "documents_outdated": bool(current.get("document_version"))})
     if case.get("case_file"):
         engine_state(db, case_id, 1, "STALE", reason="New uploaded information")
-    return {"evidence": public_evidence(item), "case": client_case(updated)}
+    return {"evidence": public_evidence(item), "case": client_case(updated, request.app.state.adapters.database)}
 
 
 @router.get("/{case_id}/evidence/{evidence_id}")
@@ -321,7 +321,7 @@ def delete_evidence(case_id: str, evidence_id: str, request: Request, user: dict
     request.app.state.adapters.storage.delete(item["storage_key"])
     remaining = [entry for entry in case.get("evidence", []) if entry["evidence_id"] != evidence_id]
     updated = request.app.state.adapters.database.update("cases", case_id, {"evidence": remaining, "version": case.get("version", 1) + 1})
-    return {"case": client_case(updated)}
+    return {"case": client_case(updated, request.app.state.adapters.database)}
 
 
 @router.patch("/{case_id}/evidence/{evidence_id}")
@@ -346,7 +346,7 @@ def update_evidence(
     if updated_entry is None:
         raise HTTPException(status_code=404, detail="Evidence not found")
     updated = request.app.state.adapters.database.update("cases", case_id, {"evidence": evidence, "version": case.get("version", 1) + 1})
-    return {"evidence": public_evidence(updated_entry), "case": client_case(updated)}
+    return {"evidence": public_evidence(updated_entry), "case": client_case(updated, request.app.state.adapters.database)}
 
 
 @router.post("/{case_id}/input/retry")
