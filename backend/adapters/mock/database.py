@@ -75,6 +75,22 @@ class MockDatabaseAdapter(DatabaseAdapter):
             self._write(data)
         return dict(record)
 
+    def create_local_review_admin(self, user: dict[str, Any]) -> None:
+        """Atomically claim the one-time bootstrap and insert a new dedicated user."""
+        with self._lock:
+            data = self._read()
+            users = data.get('users', {})
+            if any(u.get('email', '').strip().lower() == user['email'] for u in users.values()):
+                raise ValueError('Account already exists; bootstrap never promotes existing users')
+            if data.get('review_admin_bootstrap') or any(u.get('role') == 'admin' for u in users.values()):
+                raise ValueError('Local review administrator bootstrap has already been used or an admin exists')
+            if user.get('role') != 'admin' or user.get('provisioning', {}).get('scope') != 'PHASE4_REVIEW_ONLY':
+                raise ValueError('Invalid local review provisioning request')
+            data.setdefault('users', {})[user['id']] = dict(user)
+            data['review_admin_bootstrap'] = {'one-time': {'id': 'one-time', 'user_id': user['id'],
+                **user['provisioning']}}
+            self._write(data)
+
     def get(self, collection: str, record_id: str) -> dict[str, Any] | None:
         with self._lock:
             data = self._read()

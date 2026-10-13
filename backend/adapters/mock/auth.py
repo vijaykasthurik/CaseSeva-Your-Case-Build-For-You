@@ -52,15 +52,38 @@ class MockAuthAdapter(AuthAdapter):
             })
 
     @staticmethod
+    def validate_credentials(email: str, password: str) -> str:
+        normalized = email.strip().lower()
+        if not normalized or len(password) < 8:
+            raise ValueError("Email is required and password must be at least 8 characters")
+        return normalized
+
+    def provision_local_review_admin(self, email: str, password: str, *, allow_bootstrap: bool, operator: str) -> dict[str, Any]:
+        """Local review bootstrap only. Not exposed by signup or any HTTP route."""
+        import re
+        from .database import MockDatabaseAdapter
+        from ...models.case import utc_now
+        if not allow_bootstrap or type(self.database) is not MockDatabaseAdapter:
+            raise ValueError("Explicit local review bootstrap authorization required")
+        normalized = self.validate_credentials(email, password)
+        if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", normalized):
+            raise ValueError("Enter a valid administrator email")
+        now = utc_now()
+        user = {'id': uuid4().hex, 'email': normalized, 'full_name': 'Authority review administrator',
+                'role': 'admin', 'password_hash': self._hash_password(password), 'created_at': now,
+                'provisioning': {'method': 'LOCAL_INTERACTIVE_REVIEW_BOOTSTRAP',
+                    'scope': 'PHASE4_REVIEW_ONLY', 'local_operator': operator, 'created_at': now}}
+        self.database.create_local_review_admin(user)
+        return self._public_user(user)
+
+    @staticmethod
     def _hash_password(password: str, salt: str | None = None) -> str:
         salt = salt or secrets.token_hex(16)
         digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 120_000).hex()
         return f"{salt}${digest}"
 
     def signup(self, profile: dict[str, Any], password: str) -> dict[str, Any]:
-        normalized = profile["email"].strip().lower()
-        if not normalized or len(password) < 8:
-            raise ValueError("Email is required and password must be at least 8 characters")
+        normalized = self.validate_credentials(profile["email"], password)
         if any(user["email"] == normalized for user in self.database.list("users")):
             raise ValueError("User already exists")
         user = {
