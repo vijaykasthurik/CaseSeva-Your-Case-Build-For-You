@@ -2,7 +2,7 @@
 
 Report finalized: 13 October 2026 (Asia/Calcutta). Recorded implementation and validation runs: 12 October 2026. Scope: Phase 4 only.
 
-**Current status: PHASE 4 PARTIAL — INDEPENDENT ADMIN REVIEW REQUIRED.** Official retrieval now succeeded for four genuine government PDFs, producing 14 pending authority records. The review gate and immediate source invalidation checks are implemented. The user chose “Prepare the bundle for my admin review”; no review decision, identity or timestamp has been fabricated. No genuine-law proposition or Case File is yet validated. The Tamil case and all six specialist packs are preserved. **Sections 38–43 supersede earlier connectivity, regression and remaining-work statements; sections 1–37 describe the prior checkpoint.**
+**Current status: PHASE 4 PARTIAL — INDEPENDENT HUMAN REVIEW BLOCKED / AWAITING EXTERNAL REVIEWER.** The user confirmed that both existing admin accounts belong to the same person. The second account is not an independent reviewer, and must not be used as one. No independent human review has occurred. Record 1's corrected revision remains REVIEW_PENDING / verification=PENDING / approved=false. Section 49 is the current blocker/task inventory and supersedes earlier onboarding and review-availability statements. Prior numbered sections retain their historical results; no genuine-law Case File or complete legal corpus is claimed.
 
 ## 1. Accepted baseline
 
@@ -501,3 +501,55 @@ Validation:
 Read-only checks confirmed one real administrator, the preserved bootstrap marker, unchanged corrected source head and existing immutable receipt. The actual onboarding command was not executed; no real account or authority state was changed. No AWS call was made. These results are focused regression validation, not a claim of full live legal completion.
 
 The user must now run [the onboarding command](phase4-additional-reviewer-onboarding.md). After the second real reviewer is provisioned, prepare the requested read-only package for the existing corrected revision; stop before any decision. The corrected source remains pending and unusable. No Engine 2 work began.
+
+
+## 49. Same-person second account: external reviewer required
+
+The user explicitly confirmed that the second email/account is their own. **INDEPENDENT HUMAN REVIEW: BLOCKED / AWAITING EXTERNAL REVIEWER.** Account-ID separation alone is insufficient. Neither account creation nor source/excerpt integrity checks establish independent legal review. No account was created, simulated, deleted, demoted or promoted in this continuation. Existing account permissions were not changed; this report records the human-review blocker, not a new technical person-identity enforcement mechanism.
+
+Preserved current record:
+
+- Source: `cpa2019_s2_7`.
+- Corrected head: `fdd9c175c4fb253f74e3a5b8a4e846398e9efd871e770278fe79db0aec8fe14c`.
+- State: **REVIEW_PENDING**, verification **PENDING**, revision_status **NONE**, approved **false**.
+- Existing request receipt: `fbf2e5ba79e14d8e8e39dac7362b6ee2`; no replay or new decision.
+- Package: `.localdev/phase4-authority-review/record-1/second-review-package/`. All existing package files are preserved exactly, including its decision examples. Their presence is not authorization to execute them.
+
+### Remaining Phase 4 work by dependency
+
+These categories identify the prerequisites for completion, not permission to bypass them. Several acceptance tasks have multiple blockers; satisfying one does not remove the others. “Can complete now” means safe technical preparation/validation, not legal readiness. Existing passing results remain historical unless explicitly rerun.
+
+| Category | Task | Safe scope / completion condition |
+| --- | --- | --- |
+| CAN COMPLETE NOW | Preserve state, receipt and package; verify all 14 excerpt bindings and pending flags | Completed read-only in this continuation. No authority or identity writes. |
+| CAN COMPLETE NOW | Maintain the remaining-task and source-gap inventory, review handoff and factual questionnaire | Current inventory below and in this table; no legal finding or invented fact. |
+| CAN COMPLETE NOW | Prepare inactive source-bound corrections for records 2–14 and the known record-1 metadata-label inconsistency | Preparation only after sufficient official evidence is available; preserve current package/head, no submission or receipt on anyone's behalf. Unresolved fields remain explicit. |
+| CAN COMPLETE NOW | Organize existing official text, hashes, offsets, dependency links and review questions | Documentary/source-binding checks only; no REVIEWED_PRIMARY promotion. |
+| CAN COMPLETE NOW | Inspect safe status projections, access-control code, immutable lineage and stale-output gates | Read-only inspection and static checks can continue. No new reviewer identity or simulated review is authorized in this continuation. |
+| CAN COMPLETE NOW | Frontend build, Python compilation and applicable non-mutating regression checks | May validate mechanics, never substitute for live legal acceptance. No code changed in this report-only continuation, so previous 55-test/build result is not presented as a new run. |
+| CAN COMPLETE NOW | Prepare genuine-law acceptance scenarios and expected blocked outcomes | Preserve actual saved facts; distinguish historical fixture outcomes from live results. Plan final regression and publication checks without executing approval-dependent paths. |
+| BLOCKED BY INDEPENDENT REVIEW | Formal decisions on corrected record 1 and records 2–14; fresh review after corrections | A genuinely different human must inspect the exact revision and authenticate. Neither current same-person account establishes independence. |
+| BLOCKED BY INDEPENDENT REVIEW | Positive genuine citation verification and reviewed-corpus revalidation | Approved, source-bound current records and required reviewed supporting records; negative pending-state checks can run now. |
+| BLOCKED BY INDEPENDENT REVIEW | Positive temporal applicability, jurisdiction/remedy and supported limitation acceptance | Reviewed intervals, dependencies and structured rules; also blocked by source coverage and relevant facts. |
+| BLOCKED BY INDEPENDENT REVIEW | Consumer genuine-law foundation and RTI second-domain legal acceptance | Independent authority review plus adequate source coverage and case grounding. Earlier live team/issue generation is not legal acceptance. |
+| BLOCKED BY INDEPENDENT REVIEW | Genuine-law Case File publication and positive-to-stale real-source invalidation | First obtain a legitimately ready foundation and publish only if every gate passes. Test changes on isolated copies; never invalidate real authority merely to demonstrate a test. |
+| BLOCKED BY INDEPENDENT REVIEW | Final Phase 4 acceptance report and complete backend regression after final changes | Full regression can run mechanically before review, but the final acceptance checkpoint must follow all eventual changes and live checks. No final legal completion now. |
+| BLOCKED BY MISSING CASE FACTS | Consumer event chronology and evidence grounding | Exact relevant purchase/service/defect/technician dates, contradictions, defect cause and supporting evidence must come from actual case input. Missing evidence stays missing. |
+| BLOCKED BY MISSING CASE FACTS | Consumer jurisdiction/remedy applicability | Seller/opposite-party identity and location, transaction/consideration details and grounded jurisdiction facts as required by reviewed rules. Do not infer them from a national source filter. |
+| BLOCKED BY MISSING CASE FACTS | RTI jurisdiction, filing/reply/appeal timing and record need | Actual public authority/location, request submission date, response or non-response facts, requested unavailable records and appeal events where relevant. The saved RTI premise lacks location/submission date. |
+| BLOCKED BY MISSING CASE FACTS | Any limitation computation | Exact non-conflicted trigger and relevant exclusion/extension facts; do not compute a deadline from approximate or absent facts. Reviewed law is also required. |
+| BLOCKED BY OFFICIAL SOURCE COVERAGE | Provision-specific current-law and historical amendment coverage | Official version/amendment evidence for the relevant case period, including territorial applicability; original enactment alone is insufficient. |
+| BLOCKED BY OFFICIAL SOURCE COVERAGE | Commencement/effective interval and transition support | Provision-specific notification coverage/exclusions, applicable interval and dependencies; unreviewed candidate dates cannot be treated as established. |
+| BLOCKED BY OFFICIAL SOURCE COVERAGE | Structured jurisdiction, remedy and limitation rules | Exact official provisions, applicable amendments and source-bound rule metadata, followed by independent review. Empty rules cannot support automatic forum/remedy/deadline conclusions. |
+| BLOCKED BY OFFICIAL SOURCE COVERAGE | RTI effective dates, exemptions/procedure/appeal support where selected issues require them | Acquire only relevant official support and retain gaps explicitly; the five pending excerpts are not comprehensive coverage. |
+| BLOCKED BY OFFICIAL SOURCE COVERAGE | Labour, Property, Criminal, Civil and broader nationwide/historical coverage | These domains lack reviewed acceptance coverage. Six registered packs are not six corpus-ready domains. Criminal transitions require curated historical support. |
+| BLOCKED BY OFFICIAL SOURCE COVERAGE | Precedent identity, hierarchy, treatment and applicability if an issue requires precedent | Official judgment/citation plus relevant treatment evidence and independent review. Do not claim citation existence proves binding or current law. |
+| BLOCKED BY OFFICIAL SOURCE COVERAGE | Cross-language semantic retrieval acceptance | Requires a populated reviewed multilingual corpus and real retrieval evaluation. Current lexical retrieval is implemented; hybrid/vector/Legal-BERT retrieval is not implemented or silently added to this scope. |
+
+Larger-case capacity and conservative whole-map invalidation remain disclosed engineering limitations. Their existing guards can be inspected/tested without authority approval; no scheduler rewrite or production-hardening expansion is authorized by this report. DynamoDB remains **LOCAL VALIDATED — DYNAMODB LIVE ACCESS BLOCKED BY AWS SCP**; no retry, replacement persistence or policy change is performed.
+
+### This continuation's actual checks and changes
+
+Read-only checks confirmed the exact current head and required pending flags. All 14 current sources remain REVIEW_PENDING and unapproved, with exact excerpt-to-stored-text boundary matches. Authority and identity databases and every pre-existing review-package file were checked byte-for-byte for preservation. These are integrity/negative-state checks, not source-law validation or human review. No real or simulated review decision was executed. No AWS/model calls, application changes, frontend changes or authority submissions were made. Only this tracked report changed; no new backend test or frontend build is claimed.
+
+When a genuinely different reviewer is available, provide the preserved package, confirm the then-current head and supply **one** authenticated command for that person's actual decision. Do not choose or execute their decision. A changed head requires a new package/review comparison. Unresolved legal metadata still warrants NEEDS_NEW_REVISION rather than approval. **STOP before review execution; remain in Phase 4, with Engine 2 unstarted.**
