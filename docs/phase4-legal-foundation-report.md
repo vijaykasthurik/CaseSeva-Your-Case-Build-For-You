@@ -386,3 +386,67 @@ Logs: `.localdev/phase4-revision-backend-tests.log`, `.localdev/phase4-revision-
 Ignored local files changed/created: authority database with inactive immutable draft history (current heads unchanged), record-1 reason and prepared source payload, normal lock files, regression logs, isolated browser test database/uploads, and build/test outputs. Existing untracked `output/` content is untouched.
 
 Implementation checkpoint: `7992e76`. No push performed. Records 2–14 await individual authenticated decisions; none were automatically revised, approved or rejected. **STOP at the real-admin gate; Phase 4 remains PARTIAL / REVIEW REQUIRED.**
+
+
+## 45. Explicitly authorized local admin provisioning — 13 October 2026
+
+The user authorized a supported local provisioning workflow after confirming no legitimate admin account exists. This continuation supersedes section 44's missing-provisioning blocker. It does not provision a real account during implementation, record the user's review decision or activate the correction.
+
+**IMPLEMENTED:** dedicated interactive `scripts/provision-review-admin.py --allow-admin-bootstrap`, existing auth password validation/hash storage through a controlled adapter method, server creation time and audit metadata, atomic one-time marker, duplicate/non-admin promotion refusal, project-root/virtual-environment/local-terminal/path checks, no HTTP bootstrap, no public admin signup, no automatic session. The review client now verifies the immutable receipt and can submit a corrected pending revision in the same authenticated local session without requesting approval.
+
+**UNIT TESTED:** ten new bootstrap/auth/permission/sequence tests use fictional credentials in temporary databases only. Includes concurrent bootstrap protection, marker persistence after user deletion, secret-output checks, missing flag and unsafe invocation, normal admin login, non-admin endpoint denial, public signup denial, fresh revision and self-review refusal. Existing review/security tests are preserved.
+
+**LIVE CONNECTED:** no real administrator yet. No new AWS/Bedrock connection claim and no cloud retries or infrastructure changes. Persistence remains LOCAL VALIDATED — DYNAMODB LIVE ACCESS BLOCKED BY AWS SCP.
+
+**LIVE INPUT VALIDATED:** existing source data only; no new legal claims or amended text. Genuine corrected draft remains inactive and unusable, unchanged from section 44.
+
+**END-TO-END VALIDATED:** the local authenticated bootstrap-to-review-to-new-revision sequence passes with temporary test accounts/fictional authority. Genuine user provisioning/login/review is PENDING, not claimed complete.
+
+**LEGAL CORPUS READY:** NO. There is still no formal receipt or approved genuine authority. Engine 2 was not started; its existing visibility regression remains part of the unchanged browser suite.
+
+### Commands and actual state
+
+[Local provisioning guide](phase4-local-admin-bootstrap.md) provides exact PowerShell commands and the subsequent authenticated sequence. The command prompts for explicit confirmation, administrator email and hidden password locally. The password is not accepted as a command-line argument. No password, token, hash copy or fabricated admin is stored in source-controlled artifacts.
+
+The new identity database path is `.localdev/phase4-authority-review/identity.json`. At implementation validation it **does not exist**: provisioning has not run. The authority database has zero users and zero formal receipts; original record-1 head `d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e` remains current and corrected draft `a36240fa45fbaa6d553f77f5f7824de82d6961c2b38df27c0235df74f946239e` has no submission event. Account creation alone never changes authority state.
+
+After the user provisions locally, start the loopback review server using the dedicated identity database. The user authenticates through a hidden password prompt; no password/token is needed in chat. The review client checks the server receipt's identity, timestamp, decision and input revision, then submits a new pending revision and rechecks that receipt unchanged. A new revision is never automatically approved. Request and submission are separate persisted operations; on a later failure the receipt remains and the old request cannot simply be replayed.
+
+This is development/review provisioning, not production IAM/Cognito. It retains the existing local password hashing and storage model. Known remote invocation and network paths are refused; a malicious local process with filesystem/code access is outside that protection. No account promotion or bootstrap-reset command is provided.
+
+### Checks run in this continuation
+
+| Check | Result |
+| --- | --- |
+| Initial bootstrap + existing authority/revision focused suite | 23 passed in 9.466 seconds. |
+| Expanded focused suite, including authenticated receipt/submission client | 24 passed in 10.408 seconds. |
+| Final bootstrap suite after hidden-prompt hardening | 10 passed in 1.728 seconds. |
+| Complete backend after all implementation changes | **224 passed in 515.282 seconds**; `python -B -m unittest discover -s backend/tests -t . -q`, final `OK`. |
+| First browser suite, existing accumulated test DB | 15 passed, 2 failed: profile edit submitted the old name; processing-status poll exceeded five seconds while ENGINE1_RUNNING. |
+| Browser recheck, same DB | 16 passed, 1 failed: same profile-edit assertion; status/visibility test passed. |
+| Fresh-database browser check after backend completion | **17 passed in 33.9 seconds**; `npx playwright test --config .localdev/phase4-bootstrap.playwright.config.js`. Temporary config imports the unchanged normal suite, changing only local test database/storage/output paths and resolving paths. No assertions or timeouts changed. |
+| Frontend production build | Passed; 1,922 modules, 2.88 seconds. |
+| Python compile/import | 155 files compiled in memory; application and three provisioning/review commands imported without executing their entry points. |
+| Real dataset check | Identity file absent, zero authority-db users/receipts, original head unchanged and corrected draft inactive. |
+| `git diff --check` | Passed. |
+
+The profile trace shows PATCH `/api/auth/me` submitted `Anita Sharma` and received that same saved name, although the test had entered `Updated Client Name`. This occurs in the unchanged profile page, which unconditionally applies asynchronous initial `getMe` responses to form state. No profile-page or test assertion was changed or weakened in this scoped provisioning phase. Browser failures are reported explicitly rather than counted as passes. The final fresh-database run after backend completion passed all 17 tests, including profile persistence and status/visibility. The earlier result is consistent with a timing-sensitive initial form-load race; no unrelated frontend fix is claimed.
+
+Logs are local/ignored: `.localdev/phase4-bootstrap-backend-tests.log`, `phase4-bootstrap-browser-tests.log`, `phase4-bootstrap-browser-recheck.log`, `phase4-bootstrap-frontend-build.log`, and `phase4-bootstrap-browser-fresh.log`. The fresh run used an ignored temporary config and new isolated test DB; it did not reset the existing DB. Traces are in ordinary ignored Playwright output; do not publish raw authentication traces.
+
+### Every changed source-controlled file
+
+| File | Purpose |
+| --- | --- |
+| `backend/adapters/mock/auth.py` | Reuse existing credential rule and salted password hashing; controlled dedicated review-admin method, no bootstrap session. |
+| `backend/adapters/mock/database.py` | Atomic new account/audit-marker insertion under local file lock, one-time and duplicate/role guards. |
+| `scripts/provision-review-admin.py` (new) | Explicit flag, local environment checks, confirmation/email/hidden password prompts and safe output. |
+| `scripts/record-authority-review.py` | Hidden-input safeguards, normal session identity, receipt verification and optional corrected-source submission without approval. |
+| `backend/tests/test_review_admin_bootstrap.py` (new) | Ten isolated provisioning/authentication/security/sequence regressions. |
+| `docs/phase4-local-admin-bootstrap.md` (new) | Exact user-run commands, safeguards, limits and subsequent real review steps. |
+| `docs/phase4-revision-request-workflow.md` | Link the newly authorized provisioning path instead of the prior blocker. |
+| `docs/phase4-legal-foundation-report.md` | This scoped report and results. |
+
+Implementation checkpoint: `84ae944`. No push. Ignored regression databases/logs/build outputs were generated; the actual authority DB was only inspected, and the actual identity DB was not created. Existing untracked `output/` remains untouched.
+
+**STOP after provisioning implementation/report. The user must create their real administrator locally before the conditional real review sequence can proceed. Remain in Phase 4; no Engine 2 work.**

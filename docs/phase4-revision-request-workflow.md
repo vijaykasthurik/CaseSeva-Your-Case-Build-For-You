@@ -30,7 +30,7 @@ In a second terminal, replace only the email placeholder:
 
 The client prompts for your application password locally with hidden input. It logs in normally, keeps the session token in memory, submits only `expected_version`, `decision`, and `note`, prints non-secret receipt fields, then logs out. Do not put credentials in command arguments or chat. If the server is configured with the existing optional `ADMIN_TOKEN` control, add `--additional-admin-credential`; this prompts locally for that extra credential without displaying it. The server command does not automatically load a `.env` file.
 
-**If no legitimate administrator exists anywhere:** the current application's normal signup supports only clients and advocates; profile editing cannot grant admin. There is no supported admin creation command to give you. The bridge deliberately refuses to bootstrap or promote one. An explicitly authorized admin-provisioning workflow is still needed before authentication can occur. No raw database role edits, fabricated account or invented signup command are supplied.
+**If no legitimate administrator exists anywhere:** the user has now explicitly authorized a separate [one-time local provisioning command](phase4-local-admin-bootstrap.md). It prompts locally for confirmation, email and hidden password; implementation does not create the account. Normal public signup still supports only clients and advocates, and the review server itself never provisions or promotes accounts. Use the dedicated local command yourself before starting the review server.
 
 ## After real authentication
 
