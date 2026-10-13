@@ -67,3 +67,15 @@ No continuation/submission command is appropriate yet: no formal receipt exists.
 - No frontend, engine, corpus logic or authentication rule changed. The complete 224-test backend and final 17-test browser results in section 45 are prior-phase results, not reruns for this diagnostics-only change.
 
 Implementation checkpoint: `ed5a3ff`. Files changed: `scripts/record-authority-review.py`, new `backend/tests/test_review_client_diagnostics.py`, this report and the Phase 4 report cross-reference. The original history, administrator and inactive candidate are preserved. Phase 4 remains review-gated; Engine 2 has not started.
+
+## Follow-up: access confirmed and real HTTP reproduction
+
+The user returned successful `check_access_only`: expected/current revisions match, zero review receipts, and no review/source posted. Authentication, identity access and authority-history access currently succeed.
+
+The next reproduction used **real urllib HTTP requests to Uvicorn on a temporary loopback port**, not the prior in-process transport substitution. Only the original official source/version and its ingestion record were copied to a temporary authority database. A fictional test administrator was created in a separate temporary identity database; no real identity or password hash was copied. The exact saved rationale and corrected-source JSON were supplied to the normal client. Both review and corrected-source POSTs succeeded, the immutable request receipt was verified, and the new test revision remained unapproved/pending. The real authority and identity files were byte-for-byte unchanged throughout this test.
+
+The running server's review request schema matches the checkout's schema (`properties`, `required`, and `additionalProperties`); its only review-POST parameter is the `source_id` path parameter. No unexpected query field or unsupported decision was found.
+
+**Result:** there is no reproduced review-POST 422 to fix. The historical generic error cannot establish its operation or validation condition. Current access success does not prove where the earlier error occurred. No business rule, request schema, permission or actual review state was changed to force success. No real one-time replay is recommended under the user's explicit requirement that root cause be identified first. The missing evidence is the original structured failure detail or an equivalent failing reproduction; the earlier client did not retain it.
+
+Added regression: `test_real_http_client_with_exact_official_candidate_and_corrected_payload`. It runs only when the local official bundle is available. A standalone execution passed in 1.085 seconds; the combined authority/client/provisioning regression result is recorded in the Phase 4 report. This is test-only workflow validation, not a real admin decision or legal completion.

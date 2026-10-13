@@ -6,6 +6,9 @@ import os
 from pathlib import Path
 import runpy
 import tempfile
+import socket
+import threading
+import time
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
@@ -103,3 +106,53 @@ class ReviewClientDiagnosticTests(unittest.TestCase):
         self.assertEqual(receipts[0]['reviewer_id'],admin['id'])
         self.assertEqual(receipts[0]['decision'],'NEEDS_NEW_REVISION')
         self.assertEqual(source_path.read_bytes(),original)
+
+    def test_real_http_client_with_exact_official_candidate_and_corrected_payload(self):
+        """Exercise urllib + Uvicorn, not a mocked transport; only temporary DBs mutate."""
+        import uvicorn
+        folder=Path('.localdev/phase4-authority-review')
+        if not (folder/'database.json').exists(): self.skipTest('Local official review bundle not available')
+        real_bytes=(folder/'database.json').read_bytes()
+        # Compare the real identity file without parsing or copying credential fields.
+        identity_bytes=(folder/'identity.json').read_bytes() if (folder/'identity.json').exists() else None
+        real=json.loads(real_bytes)
+        sid='cpa2019_s2_7'
+        old='d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e'
+        record=real['legal_authority_versions'][old]
+        db=MockDatabaseAdapter(self.root/'http-authorities.json')
+        db.create('legal_authority_versions',record)
+        db.create('legal_authority_heads',{'id':sid,'version':old})
+        db.create('legal_ingestion_requests',real['legal_ingestion_requests'][record['source']['ingestion_id']])
+        identity=MockDatabaseAdapter(self.root/'http-identity.json')
+        auth=MockAuthAdapter(identity,seed_demo=False)
+        auth.provision_local_review_admin('http-fixture@example.test','FictionalHttpPassword',allow_bootstrap=True,operator='test-only')
+        factory=runpy.run_path('scripts/serve-authority-review.py')['create_app']
+        app=factory(identity.path,db.path)
+        sock=socket.socket();sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
+        server=uvicorn.Server(uvicorn.Config(app,host='127.0.0.1',port=port,log_config=None,log_level='critical',access_log=False))
+        thread=threading.Thread(target=server.run,kwargs={'sockets':[sock]},daemon=True)
+        thread.start()
+        try:
+            deadline=time.monotonic()+10
+            while not server.started and time.monotonic()<deadline: time.sleep(.01)
+            self.assertTrue(server.started)
+            args=['review','--port',str(port),'--email','http-fixture@example.test','--source-id',sid,'--revision',old,
+                  '--decision','NEEDS_NEW_REVISION','--reason-file',str(folder/'record-1/reason.txt'),
+                  '--corrected-source-file',str(folder/'record-1/corrected-source-submission.json')]
+            with patch('sys.argv',args), patch('sys.stdin.isatty',return_value=True), patch('sys.stderr.isatty',return_value=True), patch('getpass.getpass',return_value='FictionalHttpPassword'), patch.dict(os.environ,{'ADMIN_TOKEN':''}), contextlib.redirect_stdout(io.StringIO()) as output:
+                self.script['main']()
+            self.assertIn('"immutable_receipt_verified": true',output.getvalue())
+            self.assertNotIn('FictionalHttpPassword',output.getvalue())
+            self.assertEqual(len(db.list('legal_authority_reviews')),1)
+            self.assertEqual(identity.list('sessions'),[])
+            current=db.get('legal_authority_heads',sid)['version']
+            source=db.get('legal_authority_versions',current)['source']
+            self.assertEqual(source['review_state'],'REVIEW_PENDING')
+            self.assertFalse(source['source_reviewed'])
+            self.assertIsNone(source['review_id'])
+        finally:
+            server.should_exit=True
+            thread.join(timeout=10)
+            sock.close()
+            self.assertEqual((folder/'database.json').read_bytes(),real_bytes)
+            if identity_bytes is not None: self.assertEqual((folder/'identity.json').read_bytes(),identity_bytes)
