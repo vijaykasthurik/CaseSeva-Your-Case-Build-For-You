@@ -15,7 +15,7 @@ Prepared 13 October 2026 (Asia/Calcutta). All 14 current revisions remain REVIEW
 ## Recording gaps to resolve before formal decisions
 
 - The isolated validation database currently contains zero admin accounts. No account has been created or promoted. A real authenticated reviewer must be connected to this dataset.
-- The current API accepts REVIEWED_PRIMARY, REJECTED and STALE. NEEDS_NEW_REVISION is presently a checklist recommendation, not a supported persisted decision. A requested revision must remain pending until a truthful revision-request recording path is provided; it must not be silently translated to approval or rejection.
+- The API now supports the exact `NEEDS_NEW_REVISION` decision with persisted `REVISION_REQUESTED` status while keeping the source `REVIEW_PENDING` and unusable. [The workflow and record 1 draft](phase4-revision-request-workflow.md) document the change and safe authentication steps. No formal decision has been recorded because a real administrator is not yet connected.
 - Chat answers can give review instructions, but are not themselves authenticated admin receipts. All actual decision/identity/timestamp fields in the companion JSON remain null.
 
 ## Overview

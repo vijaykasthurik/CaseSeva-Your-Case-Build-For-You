@@ -1,0 +1,182 @@
+{
+  "source_id": "cpa2019_s2_7",
+  "old_current_revision": "d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e",
+  "new_inactive_draft_revision": "a36240fa45fbaa6d553f77f5f7824de82d6961c2b38df27c0235df74f946239e",
+  "current_head_unchanged": true,
+  "admin_receipt_recorded": false,
+  "draft_review_state": "REVIEW_PENDING",
+  "draft_revision_status": "NONE",
+  "verification": "PENDING",
+  "old_metadata": {
+    "version_note": "UNREVIEWED acceptance candidate. Definition excerpt only; review exclusions, extraction and later amendments. Date candidate comes from S.O. 2351(E).",
+    "corpus_version": "phase4-review-candidate-1",
+    "revision_metadata": null,
+    "effective_from": "2020-07-20",
+    "temporal_reviewed": false,
+    "temporal_source_ids": [
+      "cpa_commencement_2351"
+    ],
+    "rules": {},
+    "rules_reviewed": false
+  },
+  "new_metadata": {
+    "version_note": "Corrected metadata draft for section 2(7), original 2019 enactment text. Current-law/amendment coverage and commencement applicability remain independently unreviewed. Complete definition, exclusions and Explanation preserved. Not approved law.",
+    "corpus_version": "phase4-review-candidate-3-inactive",
+    "revision_metadata": {
+      "amendment_version": {
+        "status": "REVIEW_PENDING",
+        "text_version": "Original 2019 enactment",
+        "current_law_verified": false,
+        "reviewed_through": null,
+        "required_evidence": "Provision-specific official amendment/current-version check for the relevant case period"
+      },
+      "temporal": {
+        "status": "REVIEW_PENDING",
+        "candidate_effective_from": "2020-07-20",
+        "date_is_reviewed": false,
+        "event_date_inferred": false,
+        "supports": [
+          {
+            "source_id": "cpa_commencement_2351",
+            "source_revision": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+            "content_hash": "948b19f2d9e031ea611fff2efd50e58cadd9bb4b44ca92bcc5d3ba5ad82e5edf",
+            "official_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+            "review_state": "REVIEW_PENDING",
+            "required_check": "Confirm section 2(7) is within the notification scope and outside its exclusions; establish the applicable version and reviewed interval"
+          }
+        ]
+      },
+      "structured_rule": {
+        "status": "REVIEW_PENDING",
+        "proposed_scope": "Definition reference only; no automated entitlement, remedy, forum or deadline rule",
+        "rules_added": false,
+        "preserve": "Complete definition, exclusions and Explanation; applicability requires case-fact review"
+      },
+      "revision_request": {
+        "origin": "Explicit user instruction in chat",
+        "formal_admin_receipt_recorded": false,
+        "reason": "Current-law/amendment coverage and provision-specific commencement support are not yet independently reviewed. Preserve the complete definition, exclusions and Explanation, and prepare a corrected source-bound revision with explicit temporal metadata."
+      },
+      "preparation": {
+        "status": "INACTIVE_DRAFT",
+        "authenticated_submission_recorded": false,
+        "requires_fresh_authenticated_submission": true
+      }
+    },
+    "effective_from": "2020-07-20",
+    "temporal_reviewed": false,
+    "temporal_source_ids": [
+      "cpa_commencement_2351"
+    ],
+    "rules": {},
+    "rules_reviewed": false,
+    "parent_revision": "d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e",
+    "revision_request_id": null
+  },
+  "exact_excerpt": "(7) \"consumer\" means any person who—\n(i) buys any goods for a consideration which has been paid or promised\nor partly paid and partly promised, or under any system of deferred payment\nand includes any user of such goods other than the person who buys such\ngoods for consideration paid or promised or partly paid or partly promised, or\nunder any system of deferred payment, when such use is made with the approval\nof such person, but does not include a person who obtains such goods for\nresale or for any commercial purpose; or\n(ii) hires or avails of any service for a consideration which has been paid\nor promised or partly paid and partly promised, or under any system of deferred\npayment and includes any beneficiary of such service other than the person\nwho hires or avails of the services for consideration paid or promised, or partly\npaid and partly promised, or under any system of deferred payment, when such\nservices are availed of with the approval of the first mentioned person, but does\nnot include a person who avails of such service for any commercial purpose.\nExplanation.—For the purposes of this clause,—\n(a) the expression \"commercial purpose\" does not include use by a\nperson of goods bought and used by him exclusively for the purpose of\nearning his livelihood, by means of self-employment;\n(b) the expressions \"buys any goods\" and \"hires or avails any\nservices\" includes offline or online transactions through electronic means\nor by teleshopping or direct selling or multi-level marketing;\n",
+  "excerpt_unchanged": true,
+  "original_text_hash_unchanged": true,
+  "earlier_inactive_preparation": {
+    "revision": "142b747106a7662b13de8cfd433a2deb02cd09240005001562d30d39c2382084",
+    "retained_in_history": true,
+    "activated": false,
+    "formal_review_receipt": false,
+    "note": "Earlier preparation recorded a preparer submission event. This history is preserved; activation under a different actor is now refused. The current draft has no submission event."
+  },
+  "authenticated_submission_recorded": false,
+  "local_validation": {
+    "sources": [
+      {
+        "source_id": "cpa2019_s2_7",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "cpa2019_s2_10",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "cpa2019_s2_11",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "cpa2019_s34",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "cpa2019_s39",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "cpa2019_s69",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "cpa_commencement_2351",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "cpa_jurisdiction2021_r1",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "cpa_jurisdiction2021_r3",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "rti2005_s1",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "rti2005_s3",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "rti2005_s6",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "rti2005_s7",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      },
+      {
+        "source_id": "rti2005_s19",
+        "identity_valid": true,
+        "usable": false,
+        "review_state": "REVIEW_PENDING"
+      }
+    ],
+    "saved_consumer_issues_checked": 4,
+    "genuine_positive_citations": 0,
+    "case_file_published": false,
+    "authority_database_unchanged_by_validation": true,
+    "saved_case_unchanged": true,
+    "bedrock_calls": 0,
+    "formal_receipts": 0
+  }
+}

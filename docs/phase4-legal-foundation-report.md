@@ -324,3 +324,65 @@ Generated, ignored local files: validation database and lock files, review-recor
 ## 43. Stop gate
 
 **Phase 4 remains PARTIAL / REVIEW REQUIRED.** The next action is review of the prepared bundle, not Engine 2. No Engine 2 or Engine 3 implementation began. No claim is made that review approval alone will resolve the Tamil case's missing facts or guarantee publication.
+
+
+## 44. Revision-request continuation — 13 October 2026
+
+This section supersedes the earlier review-API gap and regression counts for the current continuation. Scope is the user's revision-request workflow and inactive correction for record 1. Engine 2/3 and other phases were not started.
+
+**IMPLEMENTED:** persisted `NEEDS_NEW_REVISION` receipts and separate `REVISION_REQUESTED` status, while preserving `REVIEW_PENDING`/unusable authority; server-owned reviewer/time; immutable revision/receipt history; parent/request lineage on corrected submission; fresh independent approval; inactive draft preparation; rejection of another submitter's draft attribution; admin-only history; existing local account-database connection with no provisioning or promotion.
+
+**UNIT TESTED:** fixture-based authentication, revision requests, immutable history, corrected revisions, self-review rejection, old pending/new pending usability, inactive draft blocking, identity/time payload rejection, stale request replay, role revocation, absent admin refusal, draft attribution and compatibility with prior receipt signatures. Fictional test admins exist only in temporary test databases; none were created in the actual review/application data.
+
+**LIVE CONNECTED:** no new cloud/service claim in this continuation. The account bridge was exercised with temporary local application accounts, not a real administrator. No formal receipt was recorded for the user's decision. No new AWS/Bedrock calls, DynamoDB retry, policy change, replacement database or credential import occurred. Persistence remains **LOCAL VALIDATED — DYNAMODB LIVE ACCESS BLOCKED BY AWS SCP**.
+
+**LIVE INPUT VALIDATED:** existing genuine downloaded text retained. All 14 current candidates still pass identity/hash/boundary checks and remain unusable pending review. Focused retrieval/temporal/citation checks on the saved Tamil case's four issues establish zero verified citations. The authority database and saved case were byte-unchanged by these read-only checks. This is a negative-gate validation, not a positive legal acceptance.
+
+**END-TO-END VALIDATED:** local browser regression only; authenticated real-admin review and genuine-law legal completion remain pending.
+
+**LEGAL CORPUS READY:** NO. Current amendment coverage and provision-specific commencement for record 1 remain unresolved. Corrected metadata describes those gaps explicitly; it does not resolve them by assertion. Genuine positive citation, temporal applicability, remedy/jurisdiction, supported limitation, Consumer/RTI legal acceptance, real-source staleness and conditional Case File publication remain gated on independent review and sufficient case facts.
+
+### Record 1 and authentication handoff
+
+See [revision workflow and exact correction](phase4-revision-request-workflow.md) for complete old/new fields, exact unchanged excerpt and safe PowerShell commands. [The comparison artifact](../artifacts/phase4_record1_revision_draft.json) includes all 14 pending-state checks. Current head remains `d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e`; inactive draft is `a36240fa45fbaa6d553f77f5f7824de82d6961c2b38df27c0235df74f946239e`. Neither is approved. The new draft has no authenticated submission event or formal review receipt. Earlier inactive preparation history is retained and explained in the handoff.
+
+The isolated authority database has zero users and zero formal receipts. The review server can use an existing local application's password-authenticated admin without copying users or roles; login/logout creates ordinary sessions in that identity database. The current normal signup supports only client/advocate. There is no supported admin-creation command. If no genuine admin exists in another application database, an explicitly authorized provisioning workflow is the remaining blocker. No role-edit workaround or fabricated admin was introduced.
+
+### Validation in this continuation
+
+| Check | Result |
+| --- | --- |
+| Initial authority/revision/checks/corpus focused run | 26 passed in 11.245 seconds. |
+| Focused run after external-account bridge | 28 passed in 14.497 seconds. |
+| Final focused suite including draft attribution/receipt compatibility | 30 passed in 13.173 seconds. Command: `python -B -m unittest backend.tests.test_authority_review backend.tests.test_authority_revision backend.tests.test_legal_checks backend.tests.test_legal_foundation.CorpusTests -q`. |
+| Complete backend regression after all code changes | **214 passed in 615.343 seconds**; `python -B -m unittest discover -s backend/tests -t . -q`. Includes existing Phase 1–4, review/security/permission and new revision regressions; final result `OK`. |
+| Browser: `npm test` | 17 passed in 1.4 minutes, existing explicit development/mock configuration. |
+| Frontend: `npm run build --prefix frontend` | Passed; Vite production build completed in 4.19 seconds. |
+| Python compile/import | All 153 backend/scripts Python files compiled in memory; application, review modules and both review commands imported. |
+| Current genuine-source gate checks | 14 identity-valid candidates, zero usable; four saved Consumer issues checked, zero positive verified citations; no case publication or live model call. |
+| Draft/report consistency | Exact excerpt, original source text/hashes, offsets and jurisdiction unchanged; current head preserved; inactive draft has no submission; actual users/receipts remain zero. |
+| Whitespace: `git diff --check` | Passed. |
+
+A one-off read-only validation probe initially passed the wrapper's `version_id` into the strict source model and failed validation before any mutation. The probe was corrected to remove wrapper metadata; all checks then passed. No production validation was weakened. Earlier inactive draft preparation had recorded a preparer submission event; history was preserved, a regression was added, and the final inactive draft has no such event. No final test failures were ignored.
+
+Logs: `.localdev/phase4-revision-backend-tests.log`, `.localdev/phase4-revision-browser-tests.log`, `.localdev/phase4-revision-frontend-build.log`. These are ignored local outputs, not evidence of real-admin or cloud acceptance.
+
+### Every source-controlled file changed in this continuation
+
+| File | Change |
+| --- | --- |
+| `backend/models/legal_foundation.py` | Revision status, lineage and correction metadata. |
+| `backend/services/authority_review.py` | Persisted request decision, independent review guard, inactive submission, actor attribution and existing account DB connection. |
+| `backend/services/verified_corpus.py` | Reject requested authorities, store inactive versions without advancing head, expose revision status. |
+| `backend/routes/authorities.py` | Exact request decision, reject client-owned identity/time/lineage, admin-only history and account bridge. |
+| `backend/tests/test_authority_revision.py` (new) | Seven regression tests with isolated fictional fixtures. |
+| `scripts/serve-authority-review.py` (new) | Loopback-only review API against existing local identity and authority files; no provisioning. |
+| `scripts/record-authority-review.py` (new) | User-run normal login and explicit decision, hidden local credential prompts, non-secret receipt output and logout. |
+| `artifacts/phase4_record1_revision_draft.json` (new) | Exact old/new comparison, source excerpt, pending metadata and read-only validation results. |
+| `docs/phase4-revision-request-workflow.md` (new) | Authentication commands, absent provisioning blocker, full correction and excerpt. |
+| `docs/phase4-admin-review-checklist.md` | Replace historical API-gap statement with implemented workflow and authentication gate. |
+| `docs/phase4-legal-foundation-report.md` | This scoped report and validation evidence. |
+
+Ignored local files changed/created: authority database with inactive immutable draft history (current heads unchanged), record-1 reason and prepared source payload, normal lock files, regression logs, isolated browser test database/uploads, and build/test outputs. Existing untracked `output/` content is untouched.
+
+Implementation checkpoint: `7992e76`. No push performed. Records 2–14 await individual authenticated decisions; none were automatically revised, approved or rejected. **STOP at the real-admin gate; Phase 4 remains PARTIAL / REVIEW REQUIRED.**
