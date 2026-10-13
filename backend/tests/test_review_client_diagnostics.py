@@ -42,7 +42,7 @@ class ReviewClientDiagnosticTests(unittest.TestCase):
         from backend.routes.auth import LoginBody, login
         from fastapi import HTTPException
         with self.assertRaises(HTTPException) as result:
-            login(LoginBody(email='invalid-format', password='FICTIONAL-SECRET'), None)
+            login(LoginBody(email='<your admin email>', password='FICTIONAL-SECRET'), None)
         self.assertEqual(result.exception.status_code,422)
         out = json.loads(self.script['safe_http_failure'](self.error({'detail':result.exception.detail}), 'login'))
         self.assertEqual(out['detail']['fields']['email'],'Enter a valid email address.')

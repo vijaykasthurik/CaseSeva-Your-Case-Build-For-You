@@ -79,3 +79,25 @@ The running server's review request schema matches the checkout's schema (`prope
 **Result:** there is no reproduced review-POST 422 to fix. The historical generic error cannot establish its operation or validation condition. Current access success does not prove where the earlier error occurred. No business rule, request schema, permission or actual review state was changed to force success. No real one-time replay is recommended under the user's explicit requirement that root cause be identified first. The missing evidence is the original structured failure detail or an equivalent failing reproduction; the earlier client did not retain it.
 
 Added regression: `test_real_http_client_with_exact_official_candidate_and_corrected_payload`. It runs only when the local official bundle is available. A standalone execution passed in 1.085 seconds; the combined authority/client/provisioning regression result is recorded in the Phase 4 report. This is test-only workflow validation, not a real admin decision or legal completion.
+
+## Resolution from the subsequently supplied console transcript
+
+The newly supplied transcript shows the original failed command used the literal `--email "<your admin email>"`. This new evidence supersedes the earlier uncertainty and the earlier report that an actual email was used. The literal contains spaces and fails the existing login email-format check: HTTP 422, `detail.fields.email = "Enter a valid email address."`. This occurs before authentication or a review POST. Direct validation of that exact literal reproduces the error without a network request or database access. The existing diagnostic regression now uses the exact literal. No production validation change is required.
+
+The transcript then shows a successful real controlled request and corrected submission. Read-only persisted-state inspection verified:
+
+| Field | Persisted result |
+| --- | --- |
+| Receipt ID | `fbf2e5ba79e14d8e8e39dac7362b6ee2` |
+| Decision | `NEEDS_NEW_REVISION` |
+| Server timestamp | `2026-10-13T09:32:43.670594+00:00` |
+| Request-state revision | `7bf091e172818832d26d534f623a3f75ee87b9e8dca025735fd5326b438132fe` |
+| Corrected current revision | `fdd9c175c4fb253f74e3a5b8a4e846398e9efd871e770278fe79db0aec8fe14c` |
+| Corrected review state | `REVIEW_PENDING` |
+| Corrected revision status | `NONE` — fresh candidate awaits independent review |
+| Verification | `PENDING` |
+| Approved | `false` |
+
+The receipt binds to original revision `d9804…`; its content digest matches. The parent request revision retains `REVISION_REQUESTED` and the receipt reference. The corrected head references that parent and request receipt, has cleared review identity/time/approval fields, and preserves the source excerpt/content hash. The real administrator submitted this correction, so that same account cannot approve it; fresh approval requires a different genuine independent reviewer. No such reviewer is invented or provisioned here.
+
+The attempted server restart did **not** succeed: port 8012 was already occupied (`Errno 10048`). The existing server handled the successful operation. Do not describe the failed launch as a successful restart and do not replay the original decision. The assistant's post-operation verification was read-only and left the authority database byte-for-byte unchanged. No authority was approved and Engine 2 was not started.
