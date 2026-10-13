@@ -15,7 +15,7 @@ class VerifiedCorpus:
         value = LegalSource.model_validate(record).model_dump()
         from .authority_review import authority_digest
         receipt = self.db.get('legal_authority_reviews', value.get('review_id') or '')
-        if (value['review_state'] != 'REVIEWED_PRIMARY' or not value['source_reviewed'] or not receipt
+        if (value['review_state'] != 'REVIEWED_PRIMARY' or value['revision_status'] == 'REVISION_REQUESTED' or not value['source_reviewed'] or not receipt
             or receipt.get('decision') != 'REVIEWED_PRIMARY' or receipt.get('source_id') != value['source_id']
             or receipt.get('source_digest') != authority_digest(value)
             or receipt.get('reviewer_id') != value['reviewed_by'] or receipt.get('reviewed_at') != value['reviewed_at']):
@@ -66,7 +66,7 @@ class VerifiedCorpus:
             return False, 'Invalid effective date interval'
         return True, 'Reviewed primary text, identity and section boundary match'
 
-    def publish(self, record, *, expected_version=None):
+    def publish(self, record, *, expected_version=None, activate=True):
         """Trusted ingestion API only. No citizen/model route may invoke this."""
         value = LegalSource.model_validate(record).model_dump()
         valid, reason = self.validate_source(value)
@@ -75,6 +75,8 @@ class VerifiedCorpus:
         stored = {'id': version, 'source': value, 'reason': reason}
         if not self.db.get('legal_authority_versions', version):
             self.db.create('legal_authority_versions', stored)
+        if not activate:
+            return {**value, 'version_id': version, 'reason': reason}
         head = {'id': value['source_id'], 'version': version}
         if self.db.get('legal_authority_heads', value['source_id']):
             def advance(current):
@@ -117,7 +119,7 @@ class VerifiedCorpus:
         for source in self.sources():
             valid, reason = self.validate_source({k: v for k, v in source.items() if k != 'version_id'})
             result.append({key: source[key] for key in ('source_id', 'domain', 'jurisdiction', 'family', 'source_type', 'court', 'effective_from', 'effective_until', 'corpus_version', 'version_id')}
-                          | {'status': 'SOURCE_VERIFIED' if valid else 'PENDING', 'review_state': source['review_state'], 'reason': reason})
+                          | {'status': 'SOURCE_VERIFIED' if valid else 'PENDING', 'review_state': source['review_state'], 'revision_status': source.get('revision_status', 'NONE'), 'reason': reason})
         return result
 
     def sync_case(self, case_id):
