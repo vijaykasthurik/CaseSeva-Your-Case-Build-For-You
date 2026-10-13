@@ -82,6 +82,31 @@ class MockAuthAdapter(AuthAdapter):
         digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 120_000).hex()
         return f"{salt}${digest}"
 
+    def provision_additional_review_admin(self, email: str, password: str, *, session_token: str,
+                                         allow_onboarding: bool, operator: str) -> dict[str, Any]:
+        """Authenticated local onboarding; never bootstrap, promotion or human-review approval."""
+        import re
+        from .database import MockDatabaseAdapter
+        from ...models.case import utc_now
+        if not allow_onboarding or type(self.database) is not MockDatabaseAdapter:
+            raise ValueError('Explicit local reviewer onboarding authorization required')
+        authorizer = self.get_current_user(session_token)
+        if not authorizer or authorizer.get('role') != 'admin':
+            raise ValueError('An authenticated existing administrator is required')
+        normalized = self.validate_credentials(email, password)
+        if not re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s]+', normalized):
+            raise ValueError('Enter a valid new reviewer email')
+        if normalized == authorizer['email'].strip().lower():
+            raise ValueError('The new reviewer must use a different email')
+        now = utc_now()
+        user = {'id': uuid4().hex, 'email': normalized, 'full_name': 'Authority review administrator',
+                'role': 'admin', 'password_hash': self._hash_password(password), 'created_at': now,
+                'provisioning': {'method': 'AUTHENTICATED_LOCAL_REVIEW_ONBOARDING',
+                    'scope': 'PHASE4_REVIEW_ONLY', 'authorized_by': authorizer['id'],
+                    'local_operator': operator, 'created_at': now, 'human_independence_verified': False}}
+        self.database.create_additional_review_admin(user, session_token=session_token)
+        return self._public_user(user)
+
     def signup(self, profile: dict[str, Any], password: str) -> dict[str, Any]:
         normalized = self.validate_credentials(profile["email"], password)
         if any(user["email"] == normalized for user in self.database.list("users")):

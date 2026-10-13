@@ -97,6 +97,28 @@ class MockDatabaseAdapter(DatabaseAdapter):
             record = data.get(collection, {}).get(record_id)
             return dict(record) if record else None
 
+    def create_additional_review_admin(self, user: dict[str, Any], *, session_token: str) -> None:
+        """Recheck authorization and duplicates atomically; leave bootstrap history untouched."""
+        with self._lock:
+            data = self._read()
+            session = data.get('sessions', {}).get(session_token)
+            users = data.get('users', {})
+            authorizer = users.get(session.get('user_id')) if session else None
+            if not authorizer or authorizer.get('role') != 'admin':
+                raise ValueError('An authenticated existing administrator is required')
+            if not data.get('review_admin_bootstrap'):
+                raise ValueError('Existing review bootstrap history is required; onboarding cannot bootstrap')
+            if user['id'] in users or any(u.get('email', '').strip().lower() == user['email'] for u in users.values()):
+                raise ValueError('Account already exists; onboarding never promotes existing users')
+            audit = user.get('provisioning', {})
+            if (user.get('role') != 'admin' or audit.get('scope') != 'PHASE4_REVIEW_ONLY'
+                    or audit.get('authorized_by') != authorizer['id']):
+                raise ValueError('Invalid local reviewer onboarding request')
+            data.setdefault('users', {})[user['id']] = dict(user)
+            data.setdefault('review_admin_provisioning', {})[user['id']] = {
+                'id': user['id'], 'user_id': user['id'], **audit}
+            self._write(data)
+
     def update(self, collection: str, record_id: str, changes: dict[str, Any]) -> dict[str, Any]:
         with self._lock:
             data = self._read()

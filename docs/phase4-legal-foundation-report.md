@@ -474,3 +474,30 @@ The new transcript also supplies evidence unavailable earlier: the original fail
 The server restart attempt failed because port 8012 was occupied; the existing server processed the successful retry. No second review retry is authorized or needed. The corrected source's submitter is the same actual admin who requested revision, so independent approval must come from a different genuine reviewer. No account was fabricated or promoted, and no authority approval occurred.
 
 **LIVE AUTHENTICATED REVIEW REQUEST: VALIDATED. LIVE CORRECTED SUBMISSION: VALIDATED. LEGAL CORPUS READY: NO.** Amendment/commencement and other legal review gates remain open; successful administration is not legal completion. Remain in Phase 4, with no Engine 2 work. Exact receipt/revision metadata and limitations are in [the updated investigation](phase4-review-422-investigation.md).
+
+## 48. Additional independent reviewer onboarding support
+
+**IMPLEMENTED / UNIT TESTED. REAL SECOND ACCOUNT PROVISIONED: NO. INDEPENDENT HUMAN REVIEW: PENDING. LEGAL CORPUS READY: NO.**
+
+The controlled local command authenticates the existing administrator and requires interactive confirmation, a different email and hidden new password/confirmation. It reuses application password validation and hashing. An atomic database operation rechecks the authenticated session/role, rejects duplicate accounts of any role, preserves the bootstrap marker and records authorization/creation audit metadata with the new account. No public signup or network provisioning endpoint was added. A different account is explicitly not proof of a different human reviewer.
+
+Changed files:
+
+- `backend/adapters/mock/auth.py`: controlled authenticated additional-admin service.
+- `backend/adapters/mock/database.py`: atomic authorization, duplicate and bootstrap-history guards; account/audit persistence.
+- `scripts/add-review-administrator.py`: local interactive command with hidden credentials and session cleanup.
+- `backend/tests/test_additional_review_admin.py`: seven temporary-database onboarding/independence/security regressions.
+- `docs/phase4-additional-reviewer-onboarding.md`: exact PowerShell command and user-run workflow.
+- `docs/phase4-legal-foundation-report.md`: this report.
+
+Validation:
+
+- `python -B -m unittest backend.tests.test_additional_review_admin backend.tests.test_review_admin_bootstrap backend.tests.test_authority_revision backend.tests.test_authority_review backend.tests.test_review_client_diagnostics -q`: **36 passed**, including successful creation/authentication, authorization rejection, duplicate/no-promotion guards, secret-safe CLI, distinct IDs, bootstrap preservation, revocation race, new reviewer endpoint access and submitter self-approval rejection. Temporary HTTP reproduction remains covered; no real review replay.
+- `python -B -m unittest backend.tests.test_core_permissions backend.tests.test_legal_permissions backend.tests.test_security_hotfix -q`: **19 passed**.
+- `npm run build --prefix frontend`: **passed**.
+- In-memory compilation of all **158 backend/script Python files**: **passed**.
+- `git diff --check`: **passed**. Existing dependency deprecation warnings remain; no test failure.
+
+Read-only checks confirmed one real administrator, the preserved bootstrap marker, unchanged corrected source head and existing immutable receipt. The actual onboarding command was not executed; no real account or authority state was changed. No AWS call was made. These results are focused regression validation, not a claim of full live legal completion.
+
+The user must now run [the onboarding command](phase4-additional-reviewer-onboarding.md). After the second real reviewer is provisioned, prepare the requested read-only package for the existing corrected revision; stop before any decision. The corrected source remains pending and unusable. No Engine 2 work began.
