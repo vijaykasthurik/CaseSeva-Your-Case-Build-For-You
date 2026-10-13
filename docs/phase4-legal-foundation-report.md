@@ -1,8 +1,8 @@
 # Phase 4 — Dynamic teams and verified legal foundation
 
-Date: 12 October 2026 (Asia/Calcutta). Scope: Phase 4 only.
+Report finalized: 13 October 2026 (Asia/Calcutta). Recorded implementation and validation runs: 12 October 2026. Scope: Phase 4 only.
 
-**Phase 4 is not fully complete or production legally validated.** The implementation and local verification paths are present. Real Bedrock completed the Tamil team, five specialists and four legal issues. The live case correctly ends at `LEGAL_CORPUS_NOT_READY`, without a Case File or established-law output. Official-source ingestion, reviewed production corpus coverage and full live legal application remain blocked or pending.
+**Current status: PHASE 4 PARTIAL — INDEPENDENT ADMIN REVIEW REQUIRED.** Official retrieval now succeeded for four genuine government PDFs, producing 14 pending authority records. The review gate and immediate source invalidation checks are implemented. The user chose “Prepare the bundle for my admin review”; no review decision, identity or timestamp has been fabricated. No genuine-law proposition or Case File is yet validated. The Tamil case and all six specialist packs are preserved. **Sections 38–43 supersede earlier connectivity, regression and remaining-work statements; sections 1–37 describe the prior checkpoint.**
 
 ## 1. Accepted baseline
 
@@ -204,3 +204,123 @@ Within Phase 4: acquire and independently review official authority records; est
 Engine 2 itself remains a separately approved phase: consume the current source-backed Case File, implement the adversarial closed loop and evidence challenges under current permissions, preserve advocate-only arguments, and verify rerun/staleness behavior. The legacy Engine 2 route is blocked for Phase 4 cases so it cannot substitute for that work. Engine 3 and professional document work remain outside this phase.
 
 Stop after this report. No subsequent implementation phase is authorized by this delivery.
+
+## 38. Continuation: independent review and genuine source acquisition
+
+Continuation baseline: `5a1ca39`; implementation checkpoint: `b85a9e6`; genuine-source bundle and validation checkpoint: `92c418a`. Scope remains Phase 4 only. The user explicitly selected preparation of the bundle for their admin review. Source approval has therefore **not** been performed on the user's behalf.
+
+| Label | Observed result |
+| --- | --- |
+| IMPLEMENTED | Persisted official-ingestion lifecycle, bounded retry, canonical/final URLs, hashes and original text; authenticated independent admin review; immutable review receipts bound to source content; current-source and temporal-support manifests on published Case Files; citizen/shared read-time revalidation; explicit capacity review stop. |
+| UNIT TESTED | Review authorization, self-review rejection, fake review metadata, original-download binding, source revision/freshness/revocation/support removal, negative citations, artifact integrity and bounded large outputs. Fictional test authorities remain explicitly test-only. |
+| LOCAL INTEGRATION VALIDATED | Existing local database adapter, deterministic foundation/publication workflow, all six packs and permission regressions. No database replacement. |
+| LIVE BEDROCK VALIDATED | Prior Tamil five-specialist/four-issue checkpoint reused unchanged. New RTI team, three specialists and four issues completed in five calls: 13,286 input and 5,283 output tokens. This is a Phase 4 component run over the existing authored RTI premise and recorded domain classification, not a new full Phase 3 case. |
+| OFFICIAL SOURCE LIVE CONNECTED | Four original government PDF downloads succeeded: three Department of Consumer Affairs documents and one Central Information Commission RTI compilation. Original extracted text, raw/text SHA-256, canonical/final URLs and retrieval timestamps are persisted. India Code attempts remain recorded retryable timeouts. |
+| SOURCE VERIFIED | **Zero genuine records.** Fourteen records passed mechanical identity checks and await independent review. No downloaded source was automatically approved. |
+| REAL-LAW CASE FILE VALIDATED | **No.** Publication and hiding are tested with fictional authority only. Genuine-law positive temporal/citation/jurisdiction/publication acceptance is still blocked by review and missing case facts. |
+| LEGAL CORPUS COVERAGE | Consumer: nine pending candidates. RTI: five pending candidates. Neither acceptance corpus is READY. All other domains and nationwide coverage remain NOT READY. |
+| BLOCKED | Genuine-source positive acceptance requires actual review, supported temporal metadata and source-bound applicability. The undated/location-unknown RTI fixture cannot establish a forum or deadline. No genuine judgment path has been validated. |
+| REVIEW REQUIRED | User/admin review of exact PDF excerpts, version/amendment coverage, temporal scope and structured rules. Legal interpretation and case evidence remain advocate-reviewable. |
+
+Persistence label: **LOCAL VALIDATED — DYNAMODB LIVE ACCESS BLOCKED BY AWS SCP.** DynamoDB and Transcribe were not retried. No S3/STS revalidation, organization changes, deployment or Engine 2/3 implementation occurred in this continuation.
+
+### Actual official documents and candidate coverage
+
+| Original official download | Pending records | Important review requirement |
+| --- | --- | --- |
+| [Consumer Protection Act 2019, issuing department PDF](https://consumeraffairs.gov.in/public/upload/files/CP%20Act%202019_1732700731.pdf) | `cpa2019_s2_7`, `cpa2019_s2_10`, `cpa2019_s2_11`, `cpa2019_s34`, `cpa2019_s39`, `cpa2019_s69` | Original enactment text, not a claim of current consolidated law. Check exact extraction, exclusions and amendments. The original section 34 amount cannot be used independently of the later jurisdiction rules. |
+| [S.O. 2351(E), commencement notification](https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf) | `cpa_commencement_2351` | Candidate 20 July 2020 date is grounded in the actual notification, but applies only to its listed provisions and exclusions. `temporal_reviewed` remains false. Department-hosted Gazette text does not prove live eGazette connectivity. |
+| [G.S.R. 912(E), jurisdiction rules 2021](https://consumeraffairs.gov.in/public/upload/files/232278_1732705029.pdf) | `cpa_jurisdiction2021_r1`, `cpa_jurisdiction2021_r3` | Rule 1 links commencement to publication. Header/notification say 30 December; digital upload/signature identifier says 31 December. Effective date is intentionally unresolved for admin review; no date was guessed. |
+| [RTI Act, official CIC compilation](https://cic.gov.in/sites/default/files/RTI_English.pdf) | `rti2005_s1`, `rti2005_s3`, `rti2005_s6`, `rti2005_s7`, `rti2005_s19` | Compilation identifies its version as 18 November 2025. Review commencement under section 1(3), immediate versus delayed provisions and relevant amendment history. No deadline follows from the existing fixture's unknown application date. |
+
+All four final URLs matched the canonical URLs. Hashes, retrieval times, source IDs and immutable draft revision IDs are in [the review manifest](../artifacts/phase4_authority_review_manifest.json). The two failed India Code requests also remain listed there; they were not converted into source records. All registry-wide `enabled`/readiness settings remain false. Record-specific admin approval does not enable legacy summaries or other records.
+
+### Review handoff
+
+The concrete local bundle is [REVIEW.md](../.localdev/phase4-authority-review/REVIEW.md), with exact extracted excerpts and original PDF links. [review-records.json](../.localdev/phase4-authority-review/review-records.json) contains full source text, offsets and draft metadata. The existing local database adapter stores these in `.localdev/phase4-authority-review/database.json`; this isolated validation database is not automatically copied into the running application's database.
+
+The review backend exposes authenticated admin-only `GET /api/admin/authorities`, `POST /api/admin/authorities`, and `POST /api/admin/authorities/{source_id}/review`. The last accepts `expected_version`, `decision` and `note`; identity/time are derived from the authenticated persisted administrator and server clock. A configured extra admin token is enforced. No account was created/promoted or credential copied into the bundle. An authorized application instance must use the validation database (or deliberately import its pending source/ingestion records) before that API can review these particular revisions. This handoff is an API/internal workflow; a new admin review UI is not claimed.
+
+Before approval, correct unresolved temporal/rule metadata by submitting a new revision. The exact reviewed revision must then be approved by an independent administrator; the submitter cannot approve their own revision. A changed revision requires another review. No reviewer-supplied name or timestamp is accepted. Reject/stale decisions revoke current usability. Historical decisions remain available for audit.
+
+## 39. Case continuity, staleness and capacity findings
+
+**Tamil refrigerator:** no Phase 3, team, specialist or issue generation was rerun. Focused retrieval/temporal/citation handlers were executed against the existing four issues and the new pending corpus without mutating the saved case. Their decisions establish no law. Unknown technician date, unknown defect cause, absent evidence and unknown seller/location facts remain unresolved. The saved case retains `LEGAL_CORPUS_NOT_READY`; no Case File was generated. This continuation is not a full worker rerun or genuine-law end-to-end success.
+
+**Second domain:** reused the exact RTI premise from `scripts/validate-phase3-router.py` and its recorded successful domain classification. Real Bedrock selected `PUBLIC_AUTHORITY`, `REQUEST_STRUCTURING` and `RTI_APPEAL_FOUNDATION`, then produced four RTI issues. The fixture does not state a location or submission date; all issues correctly retain unknown jurisdiction, so case-specific retrieval is gated. A separate explicit national-jurisdiction filter probe returns only RTI candidates for RTI and only Consumer candidates for Consumer. That probe does not manufacture a jurisdiction fact in the case. Findings are recorded in [the pending-source validation artifact](../artifacts/phase4_pending_authority_validation.json).
+
+**Read-time invalidation:** new Case Files store exact authority revisions, including transitive commencement dependencies. Both citizen projections and scoped advocate sharing validate the current manifest. Expired text, changed revision, rejected/stale review, missing temporal support or absence of a validation context hides the file immediately, even if a cached case flag still says current. Assembly validates authority before reusing an existing Case File. Historical files without a manifest are conservatively hidden until rebuilt. These positive/negative publication checks currently use fictional test authorities; real-law publication is not claimed.
+
+**Targeted reuse:** changing a matched source changes only matching `corpus_inputs.<issue>` fingerprints; unrelated fingerprints remain unchanged. A leaf-fact dependency regression proves Fact A invalidates its application while a separately declared Fact B application and citation stay current. **Full core-to-team-to-issue invalidation remains conservative:** whole-map Phase 3 outputs and team/planner dependencies may rerun more work. There was no Phase 2/3 scheduler rewrite, and the isolated leaf test is not a claim of complete per-fact reuse through the whole graph.
+
+**Capacity:** the preserved live Tamil board remains 252,040 bytes against the unchanged 300,000-byte checkpoint limit (the saved wrapper/event consumes additional space). A new twelve-specialist multilingual synthetic case holds more than 300,000 bytes of original output through immutable references and round-trips every observation unchanged. An intentionally oversized inline write raises a typed capacity failure and leaves the committed head unchanged. Worker capacity failures produce `LEGAL_FOUNDATION_REVIEW_REQUIRED`, internal `legal_capacity_review_required=true`, and no Case File. Public messages remain safe. Large inline legal applications can still need capacity review; no universal large-case completion or silent truncation is claimed.
+
+## 40. Final verification for this continuation
+
+The final complete backend run passed **207 tests in 446.322 seconds**, after all implementation changes. The saved terminal log ends in `OK`. Earlier 193-test results are historical and are **not** the final regression for this continuation. No application or test code changed after this run; only this report was finalized.
+
+| Check | Result |
+| --- | --- |
+| Focused authority/checks/corpus/team/artifact suite | 33 passed after fixing the test download's raw-hash fixture. |
+| Foundation worker and Phase 4 permission suite | 12 passed in 203.276 seconds. |
+| Final focused authority/artifact/team/capacity checks | 20 passed in 8.333 seconds. |
+| Complete backend suite after implementation changes | **207 passed in 446.322 seconds**, `python -B -m unittest discover -s backend/tests -t . -q`; includes Phase 1/2/3/4, permission/security, authority/citation and artifact tests. |
+| Browser regression: `npm test` | 17 passed in 56.6 seconds; existing local development/mock browser configuration, not live-law acceptance. |
+| Frontend production build | Passed, Vite 6.4.3, 1,922 modules. |
+| Python compile/import | All 150 backend/script Python files compiled in memory; application and changed service imports passed. |
+| `git diff --check` | Passed. |
+
+Intermediate failures were a missing import of the new fictional review helper (22-test run: one error) and a mock download fixture's inconsistent raw hash (29-test run: one error). Both were fixed and their focused checks passed. Neither was worked around by weakening production review. Network failures were preserved separately as retryable requests. No new Bedrock call was spent on source application while its required review gate was closed.
+
+## 41. Every changed/added file in this continuation
+
+| File | Purpose |
+| --- | --- |
+| `backend/adapters/real/official_sources.py` | Bounded retries, final destination validation, download-stage callback and retrieval hashes. |
+| `backend/models/legal_foundation.py` | Explicit lifecycle, ingestion reference and server-owned review metadata. |
+| `backend/services/authority_review.py` (new) | Persisted ingestion, identity checking, independent admin decisions and immutable receipts. |
+| `backend/services/verified_corpus.py` | Exact receipt/content matching, per-record identity and subsection checks, revision CAS and granular readiness. |
+| `backend/routes/authorities.py` (new) | Authenticated admin-only pending-source submission/list/review. |
+| `backend/main.py` | Register review routes. |
+| `backend/registries/sources.json` | Register exact Consumer Affairs/CIC official hosts for discovery; global readiness remains disabled. |
+| `backend/services/legal_visibility.py` (new) | Source/temporal manifests and immediate read-time hiding. |
+| `backend/services/legal_workflow.py` | Revalidate before Case File reuse, record manifests and explicit capacity review. |
+| `backend/services/case_blackboard.py` | Typed capacity exception; unchanged size guard, persistence and invalidation algorithm. |
+| `backend/services/overview.py` | Database-aware citizen projection and safe review status when a source is no longer current. |
+| `backend/services/sharing.py` | Database-aware scoped Case File projection. |
+| `backend/routes/cases.py`, `backend/routes/engines.py`, `backend/routes/advocates.py` | Pass existing database context into public/shared projections. |
+| `backend/tests/legal_test_support.py` | Explicit fictional ingestion/admin-review fixture through production gate. |
+| `backend/tests/test_authority_review.py` (new) | Review, ingestion, receipts, redirects, invalidation and admin-permission regressions. |
+| `backend/tests/test_legal_foundation.py`, `backend/tests/test_legal_checks.py` | Migrate fixture authorities through review; retain negative checks and add capacity status regression. |
+| `backend/tests/test_legal_team.py` | Reviewed fixture source changes and isolated leaf-fact invalidation regression. |
+| `backend/tests/test_legal_artifacts.py` | Twelve-specialist multilingual payload and over-capacity atomicity check. |
+| `scripts/prepare-phase4-authority-review.py` (new) | Deterministically prepare genuine downloaded pending excerpts; never approve them. |
+| `scripts/validate-phase4-authority-candidates.py` (new) | Reuse Tamil understanding; check pending corpus and bounded optional RTI component calls. |
+| `artifacts/phase4_authority_review_manifest.json` (new) | Public-source provenance, candidate revisions and preserved timeout requests. |
+| `artifacts/phase4_pending_authority_validation.json` (new) | Actual pending-source checks and focused live RTI results. |
+| `docs/phase4-legal-foundation-report.md` | Updated findings, evidence, limits and handoff. |
+
+Generated, ignored local files: validation database and lock files, review-records JSON, REVIEW.md, RTI component/provider logs, backend/browser logs and ordinary build/test output. Raw provider prompts/logs remain local. Existing untracked `output/` content is untouched.
+
+## 42. Explicit acceptance answers
+
+1. **Genuine records independently reviewed:** none yet; 14 genuine candidates prepared for the user's admin review.
+2. **Exact URLs/families:** the four Consumer Affairs/CIC links in section 38; two timed-out India Code URLs are retained in the manifest. No unrelated websites were promoted.
+3. **SOURCE VERIFIED propositions:** zero genuine propositions; all remain pending.
+4. **Consumer acceptance Case File:** not produced.
+5. **Genuine law versus fixture publication:** successful publication tests use clearly fictional authority. No genuine-law publication claim.
+6. **Second domain:** RTI/Administrative official source download and live Phase 4 team/specialist/issue components succeeded; reviewed legal-source acceptance remains pending.
+7. **Domains not corpus-ready:** all six. Consumer/RTI have a narrow pending acceptance bundle; Labour, Property, Criminal and Civil lack reviewed acceptance coverage. Nationwide corpus is not ready.
+8. **Reviewed temporal dates:** no genuine date approved. Consumer commencement date is source-grounded but unreviewed. Rules/RTI effective dates remain unresolved. Applicable/out-of-range/unknown-date tests pass with fictional authority only.
+9. **Reviewed jurisdiction/remedy:** not with genuine approved authority yet. Genuine rule/remedy excerpts are staged; source-bound interpretation and case facts still require review.
+10. **Limitation:** no live deadline generated. Existing exact-trigger/source-version/exclusions tests remain; the undated RTI premise and unknown technician date do not become artificial deadlines.
+11. **Fabrications rejected:** wrong title/Act, section, quote, citation, hash, jurisdiction, stale revision and invented judgment remain covered by regression checks. No fabricated judgment was used for live acceptance.
+12. **Source revision targeting:** matching issue fingerprints change; unrelated source/issue fingerprints are preserved. Read-time manifests immediately hide dependent files. Full per-fact core propagation still conservatively over-invalidates.
+13. **Final complete backend count after latest changes:** **207 passed**, zero failures/errors, 446.322 seconds. The old 193-test result is not used.
+14. **Browser:** 17/17 passed.
+15. **Frontend build:** passed.
+16. **Before Engine 2:** independent review; resolve amendment/commencement/rule metadata; obtain missing jurisdiction/date/evidence facts without invention; prove genuine positive temporal/citation/jurisdiction/conditional-limitation and foundation/publication paths, second-domain legal acceptance and real-source invalidation; refresh final regressions after any further changes. Precedents remain pending unless actually needed and genuinely verified.
+
+## 43. Stop gate
+
+**Phase 4 remains PARTIAL / REVIEW REQUIRED.** The next action is review of the prepared bundle, not Engine 2. No Engine 2 or Engine 3 implementation began. No claim is made that review approval alone will resolve the Tamil case's missing facts or guarantee publication.
