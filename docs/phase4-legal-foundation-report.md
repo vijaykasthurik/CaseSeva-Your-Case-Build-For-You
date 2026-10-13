@@ -450,3 +450,11 @@ Logs are local/ignored: `.localdev/phase4-bootstrap-backend-tests.log`, `phase4-
 Implementation checkpoint: `84ae944`. No push. Ignored regression databases/logs/build outputs were generated; the actual authority DB was only inspected, and the actual identity DB was not created. Existing untracked `output/` remains untouched.
 
 **STOP after provisioning implementation/report. The user must create their real administrator locally before the conditional real review sequence can proceed. Remain in Phase 4; no Engine 2 work.**
+
+## 46. Real administrator provisioned; HTTP 422 investigation
+
+The user subsequently provisioned their administrator and started the review server. Their review command returned 422. Read-only inspection found **zero formal receipts, no requested state, no new source revision/submission**, and the original record-1 head and inactive correction unchanged. The real admin account is preserved. No bootstrap or review request was replayed.
+
+[The detailed investigation](phase4-review-422-investigation.md) records the exact observed history, ruled-out conditions, safe client diagnostics, tests and check-only command. The historical 422 cause is **not yet established** because the old client discarded operation/error detail; no root cause is invented. The intended request succeeds against an isolated copy of the exact saved source with a fictional test identity.
+
+Diagnostics checkpoint `ed5a3ff`: 28 focused tests passed; 156 Python files compiled; whitespace checks passed. Only the client, diagnostic tests and reports changed. The safe check-only command never posts a review or corrected source. Genuine review and legal completion remain pending. No Engine 2 work began.
