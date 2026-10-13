@@ -1,0 +1,15 @@
+{
+  "current_records_identity_and_binding_passed": 14,
+  "offline_drafts_schema_digest_and_unusable_passed": 13,
+  "version_hash_and_parent_checks_passed": 18,
+  "receipt_digest_checks_passed": 1,
+  "pending_authority_read_time_hiding": "PASS",
+  "python_compiled": 158,
+  "service_imports": 6,
+  "protected_files_unchanged": 9,
+  "real_review_decisions_executed": 0,
+  "sources_approved": 0,
+  "real_law_case_file_validated": false,
+  "legal_corpus_ready": false,
+  "engine2_started": false
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "9ead02bab44f462a880ccd4e74fb7e0b",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/CP%20Act%202019_1732700731.pdf",
+    "final_url": "https://consumeraffairs.gov.in/public/upload/files/CP%20Act%202019_1732700731.pdf",
+    "raw_hash": "0ae7f82ab5b77d50087cd4cd2dd2dbc12755c0bdb31371fdefd042b020d50756",
+    "content_hash": "56226f1c3f14270005c9300a79771623ea20626eed9ab7f153561689af10ac1e",
+    "observed_final_url": "https://consumeraffairs.gov.in/public/upload/files/CP%20Act%202019_1732700731.pdf",
+    "raw_sha256_matches": true,
+    "final_url_matches": true
+  },
+  {
+    "id": "2e53d55dd81243ea9f0d7563c3b2ab91",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+    "final_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+    "raw_hash": "636aa9e92a972c1cf556f0421aedf0c181bd2a29bbc37f484917d987cd488ed5",
+    "content_hash": "948b19f2d9e031ea611fff2efd50e58cadd9bb4b44ca92bcc5d3ba5ad82e5edf",
+    "observed_final_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+    "raw_sha256_matches": true,
+    "final_url_matches": true
+  },
+  {
+    "id": "b1bee4464f6841c5b5cbdf5849472a54",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/232278_1732705029.pdf",
+    "final_url": "https://consumeraffairs.gov.in/public/upload/files/232278_1732705029.pdf",
+    "raw_hash": "dd22dbfa7ac8bc0ef968765d6cd521ad7a29742afb071b9a919c164f83b765b7",
+    "content_hash": "4fb4eab224ba07e26e88213ae7293191e94ad1bf82b18c45133f0e6baa7f3fcf",
+    "observed_final_url": "https://consumeraffairs.gov.in/public/upload/files/232278_1732705029.pdf",
+    "raw_sha256_matches": true,
+    "final_url_matches": true
+  },
+  {
+    "id": "206acebf86a84a159fc3a2f9666b51d8",
+    "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+    "final_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+    "raw_hash": "8956eaba5db4079674bc16e50c14b210e8872c28e8a18f458f01a8fbcdde1479",
+    "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+    "observed_final_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+    "raw_sha256_matches": true,
+    "final_url_matches": true
+  }
+]

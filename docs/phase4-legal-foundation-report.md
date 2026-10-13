@@ -2,7 +2,7 @@
 
 Report finalized: 13 October 2026 (Asia/Calcutta). Recorded implementation and validation runs: 12 October 2026. Scope: Phase 4 only.
 
-**Current status: PHASE 4 PARTIAL — INDEPENDENT HUMAN REVIEW BLOCKED / AWAITING EXTERNAL REVIEWER.** The user confirmed that both existing admin accounts belong to the same person. The second account is not an independent reviewer, and must not be used as one. No independent human review has occurred. Record 1's corrected revision remains REVIEW_PENDING / verification=PENDING / approved=false. Section 49 is the current blocker/task inventory and supersedes earlier onboarding and review-availability statements. Prior numbered sections retain their historical results; no genuine-law Case File or complete legal corpus is claimed.
+**Current status: PHASE 4 PARTIAL — INDEPENDENT HUMAN REVIEW BLOCKED / AWAITING EXTERNAL REVIEWER.** The user confirmed that both existing admin accounts belong to the same person. The second account is not an independent reviewer, and must not be used as one. No independent human review has occurred. Record 1's corrected revision remains REVIEW_PENDING / verification=PENDING / approved=false. Sections 49–50 are the current blocker/task inventory and supersedes earlier onboarding and review-availability statements. Prior numbered sections retain their historical results; no genuine-law Case File or complete legal corpus is claimed.
 
 ## 1. Accepted baseline
 
@@ -553,3 +553,35 @@ Larger-case capacity and conservative whole-map invalidation remain disclosed en
 Read-only checks confirmed the exact current head and required pending flags. All 14 current sources remain REVIEW_PENDING and unapproved, with exact excerpt-to-stored-text boundary matches. Authority and identity databases and every pre-existing review-package file were checked byte-for-byte for preservation. These are integrity/negative-state checks, not source-law validation or human review. No real or simulated review decision was executed. No AWS/model calls, application changes, frontend changes or authority submissions were made. Only this tracked report changed; no new backend test or frontend build is claimed.
 
 When a genuinely different reviewer is available, provide the preserved package, confirm the then-current head and supply **one** authenticated command for that person's actual decision. Do not choose or execute their decision. A changed head requires a new package/review comparison. Unresolved legal metadata still warrants NEEDS_NEW_REVISION rather than approval. **STOP before review execution; remain in Phase 4, with Engine 2 unstarted.**
+
+
+## 50. Safe preparation checkpoint — no human review executed
+
+Independent human review remains **BLOCKED / AWAITING EXTERNAL REVIEWER**. Both existing accounts are the same person's accounts; neither is treated as independent. [The preparation index](../artifacts/phase4-safe-preparation/README.md) links every deliverable. No decision command is requested or executed.
+
+### 1. COMPLETED WITHOUT REVIEW
+
+- Inspected all 13 remaining exact stored excerpts. Verified all 14 current source identities, official URL/ingestion bindings, text SHA-256 values and excerpt offsets. Four bounded official PDF downloads matched the original raw hashes and final URLs; these were direct file checks, not ingestion or authority publication.
+- Prepared **13 offline inactive metadata drafts** outside the database. Each includes pending version/amendment concerns, exact current temporal-dependency revisions/hashes, structured-rule concerns and explicit unknowns. No excerpt, effective date, rule or approval was invented or changed. The comparison artifact records exact old/proposed fields, reasons, blockers, current revisions and canonical offline candidate digests. Future server-owned lineage may change those digests; they are not persisted revisions.
+- Created the six-domain source-gap matrix, grounded Consumer/RTI questionnaires and eleven deterministic deferred acceptance scenarios. Existing Tamil date normalization gaps are preserved: even the stated purchase/delivery dates have normalized=null; later day/month expressions and technician date are unresolved. No answers were supplied.
+- Inspected lineage, read-time hiding, fingerprints, safe projections, capacity handling, inactive isolation and history integrity. All 18 version hashes/parent identities and the one existing receipt binding passed. A read-only pending-authority projection probe returned no Case File. No demonstrated bounded-check failure required production-code changes; concurrency and larger-case limitations remain disclosed in the engineering inspection.
+- All 13 offline draft schemas/digests and unusable-state checks passed; 158 Python files compiled and six relevant service imports passed. Protected-file comparison passed for both databases, all existing review-package files and existing output/ files (nine files total). No account/receipt/head/submission history changed.
+- One preparatory command initially encountered old-schema default fields while building a field diff; comparison was corrected to normalize both sides with the existing model. No application code or stored source was changed. Console encoding issues during inspection were resolved by UTF-8 reads/escaped console summaries; original text stayed intact.
+
+Tracked deliverables added under `artifacts/phase4-safe-preparation/`: README.md, records-2-14.md, records-2-14.json, source-byte-checks.json, source-gap-matrix.md, case-fact-questionnaires.md, acceptance-scenarios.md, engineering-inspection.md and validation.json. This report is the only existing tracked file changed. Full drafts, downloaded matching PDF copies and a preservation-check manifest are ignored local preparation files. Existing output/ remains untouched.
+
+### 2. BLOCKED BY INDEPENDENT HUMAN REVIEW
+
+All formal decisions and fresh reviews of corrected sources; positive genuine citation/temporal/jurisdiction/conditional-limitation acceptance; Consumer and RTI genuine-law foundations; genuine Case File publication and subsequent genuine-source stale/rejected/revision invalidation validation. No same-person second account can resolve this blocker. No readiness is inferred from file preparation or account creation.
+
+### 3. BLOCKED BY MISSING CASE FACTS
+
+Consumer seller/legal entity/address, relevant transaction/service locations, intended use, exact/normalized event chronology, actual technical findings, supporting evidence and relief/limitation-trigger facts. RTI named public authority/location, submission/receipt/transfer chronology, fee/reply facts, requested unavailable records and appeal events. The questionnaires preserve stated facts and ask only for clarification; no deadline or legal forum is selected.
+
+### 4. BLOCKED BY OFFICIAL SOURCE COVERAGE
+
+Provision-specific amendments and historical/current coverage; reviewed commencement/transition intervals and 2021 publication-date support; source-bound forum/remedy/limitation rules; RTI cross-references and appropriate central/state procedures; other domain/state-specific acceptance corpora and precedents where needed. Existing whole PDFs do not equate to curated reviewed coverage. The six-domain matrix itemizes these gaps separately.
+
+**Genuine sources approved: 0. Real-law Case File validated: NO. Legal corpus ready: NO. Engine 2 started: NO. Engine 3 started: NO.**
+
+No production/test code changed, so no new complete backend/browser regression or frontend build is claimed or required by the conditional code-change instruction. The checks above and `git diff --check` are this checkpoint's validation; earlier test results remain historical. No DynamoDB/Transcribe retry, model call, additional reviewer identity or review decision occurred. Record 1 remains at `fdd9c175c4fb253f74e3a5b8a4e846398e9efd871e770278fe79db0aec8fe14c`, REVIEW_PENDING / verification=PENDING / approved=false. Stop at this safe-preparation checkpoint.

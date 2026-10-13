@@ -1,0 +1,1094 @@
+[
+  {
+    "source_id": "cpa2019_s2_10",
+    "current_revision": "b4f5079de892801f5f05478fe708786f02b95611bb67b68dbbf1d63c438d9353",
+    "proposed_inactive_revision": "a742898374acb774d0cf39f0989f8282ef67562c0eda2242e62c798e3ee5c7e0",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\cpa2019_s2_10.json",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/CP%20Act%202019_1732700731.pdf",
+    "raw_hash": "0ae7f82ab5b77d50087cd4cd2dd2dbc12755c0bdb31371fdefd042b020d50756",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "56226f1c3f14270005c9300a79771623ea20626eed9ab7f153561689af10ac1e",
+    "section_start": 7723,
+    "section_end": 8116,
+    "exact_excerpt": "(10) \"defect\" means any fault, imperfection or shortcoming in the quality,\nquantity, potency, purity or standard which is required to be maintained by or under\nany law for the time being in force or under any contract, express or implied or as is\nclaimed by the trader in any manner whatsoever in relation to any goods or product\nand the expression \"defective\" shall be construed accordingly;\n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Original 2019 enactment; later amendments unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": "2020-07-20",
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "cpa_commencement_2351",
+                "current_revision": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+                "content_hash": "948b19f2d9e031ea611fff2efd50e58cadd9bb4b44ca92bcc5d3ba5ad82e5edf",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Definition only; applicable quality/contract/trader standard and technical evidence unresolved."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Definition excerpt only; review exclusions, extraction and later amendments. Date candidate comes from S.O. 2351(E).",
+        "proposed": "INACTIVE metadata-only preparation. Definition only; applicable quality/contract/trader standard and technical evidence unresolved. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Definition only; applicable quality/contract/trader standard and technical evidence unresolved.",
+      "Original 2019 enactment; later amendments unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "cpa2019_s2_11",
+    "current_revision": "743151b79fbeb11660c63b60530e3036db43ba8d9b25fdc3fae94f15b73205ee",
+    "proposed_inactive_revision": "2f6b7e08b86c2b558eee5cd9825217ab834616118079c871fa3270b2042b872d",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\cpa2019_s2_11.json",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/CP%20Act%202019_1732700731.pdf",
+    "raw_hash": "0ae7f82ab5b77d50087cd4cd2dd2dbc12755c0bdb31371fdefd042b020d50756",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "56226f1c3f14270005c9300a79771623ea20626eed9ab7f153561689af10ac1e",
+    "section_start": 8116,
+    "section_end": 8655,
+    "exact_excerpt": "(11) \"deficiency\" means any fault, imperfection, shortcoming or inadequacy in\nthe quality, nature and manner of performance which is required to be maintained by or\nunder any law for the time being in force or has been undertaken to be performed by a\nperson in pursuance of a contract or otherwise in relation to any service and includes—\n(i) any act of negligence or omission or commission by such person which\ncauses loss or injury to the consumer; and\n(ii) deliberate withholding of relevant information by such person to the\nconsumer;\n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Original 2019 enactment; later amendments unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": "2020-07-20",
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "cpa_commencement_2351",
+                "current_revision": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+                "content_hash": "948b19f2d9e031ea611fff2efd50e58cadd9bb4b44ca92bcc5d3ba5ad82e5edf",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Preserve negligence/omission and withholding-information limbs; undertaking and evidence unresolved."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Definition excerpt only; review exclusions, extraction and later amendments. Date candidate comes from S.O. 2351(E).",
+        "proposed": "INACTIVE metadata-only preparation. Preserve negligence/omission and withholding-information limbs; undertaking and evidence unresolved. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Preserve negligence/omission and withholding-information limbs; undertaking and evidence unresolved.",
+      "Original 2019 enactment; later amendments unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "cpa2019_s34",
+    "current_revision": "3fdd07a059fa3be18328738bb1146722110f96f19eb5fce579d7d8f0af6b8b66",
+    "proposed_inactive_revision": "63f96b0f7a1fdeb5c5f7dcdff8083ffd203223a142e45fdda5807c92619f097a",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\cpa2019_s34.json",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/CP%20Act%202019_1732700731.pdf",
+    "raw_hash": "0ae7f82ab5b77d50087cd4cd2dd2dbc12755c0bdb31371fdefd042b020d50756",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "56226f1c3f14270005c9300a79771623ea20626eed9ab7f153561689af10ac1e",
+    "section_start": 50119,
+    "section_end": 51897,
+    "exact_excerpt": "34. (1) Subject to the other provisions of this Act, the District Commission shall have\njurisdiction to entertain complaints where the value of the goods or services paid as\nconsideration does not exceed one crore rupees:\nProvided that where the Central Government deems it necessary so to do, it may\nprescribe such other value, as it deems fit.\n(2) A complaint shall be instituted in a District Commission within the local limits of\nwhose jurisdiction,—\n(a) the opposite party or each of the opposite parties, where there are more than\none, at the time of the institution of the complaint, ordinarily resides or carries on\nbusiness or has a branch office or personally works for gain; or\n(b) any of the opposite parties, where there are more than one, at the time of the\ninstitution of the complaint, actually and voluntarily resides, or carries on business or\nhas a branch office, or personally works for gain, provided that in such case the\npermission of the District Commission is given; or\n(c) the cause of action, wholly or in part, arises; or\n(d) the complainant resides or personally works for gain.\nQualifications,\netc., of\nPresident and\nmembers of\nDistrict\nCommission.\nSalaries,\nallowances and\nother terms\nand conditions\nof service of\nPresident and\nmembers of\nDistrict\nCommission.\nTransitional\nprovision.\nVacancy in\noffice of\nmember of\nDistrict\nCommission.\nOfficers and\nother\nemployees of\nDistrict\nCommission.\nJurisdiction of\nDistrict\nCommission.\n\n18\nTHE GAZETTE OF INDIA EXTRAORDINARY\n[PART II—\n(3) The District Commission shall ordinarily function in the district headquarters and\nmay perform its functions at such other place in the district, as the State Government may, in\nconsultation with the State Commission, notify in the Official Gazette from time to time.\n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Original 2019 enactment; later amendments unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": "2020-07-20",
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "cpa_commencement_2351",
+                "current_revision": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+                "content_hash": "948b19f2d9e031ea611fff2efd50e58cadd9bb4b44ca92bcc5d3ba5ad82e5edf",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Original pecuniary wording requires jurisdiction r1/r3 and applicable period; territorial alternatives require actual facts. Page furniture retained."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Original 2019 text, not a current consolidated version. Section 34 pecuniary amount MUST be read with 2021 rules; limitation trigger and exclusions need case-specific review.",
+        "proposed": "INACTIVE metadata-only preparation. Original pecuniary wording requires jurisdiction r1/r3 and applicable period; territorial alternatives require actual facts. Page furniture retained. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Original pecuniary wording requires jurisdiction r1/r3 and applicable period; territorial alternatives require actual facts. Page furniture retained.",
+      "Original 2019 enactment; later amendments unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "cpa2019_s39",
+    "current_revision": "49f660e732b3e1544838f6817d40964d2f15363099a6b1907c28c52db56db376",
+    "proposed_inactive_revision": "1a3c9afc48f3e8336ea8e0114a3aed46d574ffa2c3f8131a08d4b523db6ebfa5",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\cpa2019_s39.json",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/CP%20Act%202019_1732700731.pdf",
+    "raw_hash": "0ae7f82ab5b77d50087cd4cd2dd2dbc12755c0bdb31371fdefd042b020d50756",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "56226f1c3f14270005c9300a79771623ea20626eed9ab7f153561689af10ac1e",
+    "section_start": 63395,
+    "section_end": 66688,
+    "exact_excerpt": "39. (1) Where the District Commission is satisfied that the goods complained against\nsuffer from any of the defects specified in the complaint or that any of the allegations\ncontained in the complaint about the services or any unfair trade practices, or claims for\ncompensation under product liability are proved, it shall issue an order to the opposite party\ndirecting him to do one or more of the following, namely:—\n(a) to remove the defect pointed out by the appropriate laboratory from the\ngoods in question;\n(b) to replace the goods with new goods of similar description which shall be\nfree from any defect;\n(c) to return to the complainant the price, or, as the case may be, the charges paid\nby the complainant along with such interest on such price or charges as may be\ndecided;\n(d) to pay such amount as may be awarded by it as compensation to the consumer\nfor any loss or injury suffered by the consumer due to the negligence of the opposite\nparty:\nProvided that the District Commission shall have the power to grant punitive\ndamages in such circumstances as it deems fit;\n(e) to pay such amount as may be awarded by it as compensation in a product\nliability action under Chapter VI;\n(f) to remove the defects in goods or deficiencies in the services in question;\n(g) to discontinue the unfair trade practice or restrictive trade practice and not to\nrepeat them;\n(h) not to offer the hazardous or unsafe goods for sale;\n(i) to withdraw the hazardous goods from being offered for sale;\n(j) to cease manufacture of hazardous goods and to desist from offering services\nwhich are hazardous in nature;\n(k) to pay such sum as may be determined by it, if it is of the opinion that loss or\ninjury has been suffered by a large number of consumers who are not identifiable\nconveniently:\nProvided that the minimum amount of sum so payable shall not be less than\ntwenty-five per cent. of the value of such defective goods sold or service provided, as\nthe case may be, to such consumers;\nFindings of\nDistrict\nCommission.\n45 of 1860.\n2 of 1974.\n5 of 1908.\n5 of 1908.\n\n22\nTHE GAZETTE OF INDIA EXTRAORDINARY\n[PART II—\n(l) to issue corrective advertisement to neutralise the effect of misleading\nadvertisement at the cost of the opposite party responsible for issuing such misleading\nadvertisement;\n(m) to provide for adequate costs to parties; and\n(n) to cease and desist from issuing any misleading advertisement.\n(2) Any amount obtained under sub-section (1) shall be credited to such fund and\nutilised in such manner as may be prescribed.\n(3) In any proceeding conducted by the President and a member and if they differ on\nany point or points, they shall state the point or points on which they differ and refer the\nsame to another member for hearing on such point or points and the opinion of the majority\nshall be the order of the District Commission:\nProvided that the other member shall give his opinion on such point or points referred\nto him within a period of one month from the date of such reference.\n(4) Every order made by the District Commission under sub-section (1) shall be signed\nby the President and the member who conducted the proceeding:\nProvided that where the order is made as per majority opinion under sub-section (3),\nsuch order shall also be signed by the other member.\n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Original 2019 enactment; later amendments unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": "2020-07-20",
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "cpa_commencement_2351",
+                "current_revision": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+                "content_hash": "948b19f2d9e031ea611fff2efd50e58cadd9bb4b44ca92bcc5d3ba5ad82e5edf",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Remedy candidate broad and unreviewed; statutory conditions, loss and relief basis unresolved. Page furniture retained."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Original 2019 text, not a current consolidated version. Section 34 pecuniary amount MUST be read with 2021 rules; limitation trigger and exclusions need case-specific review.",
+        "proposed": "INACTIVE metadata-only preparation. Remedy candidate broad and unreviewed; statutory conditions, loss and relief basis unresolved. Page furniture retained. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Remedy candidate broad and unreviewed; statutory conditions, loss and relief basis unresolved. Page furniture retained.",
+      "Original 2019 enactment; later amendments unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "cpa2019_s69",
+    "current_revision": "bb561eb9f49cf25ba314deb8bd15243293fdc619950105646c135aac3003776c",
+    "proposed_inactive_revision": "dd95bda411daac311cd2e5f6179763ca95780056654b6b8de9698c17db4fc049",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\cpa2019_s69.json",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/CP%20Act%202019_1732700731.pdf",
+    "raw_hash": "0ae7f82ab5b77d50087cd4cd2dd2dbc12755c0bdb31371fdefd042b020d50756",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "56226f1c3f14270005c9300a79771623ea20626eed9ab7f153561689af10ac1e",
+    "section_start": 88515,
+    "section_end": 89255,
+    "exact_excerpt": "69. (1) The District Commission, the State Commission or the National Commission\nshall not admit a complaint unless it is filed within two years from the date on which the\ncause of action has arisen.\n(2) Notwithstanding anything contained in sub-section (1), a complaint may be\nentertained after the period specified in sub-section (1), if the complainant satisfies the\nDistrict Commission, the State Commission or the National Commission, as the case may be,\nthat he had sufficient cause for not filing the complaint within such period:\nProvided that no such complaint shall be entertained unless the District Commission\nor the State Commission or the National Commission, as the case may be, records its reasons\nfor condoning such delay.\n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Original 2019 enactment; later amendments unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": "2020-07-20",
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "cpa_commencement_2351",
+                "current_revision": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+                "content_hash": "948b19f2d9e031ea611fff2efd50e58cadd9bb4b44ca92bcc5d3ba5ad82e5edf",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Existing years=2 rule unreviewed; preserve subsection (2) and condonation proviso. Trigger, exclusions and delay treatment unresolved."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Original 2019 text, not a current consolidated version. Section 34 pecuniary amount MUST be read with 2021 rules; limitation trigger and exclusions need case-specific review.",
+        "proposed": "INACTIVE metadata-only preparation. Existing years=2 rule unreviewed; preserve subsection (2) and condonation proviso. Trigger, exclusions and delay treatment unresolved. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Existing years=2 rule unreviewed; preserve subsection (2) and condonation proviso. Trigger, exclusions and delay treatment unresolved.",
+      "Original 2019 enactment; later amendments unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "cpa_commencement_2351",
+    "current_revision": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+    "proposed_inactive_revision": "8c2cef7902539693c1ebc63e3b8d25819468c1aacdafec5a2484bd1e7b1dce3f",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\cpa_commencement_2351.json",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+    "raw_hash": "636aa9e92a972c1cf556f0421aedf0c181bd2a29bbc37f484917d987cd488ed5",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "948b19f2d9e031ea611fff2efd50e58cadd9bb4b44ca92bcc5d3ba5ad82e5edf",
+    "section_start": 1346,
+    "section_end": 2922,
+    "exact_excerpt": "MINISTRY OF CONSUMER AFFAIRS, FOOD AND PUBLIC DISTRIBUTION \n(Department of Consumer Affairs) \nNOTIFICATION \nNew Delhi, the 15th July, 2020 \nS.O. 2351(E).—In exercise of the powers conferred by sub-section (3) of section 1 of the Consumer \nProtection Act, 2019 (35 of 2019), the Central Government hereby appoints the 20th day of July, 2020 as the date on \nwhich the following provisions of the said Act shall come into force, namely:- \nChapter \nSections \nI \nSection 2  \n[Except clauses (4), (13), (14), (16), (40)] \nII \nSections 3 to 9 (both inclusive); \nIV \nSections 28 to 73 (both inclusive); \n[Except sub-clause (iv) of clause (a) of sub-section (1) of section 58.] \nV \nSections 74 to 81 (both inclusive); \nVI \nSections 82 to 87 (both inclusive); \nVII \nSections 90 and  91; \n[Except sections 88,89,92 & 93] \nVIII \n-Sections 95, 98, 100,  \n-Section101  \n[Except clauses (f) to (m) and clauses (zg), (zh) and (zi) of sub –section 2 ].   \n-Sections 102, 103, 105, 106, 107 \n \n[ Except sections 94, 96,97,99, 104] \n \n[F. No. J-9/1/2020-CPU] \nAMIT MEHTA, Jt. Secy. \n \n \n \n \n \n \n \n \n \nUploaded by Dte. of Printing at Government of India Press, Ring Road, Mayapuri, New Delhi-110064 \nand Published by the Controller of Publications, Delhi-110054. \nVIII \n-धारा 95, धारा 98, धारा 100,  \n-धारा 101  \n[उप-धारा 2 के खंड (च) से (ड) तथा खंड (यछ), (यज) और (यझ) के जसर्ाय]    \n-धारा 102,  धारा 103,  धारा 105,  धारा 106,  धारा 107 \n[ धारा 94,  धारा 96,  धारा 97,  धारा 99,  धारा 104 के जसर्ाय] \nMANOJ KUMAR \nVERMA\nDigitally signed by \nMANOJ KUMAR VERMA \nDate: 2020.07.16 \n16:14:34 +05'30'\n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Original notification/rules; amendments/corrigenda/supersession unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": "2020-07-20",
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "cpa_commencement_2351",
+                "current_revision": "7e2dcb4a26af77e48790839bd6df946687b7668d2a3f58125f2c7a9ce02aa370",
+                "content_hash": "948b19f2d9e031ea611fff2efd50e58cadd9bb4b44ca92bcc5d3ba5ad82e5edf",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://consumeraffairs.gov.in/public/upload/files/Act%20into%20force_1732702865.pdf",
+                "self_reference": true
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Table scope and exclusions need provision-specific review. Self-reference is not independent corroboration. Trailing Hindi/table/signature preserved."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. S.O. 2351(E), 15 July 2020; 20 July 2020 commencement applies only to listed provisions and exclusions. This is the notification hosted by its issuing department, not live eGazette connectivity.",
+        "proposed": "INACTIVE metadata-only preparation. Table scope and exclusions need provision-specific review. Self-reference is not independent corroboration. Trailing Hindi/table/signature preserved. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Table scope and exclusions need provision-specific review. Self-reference is not independent corroboration. Trailing Hindi/table/signature preserved.",
+      "Original notification/rules; amendments/corrigenda/supersession unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "cpa_jurisdiction2021_r1",
+    "current_revision": "8661f1a6256e67794a4c3700a1fd059d6a65e4da51585305bcbfce37ad8fa4fa",
+    "proposed_inactive_revision": "158d3c6b331b7d683aadadb0f5ac1526a5a64c45bede973a722326305eb35727",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\cpa_jurisdiction2021_r1.json",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/232278_1732705029.pdf",
+    "raw_hash": "dd22dbfa7ac8bc0ef968765d6cd521ad7a29742afb071b9a919c164f83b765b7",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "4fb4eab224ba07e26e88213ae7293191e94ad1bf82b18c45133f0e6baa7f3fcf",
+    "section_start": 3080,
+    "section_end": 3370,
+    "exact_excerpt": "1.       Short title and commencement.—(1) These rules may be called the Consumer Protection (Jurisdiction of the \nDistrict Commission, the State Commission and the National Commission) Rules, 2021. \n(2) They shall come into force on the date of their publication in the official gazette. \n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Original notification/rules; amendments/corrigenda/supersession unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": null,
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "cpa_jurisdiction2021_r1",
+                "current_revision": "8661f1a6256e67794a4c3700a1fd059d6a65e4da51585305bcbfce37ad8fa4fa",
+                "content_hash": "4fb4eab224ba07e26e88213ae7293191e94ad1bf82b18c45133f0e6baa7f3fcf",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://consumeraffairs.gov.in/public/upload/files/232278_1732705029.pdf",
+                "self_reference": true
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Publication date unresolved: notification/header versus upload/signature dates; self-reference does not verify commencement."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. G.S.R. 912(E). Verify publication/effective date: notification and Gazette header say 30 December 2021; upload/signature identifier says 31 December. Effective date intentionally unresolved pending review.",
+        "proposed": "INACTIVE metadata-only preparation. Publication date unresolved: notification/header versus upload/signature dates; self-reference does not verify commencement. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Publication date unresolved: notification/header versus upload/signature dates; self-reference does not verify commencement.",
+      "Original notification/rules; amendments/corrigenda/supersession unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "cpa_jurisdiction2021_r3",
+    "current_revision": "2611c410fe4e48a978a000d2419e5ac391675ce8bb8db07d82804c8619df1ec0",
+    "proposed_inactive_revision": "f7ec631d715db693f91b16d9c8dbf65c9c6050f3aed2e4ad677c706d6710dc30",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\cpa_jurisdiction2021_r3.json",
+    "official_url": "https://consumeraffairs.gov.in/public/upload/files/232278_1732705029.pdf",
+    "raw_hash": "dd22dbfa7ac8bc0ef968765d6cd521ad7a29742afb071b9a919c164f83b765b7",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "4fb4eab224ba07e26e88213ae7293191e94ad1bf82b18c45133f0e6baa7f3fcf",
+    "section_start": 3795,
+    "section_end": 4130,
+    "exact_excerpt": "3.       Jurisdiction of District Commission.—Subject to the other provisions of the Act and in pursuance of proviso \nto sub-section (1) of section 34 of the Act, the District Commission shall have jurisdiction to entertain complaints \nwhere the value of the goods or services paid as consideration does not exceed fifty lakh rupees. \n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Original notification/rules; amendments/corrigenda/supersession unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": null,
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "cpa_jurisdiction2021_r1",
+                "current_revision": "8661f1a6256e67794a4c3700a1fd059d6a65e4da51585305bcbfce37ad8fa4fa",
+                "content_hash": "4fb4eab224ba07e26e88213ae7293191e94ad1bf82b18c45133f0e6baa7f3fcf",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://consumeraffairs.gov.in/public/upload/files/232278_1732705029.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "District consideration threshold only, subject to Act and applicable period; r1 commencement and section 34 territory required. Not State/National coverage."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. G.S.R. 912(E). Verify publication/effective date: notification and Gazette header say 30 December 2021; upload/signature identifier says 31 December. Effective date intentionally unresolved pending review.",
+        "proposed": "INACTIVE metadata-only preparation. District consideration threshold only, subject to Act and applicable period; r1 commencement and section 34 territory required. Not State/National coverage. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "District consideration threshold only, subject to Act and applicable period; r1 commencement and section 34 territory required. Not State/National coverage.",
+      "Original notification/rules; amendments/corrigenda/supersession unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "rti2005_s1",
+    "current_revision": "2f32810c72ebceffcfffb61133f7b848dd83f1ec1ba9d2dd297b3b9a4a2a95a3",
+    "proposed_inactive_revision": "1e2f1e860500b6632b10def875c073036d341dba04e6d21e1e4ba4d47d6aecaa",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\rti2005_s1.json",
+    "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+    "raw_hash": "8956eaba5db4079674bc16e50c14b210e8872c28e8a18f458f01a8fbcdde1479",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+    "section_start": 3988,
+    "section_end": 4419,
+    "exact_excerpt": "1. Short title, extent and commencement.—(1) This Act may be called the Right to Information \nAct, 2005. \n(2) It extends to the whole of India 1***. \n(3) The provisions of sub-section (1) of section 4, sub-sections (1) and (2) of section 5, sections 12, \n13, 15,16, 24, 27 and 28 shall come into force at once, and the remaining provisions of this Act shall \ncome into force on the one hundred and twentieth day of its enactment. \n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": null,
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "rti2005_s1",
+                "current_revision": "2f32810c72ebceffcfffb61133f7b848dd83f1ec1ba9d2dd297b3b9a4a2a95a3",
+                "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+                "self_reference": true
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Preserve immediate/120th-day branches and amendment footnote; no unreviewed date arithmetic or current-law inference."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Official compilation as on 18 November 2025. Section 1(3) distinguishes immediate and 120th-day commencement; exact applicable date and amendment history require review. Existing RTI fixture has no application date: no statutory deadline may be inferred.",
+        "proposed": "INACTIVE metadata-only preparation. Preserve immediate/120th-day branches and amendment footnote; no unreviewed date arithmetic or current-law inference. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Preserve immediate/120th-day branches and amendment footnote; no unreviewed date arithmetic or current-law inference.",
+      "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "rti2005_s3",
+    "current_revision": "adf39cc91611345ea1816724f4aedd552e8626810724fc19fb8f5c5af41a0459",
+    "proposed_inactive_revision": "29621109aeb80922b93aad33d184d14104068f249cba4e219d230e696d30d1be",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\rti2005_s3.json",
+    "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+    "raw_hash": "8956eaba5db4079674bc16e50c14b210e8872c28e8a18f458f01a8fbcdde1479",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+    "section_start": 8824,
+    "section_end": 8940,
+    "exact_excerpt": "3. Right to information.—Subject to the provisions of this Act, all citizens shall have the right to \ninformation. \n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": null,
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "rti2005_s1",
+                "current_revision": "2f32810c72ebceffcfffb61133f7b848dd83f1ec1ba9d2dd297b3b9a4a2a95a3",
+                "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Citizenship and subject-to-other-provisions conditions unresolved; no automatic entitlement."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Official compilation as on 18 November 2025. Section 1(3) distinguishes immediate and 120th-day commencement; exact applicable date and amendment history require review. Existing RTI fixture has no application date: no statutory deadline may be inferred.",
+        "proposed": "INACTIVE metadata-only preparation. Citizenship and subject-to-other-provisions conditions unresolved; no automatic entitlement. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Citizenship and subject-to-other-provisions conditions unresolved; no automatic entitlement.",
+      "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "rti2005_s6",
+    "current_revision": "0bb19450f78d211276b45da19301510fc1af33ab1204ba510e9c88293c78d5b5",
+    "proposed_inactive_revision": "183e41648240197e2f9c8135532ea42d3ade068cf7ba0dc2a39994bb14f2ecc6",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\rti2005_s6.json",
+    "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+    "raw_hash": "8956eaba5db4079674bc16e50c14b210e8872c28e8a18f458f01a8fbcdde1479",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+    "section_start": 15496,
+    "section_end": 17284,
+    "exact_excerpt": " \n6. Request for obtaining information.—(1) A person, who desires to obtain any information under \nthis Act, shall make a request in writing or through electronic means in English or Hindi or in the official \nlanguage of the area in which the application is being made, accompanying such fee as may be \nprescribed, to— \n(a) the Central Public Information Officer or State Public Information Officer, as the case may \nbe, of the concerned public authority; \n(b) the Central Assistant Public Information Officer or State Assistant Public Information Officer, \nas the case may be, \nspecifying the particulars of the information sought by him or her: \nProvided that where such request cannot be made in writing, the Central Public Information Officer \nor State Public Information Officer, as the case may be, shall render all reasonable assistance to the \nperson making the request orally to reduce the same in writing. \n(2) An applicant making request for information shall not be required to give any reason for \nrequesting the information or any other personal details except those that may be necessary for contacting \nhim. \n(3) Where an application is made to a public authority requesting for an information,— \n(i) which is held by another public authority; or \n(ii) the subject matter of which is more closely connected with the functions of another public \nauthority, \nthe public authority, to which such application is made, shall transfer the application or such part of it as \nmay be appropriate to that other public authority and inform the applicant immediately about such \ntransfer: \nProvided that the transfer of an application pursuant to this sub-section shall be made as soon as \npracticable but in no case later than five days from the date of receipt of the application. \n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": null,
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "rti2005_s1",
+                "current_revision": "2f32810c72ebceffcfffb61133f7b848dd83f1ec1ba9d2dd297b3b9a4a2a95a3",
+                "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Language, fee, addressee and transfer conditions require applicable central/state rules and receipt facts."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Official compilation as on 18 November 2025. Section 1(3) distinguishes immediate and 120th-day commencement; exact applicable date and amendment history require review. Existing RTI fixture has no application date: no statutory deadline may be inferred.",
+        "proposed": "INACTIVE metadata-only preparation. Language, fee, addressee and transfer conditions require applicable central/state rules and receipt facts. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Language, fee, addressee and transfer conditions require applicable central/state rules and receipt facts.",
+      "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "rti2005_s7",
+    "current_revision": "fa3b7e3fc4e0eb98241ed324cee75c4de596d3d572909566365dc1c1da89bfea",
+    "proposed_inactive_revision": "c5fa71afa9a17f2875a0d742208fbff77b4e5c34e9d5551851ca10c0e358e0e9",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\rti2005_s7.json",
+    "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+    "raw_hash": "8956eaba5db4079674bc16e50c14b210e8872c28e8a18f458f01a8fbcdde1479",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+    "section_start": 17284,
+    "section_end": 21343,
+    "exact_excerpt": "7. Disposal of request.—(1) Subject to the proviso to sub-section (2) of section 5 or the proviso to \nsub-section (3) of section 6, the Central Public Information Officer or State Public Information Officer, as \nthe case may be, on receipt of a request under section 6 shall, as expeditiously as possible, and in any case \nwithin thirty days of the receipt of the request, either provide the information on payment of such fee as \nmay be prescribed or reject the request for any of the reasons specified in sections 8 and 9: \nProvided that where the information sought for concerns the life or liberty of a person, the same shall \nbe provided within forty-eight hours of the receipt of the request. \n(2) If the Central Public Information Officer or State Public Information Officer, as the case may be, \nfails to give decision on the request for information within the period specified under sub-section (1), the \nCentral Public Information Officer or State Public Information Officer, as the case may be, shall be \ndeemed to have refused the request. \n(3) Where a decision is taken to provide the information on payment of any further fee representing \nthe cost of providing the information, the Central Public Information Officer or State Public Information \nOfficer, as the case may be, shall send an intimation to the person making the request, giving— \n(a) the details of further fees representing the cost of providing the information as determined by \nhim, together with the calculations made to arrive at the amount in accordance with fee prescribed \nunder sub-section (1), requesting him to deposit that fees, and the period intervening between the \ndespatch of the said intimation and payment of fees shall be excluded for the purpose of calculating \nthe period of thirty days referred to in that sub-section; \n(b) information concerning his or her right with respect to review the decision as to the amount of \nfees charged or the form of access provided, including the particulars of the appellate authority, time \nlimit, process and any other forms. \n\n10 \n \n(4) Where access to the record or a part thereof is required to be provided under this Act and the \nperson to whom access is to be provided is sensorily disabled, the Central Public Information Officer or \nState Public Information Officer, as the case may be, shall provide assistance to enable access to the \ninformation, including providing such assistance as may be appropriate for the inspection. \n(5) Where access to information is to be provided in the printed or in any electronic format, the \napplicant shall, subject to the provisions of sub-section (6), pay such fee as may be prescribed: \nProvided that the fee prescribed under sub-section (1) of section 6 and sub-sections (1) and (5) of \nsection 7 shall be reasonable and no such fee shall be charged from the persons who are of below poverty \nline as may be determined by the appropriate Government. \n(6) Notwithstanding anything contained in sub-section (5), the person making request for the \ninformation shall be provided the information free of charge where a public authority fails to comply with \nthe time limits specified in sub-section (1). \n(7) Before taking any decision under sub-section (1), the Central Public Information Officer or State \nPublic Information Officer, as the case may be, shall take into consideration the representation made by a \nthird party under section 11. \n(8) Where a request has been rejected under sub-section (1), the Central Public Information Officer or \nState Public Information Officer, as the case may be, shall communicate to the person making the \nrequest,— \n(i) the reasons for such rejection; \n(ii) the period within which an appeal against such rejection may be preferred; and \n(iii) the particulars of the appellate authority. \n(9) An information shall ordinarily be provided in the form in which it is sought unless it would \ndisproportionately divert the resources of the public authority or would be detrimental to the safety or \npreservation of the record in question. \n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": null,
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "rti2005_s1",
+                "current_revision": "2f32810c72ebceffcfffb61133f7b848dd83f1ec1ba9d2dd297b3b9a4a2a95a3",
+                "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "Alternative periods, fee-interval exclusion, third parties and exemptions unresolved; sections 5/8/9/11 not separate reviewed records."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Official compilation as on 18 November 2025. Section 1(3) distinguishes immediate and 120th-day commencement; exact applicable date and amendment history require review. Existing RTI fixture has no application date: no statutory deadline may be inferred.",
+        "proposed": "INACTIVE metadata-only preparation. Alternative periods, fee-interval exclusion, third parties and exemptions unresolved; sections 5/8/9/11 not separate reviewed records. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "Alternative periods, fee-interval exclusion, third parties and exemptions unresolved; sections 5/8/9/11 not separate reviewed records.",
+      "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  },
+  {
+    "source_id": "rti2005_s19",
+    "current_revision": "d4df79a75eaf673547e75adf188aad807434fd8adf62e963f610012bf4dc5bae",
+    "proposed_inactive_revision": "3ab6e5a1745a76543629625b530f24b446b2c6503829becaafa45102ada47a01",
+    "revision_id_meaning": "Canonical offline candidate digest, NOT a persisted revision. Future submission assigns lineage and may change ID.",
+    "draft_file": ".localdev\\phase4-authority-review\\safe-preparation-drafts\\rti2005_s19.json",
+    "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+    "raw_hash": "8956eaba5db4079674bc16e50c14b210e8872c28e8a18f458f01a8fbcdde1479",
+    "raw_hash_check": "PASS: fresh bounded official PDF download matches original raw SHA-256 and final URL; see source-byte-checks.json. Stored text hash and excerpt offsets also match.",
+    "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+    "section_start": 47610,
+    "section_end": 51671,
+    "exact_excerpt": "19. Appeal.—(1) Any person who, does not receive a decision within the time specified in  \nsub-section (1) or clause (a) of sub-section (3) of section 7, or is aggrieved by a decision of the Central \nPublic Information Officer or State Public Information Officer, as the case may be, may within thirty days \nfrom the expiry of such period or from the receipt of such a decision prefer an appeal to such officer who \nis senior in rank to the Central Public Information Officer or State Public Information Officer as the case \nmay be, in each public authority: \nProvided that such officer may admit the appeal after the expiry of the period of thirty days if he or \nshe is satisfied that the appellant was prevented by sufficient cause from filing the appeal in time. \n(2) Where an appeal is preferred against an order made by a Central Public Information Officer or a \nState Public Information Officer, as the case may be, under section 11 to disclose third party information, \nthe appeal by the concerned third party shall be made within thirty days from the date of the order. \n\n18 \n \n(3) A second appeal against the decision under sub-section (1) shall lie within ninety days from the \ndate on which the decision should have been made or was actually received, with the Central Information \nCommission or the State Information Commission: \nProvided that the Central Information Commission or the State Information Commission, as the case \nmay be, may admit the appeal after the expiry of the period of ninety days if it is satisfied that the \nappellant was prevented by sufficient cause from filing the appeal in time. \n(4) If the decision of the Central Public Information Officer or State Public Information Officer, as \nthe case may be, against which an appeal is preferred relates to information of a third party, the Central \nInformation Commission or State Information Commission, as the case may be, shall give a reasonable \nopportunity of being heard to that third party. \n(5) In any appeal proceedings, the onus to prove that a denial of a request was justified shall be on the \nCentral Public Information Officer or State Public Information Officer, as the case may be, who denied \nthe request. \n(6) An appeal under sub-section (1) or sub-section (2) shall be disposed of within thirty days of the \nreceipt of the appeal or within such extended period not exceeding a total of forty-five days from the date \nof filing thereof, as the case may be, for reasons to be recorded in writing. \n(7) The decision of the Central Information Commission or State Information Commission, as the \ncase may be, shall be binding. \n(8) In its decision, the Central Information Commission or State Information Commission, as the case \nmay be, has the power to— \n(a) require the public authority to take any such steps as may be necessary to secure compliance \nwith the provisions of this Act, including— \n(i) by providing access to information, if so requested, in a particular form; \n(ii) by appointing a Central Public Information Officer or State Public Information Officer, as \nthe case may be; \n(iii) by publishing certain information or categories of information; \n(iv) by making necessary changes to its practices in relation to the maintenance, management \nand destruction of records; \n(v) by enhancing the provision of training on the right to information for its officials; \n(vi) by providing it with an annual report in compliance with clause (b) of sub-section (1) of \nsection 4; \n(b) require the public authority to compensate the complainant for any loss or other detriment \nsuffered; \n(c) impose any of the penalties provided under this Act; \n(d) reject the application. \n(9) The Central Information Commission or State Information Commission, as the case may be, shall \ngive notice of its decision, including any right of appeal, to the complainant and the public authority. \n(10) The Central Information Commission or State Information Commission, as the case may be, \nshall decide the appeal in accordance with such procedure as may be prescribed. \n",
+    "checks": {
+      "identity": true,
+      "text_sha256": true,
+      "excerpt_binding": true,
+      "ingestion_binding": true,
+      "authority_usable": false
+    },
+    "changes": {
+      "revision_metadata": {
+        "old": {},
+        "proposed": {
+          "preparation": {
+            "status": "INACTIVE_DRAFT",
+            "authenticated_submission_recorded": false,
+            "external_file_only": true
+          },
+          "amendment_version": {
+            "status": "REVIEW_PENDING",
+            "text_basis": "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+            "current_law_verified": false,
+            "reviewed_through": null
+          },
+          "temporal": {
+            "status": "REVIEW_PENDING",
+            "candidate_effective_from": null,
+            "date_is_reviewed": false,
+            "supports": [
+              {
+                "source_id": "rti2005_s1",
+                "current_revision": "2f32810c72ebceffcfffb61133f7b848dd83f1ec1ba9d2dd297b3b9a4a2a95a3",
+                "content_hash": "9340d31b35b05dd6b274ecddf4b8a9d26aade19a20b4330a1e24ca2d79c0d4bd",
+                "review_state": "REVIEW_PENDING",
+                "official_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+                "self_reference": false
+              }
+            ],
+            "case_date_inferred": false
+          },
+          "structured_rule": {
+            "status": "REVIEW_PENDING",
+            "rules_added": false,
+            "concern": "First/second/third-party appeal branches, condonation, extensions and procedure need dates and supporting rules."
+          },
+          "jurisdiction": {
+            "status": "REVIEW_PENDING",
+            "stored_scope": "IN",
+            "case_territory_inferred": false
+          },
+          "required_review": "BLOCKED / AWAITING EXTERNAL REVIEWER"
+        },
+        "reason": "Expose unresolved fields and bind existing pending temporal dependencies without approval."
+      },
+      "version_note": {
+        "old": "UNREVIEWED acceptance candidate. Official compilation as on 18 November 2025. Section 1(3) distinguishes immediate and 120th-day commencement; exact applicable date and amendment history require review. Existing RTI fixture has no application date: no statutory deadline may be inferred.",
+        "proposed": "INACTIVE metadata-only preparation. First/second/third-party appeal branches, condonation, extensions and procedure need dates and supporting rules. No amendment, effective date or rule independently verified.",
+        "reason": "Explain record-specific review gaps."
+      },
+      "corpus_version": {
+        "old": "phase4-review-candidate-1",
+        "proposed": "phase4-safe-preparation-inactive-1",
+        "reason": "Identify external inactive preparation."
+      }
+    },
+    "blockers": [
+      "First/second/third-party appeal branches, condonation, extensions and procedure need dates and supporting rules.",
+      "Stored compilation as on 18 November 2025; amendment history and subsequent coverage unverified",
+      "External independent review absent",
+      "Applicable case facts and reviewed intervals unresolved"
+    ],
+    "readiness": "INACTIVE_PREPARATION_ONLY / NOT_USABLE"
+  }
+]
