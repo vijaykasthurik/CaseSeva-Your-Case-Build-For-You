@@ -19,7 +19,7 @@ class MongoDatabaseAdapter(DatabaseAdapter):
     IMMUTABLE_COLLECTIONS = frozenset({
         "legal_authority_versions", "legal_authority_reviews", "legal_review_submissions",
         "legal_revision_requests", "audit_events", "review_admin_bootstrap",
-        "review_admin_provisioning",
+        "review_admin_provisioning", "review_admin_password_rotations",
     })
 
     def __init__(self, db_name: str | None = None, uri: str | None = None):
@@ -201,3 +201,44 @@ class MongoDatabaseAdapter(DatabaseAdapter):
         if users.find_one({"$or": [{"id": value["id"]}, {"email": value["email"]}]}):
             raise ValueError("Account already exists; onboarding never promotes existing users")
         self._insert_reserved_reviewer(users, value, "review_admin_provisioning", value["id"])
+
+    def reset_local_review_admin_password(
+        self, email: str, new_password_hash: str, *, operator: str
+    ) -> dict[str, Any]:
+        """Atomically rotates the password of an existing review admin in MongoDB."""
+        from ...models.case import utc_now
+        from uuid import uuid4
+
+        users = self._provisioning_collections()
+        normalized = email.strip().lower()
+        user = users.find_one({"email": normalized})
+        if not user:
+            raise ValueError(f"Review administrator account '{email}' not found")
+        if user.get("role") != "admin":
+            raise ValueError(f"Account '{email}' is not an administrator; role promotion/rotation refused")
+
+        user_id = user.get("id") or str(user.get("_id"))
+        now = utc_now()
+
+        users.update_one(
+            {"_id": user["_id"]},
+            {"$set": {"password_hash": new_password_hash, "password_rotated_at": now}},
+        )
+
+        # Invalidate sessions for this user
+        self._db.sessions.delete_many({"user_id": user_id})
+
+        # Record immutable audit event
+        rotation_id = uuid4().hex
+        self._db.review_admin_password_rotations.insert_one({
+            "_id": rotation_id,
+            "id": rotation_id,
+            "user_id": user_id,
+            "email": user["email"],
+            "local_operator": operator,
+            "timestamp": now,
+            "operation_type": "LOCAL_REVIEW_ADMIN_PASSWORD_ROTATION",
+        })
+
+        updated = users.find_one({"_id": user["_id"]})
+        return self._clean_doc(updated)

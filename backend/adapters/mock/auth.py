@@ -109,6 +109,37 @@ class MockAuthAdapter(AuthAdapter):
         self.database.create_additional_review_admin(user, session_token=session_token)
         return self._public_user(user)
 
+    def reset_local_review_admin_password(
+        self,
+        email: str,
+        new_password: str,
+        *,
+        allow_reset: bool,
+        operator: str,
+        confirmation: str,
+    ) -> dict[str, Any]:
+        """Rotate the password of an existing review administrator.
+
+        Requires explicit authorization and confirmation phrase. Never promotes,
+        never creates a user, preserves user ID, invalidates existing sessions,
+        and logs an immutable audit event without credentials.
+        """
+        from .database import MockDatabaseAdapter
+        from ..mongo.database import MongoDatabaseAdapter
+
+        if not allow_reset or not isinstance(self.database, (MockDatabaseAdapter, MongoDatabaseAdapter)):
+            raise ValueError("Explicit local review admin password reset authorization required")
+        if confirmation.strip() != "RESET REVIEW ADMIN PASSWORD":
+            raise ValueError("Explicit confirmation phrase 'RESET REVIEW ADMIN PASSWORD' required")
+
+        normalized = self.validate_credentials(email, new_password)
+        password_hash = self._hash_password(new_password)
+
+        updated_user = self.database.reset_local_review_admin_password(
+            normalized, password_hash, operator=operator
+        )
+        return self._public_user(updated_user)
+
     def signup(self, profile: dict[str, Any], password: str) -> dict[str, Any]:
         normalized = self.validate_credentials(profile["email"], password)
         if any(user["email"] == normalized for user in self.database.list("users")):

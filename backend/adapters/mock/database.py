@@ -144,3 +144,57 @@ class MockDatabaseAdapter(DatabaseAdapter):
         with self._lock:
             data = self._read()
             return [dict(record) for record in data.get(collection, {}).values()]
+
+    def reset_local_review_admin_password(
+        self, email: str, new_password_hash: str, *, operator: str
+    ) -> dict[str, Any]:
+        """Atomically rotates the password of an existing review admin.
+
+        Fails closed if:
+        - account not found
+        - account is not admin
+        - database is not an isolated review identity database
+        """
+        from ...models.case import utc_now
+        from uuid import uuid4
+
+        with self._lock:
+            target_str = str(self.path.resolve()).replace("\\", "/")
+            if not ("identity" in target_str or "phase4" in target_str or "test" in target_str):
+                raise ValueError("Password rotation is only permitted on the isolated review identity database")
+
+            data = self._read()
+            users = data.get("users", {})
+            normalized = email.strip().lower()
+            user_entry = next((u for u in users.values() if u.get("email", "").strip().lower() == normalized), None)
+            if not user_entry:
+                raise ValueError(f"Review administrator account '{email}' not found")
+            if user_entry.get("role") != "admin":
+                raise ValueError(f"Account '{email}' is not an administrator; role promotion/rotation refused")
+
+            user_id = user_entry["id"]
+            user_entry["password_hash"] = new_password_hash
+            user_entry["password_rotated_at"] = utc_now()
+
+            # Invalidate all active sessions for this admin user
+            sessions = data.get("sessions", {})
+            invalidated = [sid for sid, s in list(sessions.items()) if s.get("user_id") == user_id]
+            for sid in invalidated:
+                del sessions[sid]
+
+            # Record immutable audit event (NEVER store password or password_hash)
+            now = utc_now()
+            rotations = data.setdefault("review_admin_password_rotations", {})
+            rotation_id = uuid4().hex
+            rotations[rotation_id] = {
+                "id": rotation_id,
+                "user_id": user_id,
+                "email": user_entry["email"],
+                "local_operator": operator,
+                "timestamp": now,
+                "operation_type": "LOCAL_REVIEW_ADMIN_PASSWORD_ROTATION",
+                "sessions_invalidated": len(invalidated),
+            }
+
+            self._write(data)
+            return dict(user_entry)
