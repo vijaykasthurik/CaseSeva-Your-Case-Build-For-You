@@ -6,7 +6,7 @@ import sys
 import warnings
 from pathlib import Path
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 
 class SafeParser(argparse.ArgumentParser):
@@ -82,14 +82,55 @@ class ReviewHTTPFailure(Exception):
     pass
 
 
+def continue_correction(call, source_id, expected_head, receipt_id, corrected):
+    """One source POST only; never make a review decision or retry a write."""
+    path = '/api/admin/authorities/' + source_id + '/history'
+    history = call(path, operation='preflight_correction_history')
+    versions = {v['id']: v['source'] for v in history['versions']}
+    current = versions.get(expected_head, {})
+    receipt = next((r for r in history['reviews'] if r['id'] == receipt_id), None)
+    if (history['current_revision'] != expected_head or not receipt
+            or receipt['source_id'] != source_id or receipt['decision'] != 'NEEDS_NEW_REVISION'
+            or current.get('review_id') != receipt_id
+            or current.get('revision_status') != 'REVISION_REQUESTED'
+            or current.get('review_state') != 'REVIEW_PENDING'
+            or any(v.get('parent_revision') == expected_head for v in versions.values())
+            or any(r['reviewed_at'] > receipt['reviewed_at'] for r in history['reviews'])):
+        raise SystemExit('Continuation preflight failed; no source posted. Inspect history before proceeding.')
+    protected = ('official_text', 'quote', 'content_hash', 'raw_hash', 'section_start', 'section_end')
+    if (corrected.get('source_id') != source_id
+            or set(corrected) & {'reviewed_by', 'reviewed_at', 'review_id', 'revision_status', 'parent_revision', 'revision_request_id'}
+            or any(corrected.get(k) != current.get(k) for k in protected)):
+        raise SystemExit('Correction payload binding failed; no source posted.')
+    fresh = call('/api/admin/authorities', corrected, operation='submit_correction_only')
+    final = call(path, operation='verify_correction_only')
+    stored = next((v['source'] for v in final['versions'] if v['id'] == fresh['version_id']), None)
+    expected = {'parent_revision': expected_head, 'revision_request_id': receipt_id,
+                'review_state': 'REVIEW_PENDING', 'revision_status': 'NONE', 'verification': 'PENDING',
+                'source_reviewed': False, 'review_id': None, 'reviewed_by': None, 'reviewed_at': None}
+    prior = {v['id']: v for v in history['versions']}
+    after = {v['id']: v for v in final['versions']}
+    if (fresh['version_id'] in prior or final['current_revision'] != fresh['version_id'] or not stored
+            or final['reviews'] != history['reviews']
+            or any(after.get(k) != v for k, v in prior.items())
+            or any(stored.get(k) != v or fresh.get(k) != v for k, v in expected.items())
+            or any(stored.get(k) != current.get(k) for k in protected)):
+        raise SystemExit('Post-write verification failed. Do not retry; inspect history for partial writes.')
+    print(json.dumps({'operation': 'submit_correction_only', 'new_revision': fresh['version_id'],
+        **expected, 'approved': False, 'existing_receipt_unchanged': True,
+        'statutory_binding_unchanged': True}, indent=2))
+
+
 def main():
     parser = SafeParser()
     parser.add_argument('--port', type=int, default=8012)
-    parser.add_argument('--email', required=True)
+    parser.add_argument('--email')
     parser.add_argument('--source-id', required=True)
     parser.add_argument('--revision', required=True)
-    parser.add_argument('--decision', choices=['NEEDS_NEW_REVISION', 'REVIEWED_PRIMARY', 'REJECTED', 'STALE'], required=True)
-    parser.add_argument('--reason-file', type=Path, required=True)
+    parser.add_argument('--decision', choices=['NEEDS_NEW_REVISION', 'REVIEWED_PRIMARY', 'REJECTED', 'STALE'])
+    parser.add_argument('--reason-file', type=Path)
+    parser.add_argument('--submit-correction-only', action='store_true')
+    parser.add_argument('--existing-receipt')
     parser.add_argument('--additional-admin-credential', action='store_true')
     parser.add_argument('--corrected-source-file', type=Path,
         help='After verifying a NEEDS_NEW_REVISION receipt, submit this corrected candidate without approval')
@@ -98,9 +139,14 @@ def main():
     args = parser.parse_args()
     if not sys.stdin.isatty() or not sys.stderr.isatty():
         raise SystemExit('A local interactive terminal is required for credential entry.')
-    if args.corrected_source_file and args.decision != 'NEEDS_NEW_REVISION':
+    if args.submit_correction_only:
+        if not args.corrected_source_file or not args.existing_receipt or args.decision or args.reason_file or args.check_access_only:
+            parser.error('Continuation requires only an existing receipt and corrected source')
+    elif not args.decision or not args.reason_file or args.existing_receipt:
+        parser.error('Review mode requires decision and reason')
+    if args.corrected_source_file and not args.submit_correction_only and args.decision != 'NEEDS_NEW_REVISION':
         parser.error('Corrected submission requires NEEDS_NEW_REVISION')
-    reason = args.reason_file.read_text(encoding='utf-8-sig').strip()
+    reason = args.reason_file.read_text(encoding='utf-8-sig').strip() if args.reason_file else None
     corrected = json.loads(args.corrected_source_file.read_text(encoding='utf-8-sig')) if args.corrected_source_file else None
     if corrected is not None and corrected.get('source_id') != args.source_id:
         parser.error('Corrected source must match the requested authority')
@@ -113,14 +159,21 @@ def main():
                 return json.load(response)
         except HTTPError as error:
             raise ReviewHTTPFailure(safe_http_failure(error, operation)) from None
+        except (URLError, TimeoutError, OSError, ValueError):
+            raise ReviewHTTPFailure(json.dumps({'operation': operation,
+                'detail': 'Transport or response failure. Do not retry; inspect history for possible partial writes.'})) from None
     try:
+        email = args.email or input('Administrator email: ').strip()
         password = hidden_input('Application password (hidden): ')
-        session = call('/api/auth/login', {'email': args.email, 'password': password}, operation='login')
+        session = call('/api/auth/login', {'email': email, 'password': password}, operation='login')
         headers['Authorization'] = 'Bearer ' + session['session_token']
         try:
             if args.additional_admin_credential:
                 headers['X-Admin-Token'] = hidden_input('Additional configured admin credential (hidden): ')
             reviewer = call('/api/auth/me', operation='authenticated_identity')['user']
+            if args.submit_correction_only:
+                continue_correction(call, args.source_id, args.revision, args.existing_receipt, corrected)
+                return
             if args.check_access_only:
                 history = call('/api/admin/authorities/' + args.source_id + '/history', operation='read_authority_history')
                 print(json.dumps({'operation': 'check_access_only', 'current_revision': history['current_revision'],

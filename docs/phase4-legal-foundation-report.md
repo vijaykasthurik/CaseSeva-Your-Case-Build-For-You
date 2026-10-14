@@ -585,3 +585,25 @@ Provision-specific amendments and historical/current coverage; reviewed commence
 **Genuine sources approved: 0. Real-law Case File validated: NO. Legal corpus ready: NO. Engine 2 started: NO. Engine 3 started: NO.**
 
 No production/test code changed, so no new complete backend/browser regression or frontend build is claimed or required by the conditional code-change instruction. The checks above and `git diff --check` are this checkpoint's validation; earlier test results remain historical. No DynamoDB/Transcribe retry, model call, additional reviewer identity or review decision occurred. Record 1 remains at `fdd9c175c4fb253f74e3a5b8a4e846398e9efd871e770278fe79db0aec8fe14c`, REVIEW_PENDING / verification=PENDING / approved=false. Stop at this safe-preparation checkpoint.
+
+
+## 51. Correction-only continuation client — 14 October 2026
+
+The user reports genuine external review and accepts the proposed correction for submission as a new pending revision only. Read-only inspection confirmed current head `53fd4f1a3956c751ea8f270d161c6611c414f0e92d19af78eaed99c24a089e9d` and receipt `1e4dffb85d2b4e3b9cb99bf680990061` (NEEDS_NEW_REVISION). No newer decision or child correction exists. Reviewer account differs from prior submitter; genuine distinct-human identity is user-attested, not proven by different IDs. Earlier awaiting-review statements are historical; the new correction still requires a fresh independent review after actual submission.
+
+Implemented the smallest client continuation mode in `scripts/record-authority-review.py`: `--submit-correction-only --existing-receipt`. Email now can be prompted locally; password remains hidden. This branch performs preflight history checks, one source POST, then verifies new revision/head, exact parent/receipt, immutable previous versions/receipts, pending/cleared review fields and unchanged statutory text/hash/offsets. It never posts a review decision. Server-owned lineage fields remain absent from the payload. Transport failures are safe and never retried. A preflight/postflight pair is not an atomic transaction across HTTP requests; avoid concurrent admin operations. The existing server derives lineage and retains its head compare-and-swap.
+
+Actual corrected submission: **NOT EXECUTED BY ASSISTANT**. Head and the two existing receipts remain unchanged. Approved sources: **0**; real-law Case File validated: **NO**; corpus ready: **NO**; Engine 2 started: **NO**.
+
+Changed files: client above; new `backend/tests/test_review_continuation.py` (four isolated continuation tests); new `docs/phase4-correction-continuation.md` (single-command handoff); this report. No server logic, auth accounts, source text or authority database was modified. Accepted payload remains unchanged.
+
+Validation:
+
+- Final focused continuation/diagnostics/revision/review suite: **23 passed in 8.190 seconds**. Tests copy public authority state to temporary files, exercise the exact requested-head transition and interactive CLI path, verify one source POST/no review endpoint, reject replay/altered binding, and retain partial-write state without retry. No real credentials used.
+- Complete backend run: **239 tests, 238 passed, 1 failed in 1614.827 seconds**. Failure: existing `test_source_change_reruns_legal_work_but_not_core_or_specialists`, expected APPLICATION_L001 rerun but saw no extra model call. Isolated rerun of the same test: **passed in 52.546 seconds**, with no changes to its code or assertions. Cause is not established; do not label the full run green. One additional CLI test was added afterward and is included in the final focused result.
+- Browser regression: **17 passed in 1.3 minutes**, existing local mock configuration; no genuine-law acceptance implied.
+- Frontend production build: **passed** (1,922 modules).
+- Python in-memory compilation: **159 files passed**; client loaded through runpy in focused tests and service imports exercised.
+- `git diff --check`: **passed**. Existing dependency deprecation warnings retained.
+
+Logs: `.localdev/phase4-continuation-backend.log`, `phase4-continuation-recheck.log`, `phase4-continuation-browser.log`. No logs contain real login credentials from this work. [The handoff](phase4-correction-continuation.md) gives the one user-run command. On any partial write/failure, inspect history before another action; never replay NEEDS_NEW_REVISION. Stop after handoff, with no approval.
