@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14T06:45:57.392889+00:00",
+  "generated_at": "2026-10-14T07:26:28.291822+00:00",
   "s3_connected": false,
   "s3_connection_note": "Your session has expired or credentials have changed. Please reauthenticate using 'aws login'.",
   "total_remote_references_discovered": 195,

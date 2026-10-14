@@ -61,9 +61,10 @@ def load_adapters() -> AdapterSet:
 
 
 
-    db_provider = os.getenv("DATABASE_PROVIDER", "").strip().lower()
-    obj_provider = os.getenv("OBJECT_STORE_PROVIDER", "").strip().lower()
-    use_mongo = db_provider == "mongodb" or os.getenv("USE_MONGODB", "false").strip().lower() == "true"
+    default_provider = "mock" if use_mock else "mongodb"
+    db_provider = os.getenv("DATABASE_PROVIDER", default_provider).strip().lower()
+    obj_provider = os.getenv("OBJECT_STORE_PROVIDER", default_provider).strip().lower()
+    use_mongo = db_provider in {"mongodb", "mongo", "community"} or os.getenv("USE_MONGODB", "false").strip().lower() == "true"
 
     if use_mongo:
         database = MongoDatabaseAdapter()
