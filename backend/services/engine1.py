@@ -1,3 +1,4 @@
+from ..adapters.capabilities import llm_is_live, processing_mode
 import json
 from pathlib import Path
 from ..models.case import utc_now
@@ -33,7 +34,7 @@ def run_engine1(app, case_id, start_stage=None):
     db.update("cases", case_id, {"status": "ENGINE1_RUNNING", "active_engine": "Engine 1 — Understand + Legal Foundation", "stage_statuses": statuses, "processing_error": None})
     engine_state(db, case_id, 1, "RUNNING", input_version=case.get("input_version", 1))
     data = dict(case.get("engine1_checkpoint") or case.get("case_file", {}))
-    data.update({"case_id": case_id, "processing_mode": adapters.mode})
+    data.update({"case_id": case_id, "processing_mode": processing_mode(adapters)})
     data.setdefault("pending_advocate_verification", [])
     data.setdefault("applicable_law", [])
     data.setdefault("foundation_complete", False)
@@ -124,7 +125,7 @@ def run_engine1(app, case_id, start_stage=None):
                 data["routing"]["unavailable_domains"] = [domain for domain in domains if not knowledge.ready(domain)]
             elif stage == "LEGAL_ISSUE_IDENTIFICATION":
                 data["legal_issues"] = generate(adapters, stage, IssuesOutput, context)["issues"]
-                if adapters.mode != "mock":
+                if llm_is_live(adapters):
                     questions = generate(adapters, "post_issue_clarification", ClarificationOutput, {**context, "case_file": data})["questions"]
                     refreshed = db.get("cases", case_id)
                     if gate(db, refreshed, data, questions, "STATUTE_RETRIEVAL"): return
@@ -190,7 +191,7 @@ def run_engine1(app, case_id, start_stage=None):
         changes["engine2_stale"] = bool(case.get("engine2"))
         changes["engine1_checkpoint"] = None
         write(db, case_id, changes, action="engine1_completed")
-        engine_state(db, case_id, 1, "COMPLETE", outcome=state, case_file_version=data["version"], processing_mode=adapters.mode)
+        engine_state(db, case_id, 1, "COMPLETE", outcome=state, case_file_version=data["version"], processing_mode=processing_mode(adapters))
         from .notifications import notify
         notify(db, case["owner_user_id"], "Your case explanation is ready. Review pending information and choose your next step.", case_id, "ANALYSIS_FINISHED")
     except Exception as exc:

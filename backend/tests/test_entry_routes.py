@@ -65,3 +65,14 @@ class EntryRouteTests(unittest.TestCase):
         self.assertNotIn('INTERNAL STRATEGY', response.text)
         self.assertEqual(self.client.get(f'/api/advocate/cases/{case_id}', headers=self.advocate).status_code, 403)
         self.assertEqual(self.client.post('/api/guest-claims/confirm', headers=self.headers, json={'claim_id': claim['claim_id'], 'code': claim['development_code']}).status_code, 403)
+
+    def test_disabled_email_does_not_follow_legacy_processing_mode(self):
+        case_id = self.walkin()
+        self.app.state.adapters.email_provider = 'disabled'
+        for mode in ('mock', 'mongodb', 'real'):
+            self.app.state.adapters.mode = mode
+            with patch('boto3.client', side_effect=AssertionError('No implicit SES')):
+                response = self.client.post('/api/guest-claims', headers=self.headers, json={'case_id': case_id})
+            self.assertEqual(response.status_code, 503)
+            self.assertNotIn('development_code', response.json())
+        self.assertEqual(self.app.state.adapters.database.list('guest_claims'), [])

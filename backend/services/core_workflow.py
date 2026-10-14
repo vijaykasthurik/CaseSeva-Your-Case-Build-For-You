@@ -1,3 +1,4 @@
+from ..adapters.capabilities import llm_is_live
 """Opt-in Phase 3 worker lifecycle, preserving the legacy Engine 1 boundary."""
 import logging
 import time
@@ -97,7 +98,7 @@ def run_core(app, case_id, *, max_ticks=24):
     try:
         prepare(app, case_id)
         db.update("cases", case_id, {"status": "ENGINE1_RUNNING", "case_understanding_status": "BUILDING", "legal_foundation_status": "PENDING", "processing_error": None, "stage_statuses": {}, "current_stage": None})
-        live_or_test = app.state.adapters.mode != "mock" or getattr(app.state.adapters, "phase3_test_double", False)
+        live_or_test = llm_is_live(app.state.adapters) or getattr(app.state.adapters, "phase3_test_double", False)
         controller = MasterLegalOrchestrator(db, production_registry(app.state.adapters), capabilities=("core_reasoning",) if live_or_test else ())
         controller.start(case_id, ["DOMAIN_ROUTER"], replace_plan=True)
         if db.get("cases", case_id).get("core_retry_requested"):

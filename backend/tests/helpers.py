@@ -14,7 +14,7 @@ from backend.routes.analysis import router as analysis
 def test_app():
     directory = tempfile.TemporaryDirectory()
     db = MockDatabaseAdapter(directory.name + "/database.json")
-    adapters = SimpleNamespace(database=db, storage=MockStorageAdapter(directory.name + "/uploads"), llm=MockLLMAdapter(), auth=MockAuthAdapter(db), mode="mock")
+    adapters = SimpleNamespace(database=db, storage=MockStorageAdapter(directory.name + "/uploads"), llm=MockLLMAdapter(), auth=MockAuthAdapter(db), email_provider="mock", mode="mock", processing_mode="mock", llm_processing_mode="mock")
     app = FastAPI()
     app.state.adapters = adapters
     for router in (cases, auth, analysis):

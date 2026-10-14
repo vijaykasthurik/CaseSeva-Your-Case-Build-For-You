@@ -15,18 +15,42 @@ from .mock.llm import MockLLMAdapter
 from .mock.storage import MockStorageAdapter
 from .mock.workflow import MockWorkflowAdapter
 from .mock.legal_retrieval import MockLegalRetrievalAdapter
-from .real.auth import RealAuthAdapter
-from .real.database import RealDatabaseAdapter
 from .real.llm import RealLLMAdapter
-from .real.storage import RealStorageAdapter
 from .real.workflow import RealWorkflowAdapter
 from .real.legal_retrieval import RealLegalRetrievalAdapter
 from .mongo.database import MongoDatabaseAdapter
 from .mongo.storage import MongoGridFSStorageAdapter
 
-env_keys_before_dotenv = set(os.environ.keys())
-env_vals_before_dotenv = {k: os.environ[k] for k in os.environ}
 load_dotenv(override=False)
+
+
+class ProviderConfigurationError(RuntimeError):
+    """Invalid explicit configuration; never select a fallback provider."""
+
+
+def _flag(key: str) -> bool:
+    value = os.environ.get(key, "false").strip().lower()
+    if value not in {"true", "false"}:
+        raise ProviderConfigurationError(f"{key} must be true or false")
+    return value == "true"
+
+
+def _provider(key, default, aliases):
+    value = os.environ.get(key, default).strip().lower()
+    if value not in aliases:
+        # Do not echo arbitrary configuration values into public diagnostics.
+        raise ProviderConfigurationError(f"Unsupported {key}")
+    return aliases[value]
+
+
+def derive_processing_mode(llm_mode, workflow_mode):
+    if "unavailable" in {llm_mode, workflow_mode}:
+        return "unavailable"
+    if llm_mode == workflow_mode and llm_mode in {"mock", "live"}:
+        return llm_mode
+    if {llm_mode, workflow_mode} == {"mock", "live"}:
+        return "hybrid"
+    return "unavailable"
 
 
 @dataclass
@@ -37,77 +61,77 @@ class AdapterSet:
     auth: AuthAdapter
     workflow: WorkflowAdapter
     legal_retrieval: LegalRetrievalAdapter
-    mode: str
+    persistence_provider: str
+    object_store_provider: str
+    llm_provider: str
+    workflow_provider: str
+    email_provider: str = "disabled"
+
+    @property
+    def llm_processing_mode(self):
+        return getattr(self.llm, "processing_capability", "unavailable")
+
+    @property
+    def workflow_processing_mode(self):
+        return getattr(self.workflow, "processing_capability", "unavailable")
+
+    @property
+    def processing_mode(self):
+        return derive_processing_mode(self.llm_processing_mode, self.workflow_processing_mode)
+
+    @property
+    def mode(self):
+        """Deprecated, read-only alias for processing_mode, never persistence."""
+        return self.processing_mode
+
+    @property
+    def providers(self):
+        return {"database": self.persistence_provider, "object_store": self.object_store_provider,
+                "llm": self.llm_provider, "workflow": self.workflow_provider}
 
 
 def load_adapters() -> AdapterSet:
-    if "USE_MOCK_AWS" in env_vals_before_dotenv:
-        use_mock = env_vals_before_dotenv["USE_MOCK_AWS"].strip().lower() == "true"
-    else:
-        use_mock = os.getenv("USE_MOCK_AWS", "false").strip().lower() == "true"
-
-    def is_explicitly_true(key: str) -> bool:
-        if key in env_vals_before_dotenv:
-            return env_vals_before_dotenv[key].strip().lower() == "true"
-        if use_mock:
-            return False
-        return os.getenv(key, "false").strip().lower() == "true"
-
-    use_real_llm = is_explicitly_true("USE_REAL_LLM")
-    use_real_database = is_explicitly_true("USE_REAL_DATABASE")
-    use_real_storage = is_explicitly_true("USE_REAL_STORAGE")
-    if os.getenv("APP_ENV", "development").lower() in {"production", "prod"} and use_mock:
-        raise RuntimeError("Production configuration refuses mock or hybrid processing.")
-
-
-
-    default_provider = "mock" if use_mock else "mongodb"
-    db_provider = os.getenv("DATABASE_PROVIDER", default_provider).strip().lower()
-    obj_provider = os.getenv("OBJECT_STORE_PROVIDER", default_provider).strip().lower()
-    use_mongo = db_provider in {"mongodb", "mongo", "community"} or os.getenv("USE_MONGODB", "false").strip().lower() == "true"
-
-    if use_mongo:
+    # Resolve and validate ALL dimensions before any adapter has side effects.
+    flags = {key: _flag(key) for key in ("USE_MOCK_AWS", "USE_REAL_DATABASE",
+             "USE_REAL_STORAGE", "USE_REAL_LLM", "USE_MONGODB")}
+    use_mock = flags["USE_MOCK_AWS"]
+    db_default = "mongodb" if flags["USE_MONGODB"] else ("dynamodb" if flags["USE_REAL_DATABASE"] else ("mock" if use_mock else "mongodb"))
+    db = _provider("DATABASE_PROVIDER", db_default,
+                   {"mongodb": "mongodb", "mongo": "mongodb", "community": "mongodb", "mock": "mock", "dynamodb": "dynamodb", "real": "dynamodb"})
+    storage = _provider("OBJECT_STORE_PROVIDER", "s3" if flags["USE_REAL_STORAGE"] else ("mock" if use_mock else "mongodb"),
+                        {"mongodb": "mongodb", "gridfs": "mongodb", "local": "mongodb", "mock": "mock", "s3": "s3", "aws": "s3", "real": "s3"})
+    llm = _provider("LLM_PROVIDER", "bedrock" if flags["USE_REAL_LLM"] else "mock",
+                    {"mock": "mock", "bedrock": "bedrock", "real": "bedrock"})
+    workflow = _provider("WORKFLOW_PROVIDER", "mock", {"mock": "mock", "real": "real"})
+    email = _provider("EMAIL_PROVIDER", "disabled", {"disabled": "disabled", "mock": "mock", "ses": "ses"})
+    llm_adapter = RealLLMAdapter() if llm == "bedrock" else MockLLMAdapter()
+    workflow_capability = getattr(RealWorkflowAdapter, "processing_capability", "unavailable") if workflow == "real" else "mock"
+    if os.getenv("APP_ENV", "development").lower() in {"production", "prod"}:
+        mode = derive_processing_mode(getattr(llm_adapter, "processing_capability", "unavailable"), workflow_capability)
+        if mode != "live":
+            raise ProviderConfigurationError("Production configuration refuses mock, hybrid or unavailable processing.")
+        if email == "mock":
+            raise ProviderConfigurationError("Production configuration refuses mock email.")
+    if db == "mongodb":
         database = MongoDatabaseAdapter()
-        if obj_provider in {"mongodb", "gridfs", ""}:
-            storage = MongoGridFSStorageAdapter()
-        elif obj_provider in {"s3", "real"} or use_real_storage:
-            storage = RealStorageAdapter()
-        else:
-            storage = MockStorageAdapter()
-        llm = RealLLMAdapter() if use_real_llm else MockLLMAdapter()
-        return AdapterSet(
-            storage=storage,
-            database=database,
-            llm=llm,
-            auth=MockAuthAdapter(database, seed_demo=False),
-            workflow=MockWorkflowAdapter(database),
-            legal_retrieval=RealLegalRetrievalAdapter() if not use_mock else MockLegalRetrievalAdapter(),
-            mode="mongodb",
-        )
-
-    if use_mock and not (use_real_database or use_real_storage or use_real_llm):
+    elif db == "mock":
         database = MockDatabaseAdapter()
-        return AdapterSet(
-            storage=MockStorageAdapter(),
-            database=database,
-            llm=MockLLMAdapter(),
-            auth=MockAuthAdapter(database),
-            workflow=MockWorkflowAdapter(database),
-            legal_retrieval=MockLegalRetrievalAdapter(),
-            mode="mock",
-        )
-
-    database = RealDatabaseAdapter() if (not use_mock or use_real_database) else MockDatabaseAdapter()
-    storage = RealStorageAdapter() if (not use_mock or use_real_storage) else MockStorageAdapter()
-    llm = RealLLMAdapter() if (not use_mock or use_real_llm) else MockLLMAdapter()
-
+    else:
+        from .real.database import RealDatabaseAdapter
+        database = RealDatabaseAdapter()
+    if storage == "mongodb":
+        object_store = MongoGridFSStorageAdapter()
+    elif storage == "mock":
+        object_store = MockStorageAdapter()
+    else:
+        from .real.storage import RealStorageAdapter
+        object_store = RealStorageAdapter()
     return AdapterSet(
-        storage=storage,
-        database=database,
-        llm=llm,
-        auth=MockAuthAdapter(database, seed_demo=False),
-        workflow=MockWorkflowAdapter(database),
+        storage=object_store, database=database,
+        llm=llm_adapter,
+        auth=MockAuthAdapter(database, seed_demo=use_mock and db == "mock"),
+        workflow=RealWorkflowAdapter() if workflow == "real" else MockWorkflowAdapter(database),
         legal_retrieval=MockLegalRetrievalAdapter() if use_mock else RealLegalRetrievalAdapter(),
-        mode="real" if not use_mock else "hybrid",
+        persistence_provider=db, object_store_provider=storage, llm_provider=llm,
+        workflow_provider=workflow, email_provider=email,
     )
-

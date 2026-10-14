@@ -63,7 +63,7 @@ export default function HomePage() {
               <span className="health-status-pill" data-testid="health-status">
                 <span className={dotClass} />
                 {health
-                  ? `Backend status: ${health.status} · Adapter mode: ${health.adapter_mode}`
+                  ? `Backend status: ${health.status} · Processing: ${health.processing_mode} · Database: ${health.providers?.database} · Storage: ${health.providers?.object_store}`
                   : error
                     ? `Unable to reach backend: ${error}`
                     : "Checking backend health…"}

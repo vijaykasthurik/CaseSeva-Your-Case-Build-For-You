@@ -15,7 +15,7 @@ from backend.tests.helpers import test_app, client_account
 class CommonInputTests(unittest.TestCase):
     def package(self, story="I have the receipt. I do not have the warranty card. I do not know the visit date.", **changes):
         case = {"case_id": "test", "client_story": story, "owner_user_id": "actor", "created_at": "2026-10-11T00:00:00+00:00", "evidence": [], **changes}
-        return build_raw_package(case, SimpleNamespace(mode="mock"))
+        return build_raw_package(case, SimpleNamespace(mode="mock", processing_mode="mock", llm_processing_mode="mock"))
 
     def test_typed_languages_and_original_provenance(self):
         for text, language in (("My story", "script:LATIN"), ("என் கதை", "script:TAMIL"), ("என் receipt 24,500", "script:LATIN+TAMIL")):
@@ -57,18 +57,18 @@ class CommonInputTests(unittest.TestCase):
         source = [{"source_id": "STORY", "original_text": "I have a receipt. I do not know the date."}]
         llm = Mock()
         llm.generate.return_value = {"items": [{"source_id": "STORY", "quote_index": 0, "label": "Receipt", "state": "AVAILABLE_NOT_UPLOADED", "kind": "EVIDENCE"}]}
-        result = declarations(source, SimpleNamespace(mode="real", llm=llm))
+        result = declarations(source, SimpleNamespace(mode="real", processing_mode="live", llm_processing_mode="live", llm=llm))
         self.assertEqual(result["items"][0]["quote"], "I have a receipt.")
         self.assertTrue(any(i["state"] == "UNKNOWN" for i in result["items"]))
         llm.generate.return_value["items"][0]["quote_index"] = 99
-        result = declarations(source, SimpleNamespace(mode="real", llm=llm))
+        result = declarations(source, SimpleNamespace(mode="real", processing_mode="live", llm_processing_mode="live", llm=llm))
         self.assertEqual(result["status"], "PENDING")
         self.assertEqual(result["items"], [])
 
     def test_model_cannot_turn_known_amounts_into_unknown_or_available_evidence(self):
         llm = Mock()
         llm.generate.return_value = {"items": [{"source_id": "STORY", "quote_index": 0, "label": "Amount", "state": "UNKNOWN", "kind": "DETAIL"}, {"source_id": "STORY", "quote_index": 0, "label": "Payment date", "state": "AVAILABLE_NOT_UPLOADED", "kind": "DETAIL"}]}
-        result = declarations([{"source_id": "STORY", "original_text": "I paid 24,500 on 3 Sep 2026."}], SimpleNamespace(mode="real", llm=llm))
+        result = declarations([{"source_id": "STORY", "original_text": "I paid 24,500 on 3 Sep 2026."}], SimpleNamespace(mode="real", processing_mode="live", llm_processing_mode="live", llm=llm))
         self.assertEqual(result["items"], [])
         self.assertEqual(len(result["rejected_items"]), 2)
         self.assertTrue(result["review_required"])
@@ -76,7 +76,7 @@ class CommonInputTests(unittest.TestCase):
     def test_translation_rejects_changed_amounts_and_keeps_original(self):
         llm = Mock()
         llm.generate.return_value = {"language": "Tamil", "english_text": "I paid 25000", "uncertainties": []}
-        result = working_text("நான் 24,500 செலுத்தினேன்", SimpleNamespace(mode="real", llm=llm))
+        result = working_text("நான் 24,500 செலுத்தினேன்", SimpleNamespace(mode="real", processing_mode="live", llm_processing_mode="live", llm=llm))
         self.assertEqual(result["status"], "PENDING")
         self.assertEqual(result["english_text"], "")
 
@@ -116,12 +116,12 @@ class CommonInputTests(unittest.TestCase):
     def test_retry_recovers_failed_source_without_losing_other_sources(self):
         case = {"case_id": "case", "client_story": "Story", "evidence": [{"evidence_id": "E001", "filename": "receipt.txt", "storage_key": "one", "extraction": {"status": "PENDING", "original_text": "", "reason": "failure"}}, {"evidence_id": "E002", "filename": "other.txt", "extraction": extract_content(b"Other text", "other.txt")}]}
         storage = Mock(); storage.download.return_value = b"Recovered original text"
-        raw = build_raw_package(case, SimpleNamespace(mode="mock", storage=storage))
+        raw = build_raw_package(case, SimpleNamespace(mode="mock", processing_mode="mock", llm_processing_mode="mock", storage=storage))
         storage.download.assert_called_once_with("one")
         self.assertEqual(raw["source_statuses"]["E001"], "COMPLETED")
         self.assertIn("Other text", raw["original_text"])
         storage.download.side_effect = RuntimeError("INTERNAL_STORAGE")
-        raw = build_raw_package(case, SimpleNamespace(mode="mock", storage=storage))
+        raw = build_raw_package(case, SimpleNamespace(mode="mock", processing_mode="mock", llm_processing_mode="mock", storage=storage))
         self.assertEqual(raw["source_statuses"]["E001"], "PENDING")
         self.assertIn("Other text", raw["original_text"])
 

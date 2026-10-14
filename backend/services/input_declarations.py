@@ -1,3 +1,4 @@
+from ..adapters.capabilities import llm_is_live
 """Extract statements about possession/unknowns, never evidence files or legal facts."""
 import json
 import re
@@ -20,7 +21,7 @@ def declarations(sources, adapters):
     readable = {s["source_id"]: s["original_text"] for s in sources if s["original_text"]}
     if not readable:
         return {"status": "PENDING", "items": [], "reason": "No readable source text."}
-    if adapters.mode != "mock":
+    if llm_is_live(adapters):
         passages = {key: [part for part in re.split(r"(?<=[.!?])\s+|\n", text) if part.strip()] for key, text in readable.items()}
         prompt = (
             "Extract ONLY explicit declarations of evidence availability and unknown details. No legal analysis. "

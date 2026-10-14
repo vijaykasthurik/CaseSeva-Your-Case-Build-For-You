@@ -132,6 +132,12 @@ def _semantic_sanity_check(stage_name: str, parsed: dict[str, Any], prompt: str 
 
 
 class RealLLMAdapter(LLMAdapter):
+    @property
+    def processing_capability(self):
+        # Configuration readiness only, not a remote availability/quality guarantee.
+        credentials = self.bearer_token or (os.getenv("AWS_ACCESS_KEY_ID", "").strip() and os.getenv("AWS_SECRET_ACCESS_KEY", "").strip())
+        return "live" if credentials and self.region and self.model_id else "unavailable"
+
     def __init__(self):
         self.bearer_token = os.getenv("AWS_BEARER_TOKEN_BEDROCK", "").strip()
         self.region = (os.getenv("CASESEVA_AWS_REGION") or os.getenv("AWS_REGION", "ap-southeast-2")).strip()

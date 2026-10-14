@@ -6,6 +6,7 @@ from ..llm import LLMAdapter
 
 
 class MockLLMAdapter(LLMAdapter):
+    processing_capability = "mock"
     def __init__(self, fixture_root: str | Path = "fixtures/llm"):
         self.fixture_root = Path(fixture_root)
 

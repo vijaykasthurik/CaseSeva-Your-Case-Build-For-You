@@ -6,6 +6,7 @@ from ..workflow import WorkflowAdapter
 
 
 class MockWorkflowAdapter(WorkflowAdapter):
+    processing_capability = "mock"
     def __init__(self, database: DatabaseAdapter):
         self.database = database
 

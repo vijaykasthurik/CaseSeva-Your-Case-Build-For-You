@@ -4,6 +4,7 @@ from ..workflow import WorkflowAdapter
 
 
 class RealWorkflowAdapter(WorkflowAdapter):
+    processing_capability = "unavailable"
     def start_run(self, case_id: str, stages: list[str]) -> dict[str, Any]:
         # TODO: AWS
         raise NotImplementedError

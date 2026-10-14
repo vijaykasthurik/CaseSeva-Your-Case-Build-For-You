@@ -191,7 +191,7 @@ class RTIAndAuxiliaryDomainGenericityTests(unittest.TestCase):
                         "unavailable_record_refs": [0],  # Out of range for empty unavailable_evidence
                     }
 
-            team_service.adapters = SimpleNamespace(database=self.db, llm=TeamBuilderModelFail(), mode="mock", phase4_test_double=True)
+            team_service.adapters = SimpleNamespace(database=self.db, llm=TeamBuilderModelFail(), mode="mock", processing_mode="mock", llm_processing_mode="mock", phase4_test_double=True)
             with self.assertRaises(ValueError) as ctx:
                 team_service.team(claim_fail)
             self.assertIn(f"Secondary {synth_aux} requires grounded, unavailable public record dependency", str(ctx.exception))
@@ -223,7 +223,7 @@ class RTIAndAuxiliaryDomainGenericityTests(unittest.TestCase):
                         "unavailable_record_refs": [0],
                     }
 
-            team_service.adapters = SimpleNamespace(database=self.db, llm=TeamBuilderModelSuccess(), mode="mock", phase4_test_double=True)
+            team_service.adapters = SimpleNamespace(database=self.db, llm=TeamBuilderModelSuccess(), mode="mock", processing_mode="mock", llm_processing_mode="mock", phase4_test_double=True)
             res = team_service.team(claim_success)
             self.assertEqual(res.status, "COMPLETED")
             selected = res.outputs["agent_team"]["selected"]
@@ -248,7 +248,7 @@ class CrossDomainOfflinePipelineTests(unittest.TestCase):
         self.db = MockDatabaseAdapter(Path(self.temp.name) / "db.json")
         self.corpus = VerifiedCorpus(self.db, test_knowledge())
         self.model = LegalTestModel()
-        self.adapters = SimpleNamespace(database=self.db, llm=self.model, mode="mock", phase3_test_double=True,
+        self.adapters = SimpleNamespace(database=self.db, llm=self.model, mode="mock", processing_mode="mock", llm_processing_mode="mock", phase3_test_double=True,
                                         phase4_test_double=True, verified_corpus=self.corpus)
         self.checks = LegalChecks(self.adapters, self.corpus)
 

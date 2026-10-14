@@ -45,6 +45,6 @@ class CoreTestModel:
 def core_case(db, case_id="c", story=STORY, **changes):
     case = {"id": case_id, "case_id": case_id, "owner_user_id": "u", "status": "DRAFT", "stage": "NEW_CONSULTATION", "input_version": 1,
             "workflow_version": 2, "engine1_execution": CORE_VERSION, "client_story": story, "evidence": [], **changes}
-    case["raw_package"] = build_raw_package(case, SimpleNamespace(mode="mock"), working_language_required=False)
+    case["raw_package"] = build_raw_package(case, SimpleNamespace(mode="mock", processing_mode="mock", llm_processing_mode="mock"), working_language_required=False)
     db.create("cases", case)
     return case

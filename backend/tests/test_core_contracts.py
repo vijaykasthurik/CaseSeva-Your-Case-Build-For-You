@@ -10,7 +10,7 @@ from backend.tests.core_test_support import LANGUAGE
 
 class CoreContractTests(unittest.TestCase):
     def setUp(self):
-        self.raw = build_raw_package({'case_id': 'c', 'client_story': 'A seller contacted me around September 2026. The visitor name is unknown.', 'evidence': []}, SimpleNamespace(mode='mock'), working_language_required=False)
+        self.raw = build_raw_package({'case_id': 'c', 'client_story': 'A seller contacted me around September 2026. The visitor name is unknown.', 'evidence': []}, SimpleNamespace(mode='mock', processing_mode="mock", llm_processing_mode="mock"), working_language_required=False)
         self.indexed = passages(self.raw)
         self.agents = CoreAgents(None)
         self.claim = {'execution_id': 'unit', 'board_version': 1, 'inputs': {'facts': {'F001': {'certainty': 'STATED'}}}, 'previous_outputs': {}}

@@ -49,7 +49,7 @@ class InputLayerTests(unittest.TestCase):
             storage = MockStorageAdapter(directory)
             storage.upload("a.txt", b"Real document content")
             storage.upload("a.wav", b"audio")
-            adapters = SimpleNamespace(storage=storage, mode="mock")
+            adapters = SimpleNamespace(storage=storage, mode="mock", processing_mode="mock", llm_processing_mode="mock")
             case = {"client_story": "Original story", "evidence": [{"evidence_id": "E001", "filename": "a.txt", "storage_key": "a.txt"}, {"evidence_id": "E002", "filename": "a.wav", "storage_key": "a.wav"}]}
             with patch.dict("os.environ", {"ENABLE_AWS_MEDIA": "false"}):
                 result = build_raw_package(case, adapters)

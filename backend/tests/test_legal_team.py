@@ -30,7 +30,7 @@ class LegalTeamTests(unittest.TestCase):
         self.db = MockDatabaseAdapter(Path(temp.name) / 'db.json')
         core_case(self.db)
         self.model = LegalTestModel()
-        self.agents = LegalTeamAgents(SimpleNamespace(mode='mock', phase4_test_double=True, llm=self.model, database=self.db))
+        self.agents = LegalTeamAgents(SimpleNamespace(mode='mock', processing_mode="mock", llm_processing_mode="mock", phase4_test_double=True, llm=self.model, database=self.db))
         self.values = {'facts': {'F001': {'proposition': 'Fictional purchase', 'evidence_ids': [], 'superseded': False}},
             'parties': {}, 'input.evidence_ids': [], 'domain_classification': {'primary_domain': 'CONSUMER', 'secondary_domains': []},
             'legal_capabilities': {}}

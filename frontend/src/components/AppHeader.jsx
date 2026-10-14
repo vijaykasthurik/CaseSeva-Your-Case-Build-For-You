@@ -28,13 +28,13 @@ export default function AppHeader({ children }) {
           <Link to={user ? (isAdvocate ? "/advocate/dashboard" : "/dashboard") : "/"} className="app-header__brand">
             <span>CaseSeva</span>
           </Link>
-          {health?.adapter_mode && (
+          {health?.processing_mode && (
             <span
               className="status-pill status-pill--grey"
               style={{ fontSize: "0.68rem", padding: "0.15rem 0.5rem" }}
-              title={`Mode: ${health.adapter_mode}`}
+              title={`Processing: ${health.processing_mode}; database: ${health.providers?.database}; storage: ${health.providers?.object_store}`}
             >
-              {health.adapter_mode}
+              {health.processing_mode}
             </span>
           )}
         </div>

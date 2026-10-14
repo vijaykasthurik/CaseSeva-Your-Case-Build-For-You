@@ -1,3 +1,4 @@
+from ..adapters.capabilities import llm_is_mock
 import re
 import threading
 import time
@@ -317,7 +318,7 @@ def run_legal_pipeline(app, case_id: str, preserve_advocate_review: bool = False
             try:
                 time.sleep(0.05)
                 schema = schema_for(stage)
-                if app.state.adapters.mode == 'mock':
+                if llm_is_mock(app.state.adapters):
                     if stage == "DOMAIN_ROUTER":
                         if "[NON_CONSUMER]" in current.get("client_story", ""):
                             schema["fixture"] = "other_domain"

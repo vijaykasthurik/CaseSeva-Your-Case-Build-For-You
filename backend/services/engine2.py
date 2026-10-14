@@ -1,3 +1,4 @@
+from ..adapters.capabilities import processing_mode
 import copy
 import json
 from ..models.case import utc_now
@@ -73,7 +74,7 @@ def run_engine2(app, case_id, start_stage=None):
             db.update("cases", case_id, {"stage_statuses": dict(statuses)})
         if db.get("cases", case_id)["case_file"]["version"] != foundation["version"]:
             raise ValueError("The Case File changed during argument analysis; rerun Engine 2.")
-        result.update({"version": case.get("engine2", {}).get("version", 0) + 1, "case_file_version": foundation["version"], "created_at": utc_now(), "processing_mode": adapters.mode})
+        result.update({"version": case.get("engine2", {}).get("version", 0) + 1, "case_file_version": foundation["version"], "created_at": utc_now(), "processing_mode": processing_mode(adapters)})
         if case.get("engine2"):
             from uuid import uuid4
             db.create("engine2_versions", {"id": uuid4().hex, "case_id": case_id, "output": case["engine2"]})

@@ -62,7 +62,7 @@ def run_verification():
         assert resp.status_code == 200, f"Health check failed: {resp.text}"
         health = resp.json()
         print(f"[*] Health check: {health}")
-        assert health.get("adapter_mode") == "mongodb"
+        assert health.get("providers", {}).get("database") == "mongodb"
 
         # 2. Citizen Registration & Login
         cit_email = f"offline.cit.{uuid4().hex[:6]}@caseseva.local"

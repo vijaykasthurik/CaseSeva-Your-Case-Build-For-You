@@ -4,6 +4,9 @@ router = APIRouter(prefix="/api")
 
 
 @router.get("/health")
-def health(request: Request) -> dict[str, str]:
+def health(request: Request) -> dict:
     adapters = request.app.state.adapters
-    return {"status": "ok", "adapter_mode": adapters.mode}
+    return {"status": "ok", "adapter_mode": adapters.mode,
+            "providers": adapters.providers, "processing_mode": adapters.processing_mode,
+            "capabilities": {"llm": adapters.llm_processing_mode, "workflow": adapters.workflow_processing_mode},
+            "email_provider": adapters.email_provider}

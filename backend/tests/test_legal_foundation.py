@@ -22,7 +22,7 @@ class LegalFoundationTests(unittest.TestCase):
         self.db = MockDatabaseAdapter(Path(self.temp.name) / 'db.json')
         self.model = LegalTestModel()
         self.corpus = VerifiedCorpus(self.db, test_knowledge())
-        self.adapters = SimpleNamespace(database=self.db, llm=self.model, mode='mock', phase3_test_double=True,
+        self.adapters = SimpleNamespace(database=self.db, llm=self.model, mode='mock', processing_mode="mock", llm_processing_mode="mock", phase3_test_double=True,
                                         phase4_test_double=True, verified_corpus=self.corpus)
         self.app = SimpleNamespace(state=SimpleNamespace(adapters=self.adapters))
         core_case(self.db, legal_foundation_requested=True)

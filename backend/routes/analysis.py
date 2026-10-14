@@ -1,3 +1,4 @@
+from ..adapters.capabilities import processing_mode
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -76,7 +77,7 @@ def rerun_preview_stages(case_id: str, request: Request, user: dict = Depends(ge
 def analysis_status(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = owned(request, case_id, user)
     from ..services.overview import public_processing_error, public_statuses
-    return {"status": case["status"], "stage_statuses": public_statuses(case.get("stage_statuses", {})), "input_statuses": public_statuses(case.get("input_statuses", {})), "active_engine": case.get("active_engine"), "current_stage": case.get("current_stage"), "processing_mode": request.app.state.adapters.mode, "document_generation_stage": case.get("document_generation_stage"), "error": public_processing_error(case.get("processing_error") or case.get("analysis_error") or case.get("legal_analysis_error"))}
+    return {"status": case["status"], "stage_statuses": public_statuses(case.get("stage_statuses", {})), "input_statuses": public_statuses(case.get("input_statuses", {})), "active_engine": case.get("active_engine"), "current_stage": case.get("current_stage"), "processing_mode": processing_mode(request.app.state.adapters), "document_generation_stage": case.get("document_generation_stage"), "error": public_processing_error(case.get("processing_error") or case.get("analysis_error") or case.get("legal_analysis_error"))}
 
 
 @router.get("/{case_id}/preview1", dependencies=[Depends(retired_workflow)])

@@ -1,3 +1,4 @@
+from ..adapters.capabilities import llm_is_live
 """Fact-grounded dynamic team and issue handlers; no model-memory law."""
 import json
 from ..models.legal_foundation import TeamProposal, SpecialistProposal, IssuesProposal
@@ -44,7 +45,7 @@ def compact_context(values):
 
 
 def generate(adapters, name, model, context, instruction):
-    if adapters is None or (adapters.mode == 'mock' and not getattr(adapters, 'phase4_test_double', False)):
+    if adapters is None or (not llm_is_live(adapters) and not getattr(adapters, 'phase4_test_double', False)):
         raise RuntimeError('Live legal reasoning unavailable')
     schema = model.model_json_schema()
     if model is TeamProposal:

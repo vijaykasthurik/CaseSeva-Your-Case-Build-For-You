@@ -13,7 +13,7 @@ const port = portIndex >= 0 ? process.argv[portIndex + 1] : '8000';
 if (!/^\d+$/.test(port) || Number(port) < 1 || Number(port) > 65535) throw new Error('Invalid backend port');
 const child = spawn(python, ['-m', 'uvicorn', 'backend.main:app', '--host', '127.0.0.1', '--port', port], {
   cwd: root, stdio: 'inherit',
-  env: mock ? { ...process.env, USE_MOCK_AWS: 'true', USE_REAL_DATABASE: 'false', USE_REAL_STORAGE: 'false', USE_REAL_LLM: 'false' } : process.env
+  env: mock ? { ...process.env, DATABASE_PROVIDER: 'mock', OBJECT_STORE_PROVIDER: 'mock', LLM_PROVIDER: 'mock', WORKFLOW_PROVIDER: 'mock', EMAIL_PROVIDER: 'mock', USE_MOCK_AWS: 'true', USE_REAL_DATABASE: 'false', USE_REAL_STORAGE: 'false', USE_REAL_LLM: 'false' } : process.env
 });
 child.on('error', error => { console.error(error); process.exit(1); });
 child.on('exit', code => process.exit(code ?? 1));

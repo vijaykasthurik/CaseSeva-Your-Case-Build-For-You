@@ -36,7 +36,10 @@ def start(body: ClaimStart, request: Request, user=Depends(get_current_user)):
     recent = [item for item in db.list("guest_claims") if item["user_id"] == user["id"] and datetime.fromisoformat(item["created_at"]) > datetime.now(timezone.utc) - timedelta(hours=1)]
     if len(recent) >= 3: raise HTTPException(429, "Please wait before requesting another code.")
     claim_id, code = uuid4().hex, f"{secrets.randbelow(1000000):06d}"
-    if request.app.state.adapters.mode != "mock":
+    email_provider = getattr(request.app.state.adapters, "email_provider", "disabled")
+    if email_provider not in {"mock", "ses"} or (email_provider == "mock" and os.getenv("APP_ENV", "development").lower() in {"prod", "production"}):
+        raise HTTPException(503, "Secure email verification is not configured. The case remains unclaimed.")
+    if email_provider == "ses":
         sender = os.getenv("OTP_FROM_EMAIL", "")
         if not sender: raise HTTPException(503, "Secure email verification is not configured. The case remains unclaimed.")
         try:
@@ -45,7 +48,7 @@ def start(body: ClaimStart, request: Request, user=Depends(get_current_user)):
         except Exception: raise HTTPException(503, "The verification email could not be sent. Please try later.")
     db.create("guest_claims", {"id": claim_id, "user_id": user["id"], "case_id": case["case_id"], "code_hash": hashlib.sha256((claim_id + code).encode()).hexdigest(), "attempts": 0, "used_at": None, "created_at": utc_now(), "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat()})
     response = {"claim_id": claim_id, "message": "Enter the code sent to your account email."}
-    if request.app.state.adapters.mode == "mock": response.update({"development_only": True, "development_code": code, "message": "Development-only code; no email was sent."})
+    if email_provider == "mock": response.update({"development_only": True, "development_code": code, "message": "Development-only code; no email was sent."})
     return response
 
 

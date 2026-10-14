@@ -11,7 +11,7 @@ from backend.services.understanding_sources import passages, ground, checked_dat
 
 class UnderstandingSourceTests(unittest.TestCase):
     def raw(self, story="Paid Rs. 24,500 on 3 September 2026."):
-        return build_raw_package({"case_id": "c", "input_version": 1, "client_story": story, "evidence": []}, SimpleNamespace(mode="mock"))
+        return build_raw_package({"case_id": "c", "input_version": 1, "client_story": story, "evidence": []}, SimpleNamespace(mode="mock", processing_mode="mock", llm_processing_mode="mock"))
 
     def test_multilingual_originals_survive_without_translation(self):
         for text in ("என் பெயர் காவியா", "मेरा नाम काव्या है", "నా పేరు కావ్య", "My name is Kavya", "என் receipt 24,500"):

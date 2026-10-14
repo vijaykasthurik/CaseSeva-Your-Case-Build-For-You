@@ -297,10 +297,13 @@ class MongoPersistenceTests(unittest.TestCase):
             "MONGODB_DATABASE": TEST_DB_NAME,
             "MONGODB_URI": TEST_MONGO_URI,
             "USE_MOCK_AWS": "false",
+            "LLM_PROVIDER": "mock",
+            "WORKFLOW_PROVIDER": "mock",
         }
         with patch.dict(os.environ, clean_env):
             adapters = load_adapters()
-            self.assertEqual(adapters.mode, "mongodb")
+            self.assertEqual(adapters.persistence_provider, "mongodb")
+            self.assertEqual(adapters.processing_mode, "mock")
             self.assertIsInstance(adapters.database, MongoDatabaseAdapter)
             self.assertIsInstance(adapters.storage, MongoGridFSStorageAdapter)
 

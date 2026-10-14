@@ -1,3 +1,4 @@
+from ..adapters.capabilities import llm_is_live
 from .intelligence_config import CONFIG
 """Seven source-grounded core capabilities. No law retrieval or legal conclusions."""
 import copy
@@ -56,7 +57,7 @@ class CoreAgents:
         def run(claim):
             if self.adapters is None:
                 return AgentResult(status="BLOCKED", reason="PROVIDER_NOT_CONFIGURED")
-            if self.adapters.mode == "mock" and not getattr(self.adapters, "phase3_test_double", False):
+            if not llm_is_live(self.adapters) and not getattr(self.adapters, "phase3_test_double", False):
                 return AgentResult(status="BLOCKED", reason="LIVE_REASONING_REQUIRED")
             case = self.adapters.database.get("cases", claim["case_id"])
             raw = case.get("raw_package") or {}
@@ -287,6 +288,6 @@ def core_registry(adapters=None):
                                  reads=("input.raw_fingerprint", "human." + name) + reads, writes=writes,
                                  dependencies=dependencies, can_run_concurrently=True, timeout_seconds=240,
                                  max_retries=1, retry_delay_seconds=1, required_capabilities=("core_reasoning",))
-        available = adapters is not None and (adapters.mode != "mock" or getattr(adapters, "phase3_test_double", False))
+        available = adapters is not None and (llm_is_live(adapters) or getattr(adapters, "phase3_test_double", False))
         registry.register(contract, agents.handler(name), {path: VALIDATORS[path] for path in writes}, available=available)
     return registry

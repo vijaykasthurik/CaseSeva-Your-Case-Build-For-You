@@ -89,10 +89,10 @@ def verify():
     # 3. Live Runtime Adapter Wiring
     print("\n[3] Checking runtime adapter loading via factory...")
     adapters = load_adapters()
-    print(f"    -> Adapter mode: {adapters.mode}")
+    print(f"    -> Providers: {adapters.providers}; processing: {adapters.processing_mode}")
     print(f"    -> Database adapter: {type(adapters.database).__name__}")
     print(f"    -> Storage adapter: {type(adapters.storage).__name__}")
-    assert adapters.mode == "mongodb", f"Expected mode 'mongodb', got {adapters.mode}"
+    assert adapters.persistence_provider == "mongodb", f"Expected persistence mongodb, got {adapters.persistence_provider}"
     assert type(adapters.database).__name__ == "MongoDatabaseAdapter"
     assert type(adapters.storage).__name__ == "MongoGridFSStorageAdapter"
     results["runtime_adapters_wired"] = True
@@ -103,7 +103,7 @@ def verify():
         # Health
         resp = test_client.get("/api/health")
         assert resp.status_code == 200
-        assert resp.json().get("adapter_mode") == "mongodb"
+        assert resp.json().get("providers", {}).get("database") == "mongodb"
         print(f"    -> Health check: {resp.json()}")
 
         # Citizen Registration & Login

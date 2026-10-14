@@ -6,6 +6,6 @@ from backend.adapters import factory
 
 class ProductionModeTests(unittest.TestCase):
     def test_production_refuses_explicit_mock_configuration(self):
-        with patch.dict(factory.env_vals_before_dotenv, {'USE_MOCK_AWS': 'true'}), patch.dict(os.environ, {'APP_ENV': 'production'}):
+        with patch.dict(os.environ, {'APP_ENV': 'production', 'USE_MOCK_AWS': 'true', 'LLM_PROVIDER': 'mock', 'WORKFLOW_PROVIDER': 'mock'}):
             with self.assertRaisesRegex(RuntimeError, 'refuses mock'):
                 factory.load_adapters()

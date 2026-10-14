@@ -78,7 +78,7 @@ class Engine3Tests(unittest.TestCase):
         run_engine3(self.app, self.id)
         case = db.get("cases", self.id)
         self.assertEqual(case["status"], "DOCUMENTS_BLOCKED")
-        self.assertIn("mock mode", case["processing_error"]["message"])
+        self.assertIn("configured live LLM", case["processing_error"]["message"])
         self.assertIsNone(case.get("document_version"))
 
     def test_structured_drafting_and_versioning_with_a_test_adapter(self):
@@ -89,7 +89,7 @@ class Engine3Tests(unittest.TestCase):
         file["applicable_law"] = [{"provision_id": "TEST-1", "title": "Section 1 - Test authority", "verification_status": "VERIFIED"}]
         grant = db.list("case_grants")[0]
         db.update("cases", self.id, {"case_file": file, "advocate_approved_items": ["fact:F001", "provision:TEST-1"], "engine3_advocate_id": "seed-verified-advocate", "engine3_grant_id": grant["id"]})
-        self.app.state.adapters.mode = "real"
+        self.app.state.adapters.llm_processing_mode = "live"
         self.app.state.adapters.llm.generate = lambda *args: {"title": "Test pleading", "sections": [{"heading": heading, "paragraphs": ["TEST FORUM" if heading == "Forum" else "[TO BE COMPLETED: checked details]"], "fact_ids": [], "provision_ids": []} for heading in MANDATORY_SECTIONS], "cited_provision_ids": ["TEST-1"], "annexure_references": []}
         with patch('backend.services.law_refresh.refresh', return_value={'status': 'COMPLETE', 'items': [], 'test_double': True}):
             run_engine3(self.app, self.id)

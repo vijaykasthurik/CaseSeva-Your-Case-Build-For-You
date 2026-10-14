@@ -52,7 +52,7 @@ class CaseDrivenMultiDomainTests(unittest.TestCase):
         self.corpus = VerifiedCorpus(self.db, test_knowledge())
         self.model = LegalTestModel()
         self.adapters = SimpleNamespace(
-            database=self.db, llm=self.model, mode="mock", phase3_test_double=True, phase4_test_double=True
+            database=self.db, llm=self.model, mode="mock", processing_mode="mock", llm_processing_mode="mock", phase3_test_double=True, phase4_test_double=True
         )
         self.checks = LegalChecks(self.adapters, self.corpus)
         self.store = CaseBlackboard(self.db)

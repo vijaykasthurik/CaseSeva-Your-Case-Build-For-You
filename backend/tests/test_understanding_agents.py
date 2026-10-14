@@ -17,7 +17,7 @@ class CoreAgentTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.db = MockDatabaseAdapter(Path(self.temp.name) / "db.json")
         self.model = CoreTestModel()
-        self.adapters = SimpleNamespace(database=self.db, llm=self.model, mode="mock", phase3_test_double=True)
+        self.adapters = SimpleNamespace(database=self.db, llm=self.model, mode="mock", processing_mode="mock", llm_processing_mode="mock", phase3_test_double=True)
         self.app = SimpleNamespace(state=SimpleNamespace(adapters=self.adapters))
         core_case(self.db)
         self.controller = MasterLegalOrchestrator(self.db, production_registry(self.adapters), capabilities=("core_reasoning",))
@@ -64,7 +64,8 @@ class CoreAgentTests(unittest.TestCase):
         invalid = {
             "PARTY_RELATIONSHIP": lambda o, c: {**o, "parties": [{**o["parties"][0], "name": "Invented Manufacturer"}]},
             "EVIDENCE_MAPPING": {"links": [{"evidence_id": "E999", "fact_id": "F001", "relation": "SUPPORTS", "sources": [{"passage": 0, "excerpt": "Kavya"}]}]},
-            "DOMAIN_ROUTER": {"primary_domain": "FAKE_DOMAIN"},
+            # Unknown well-formed labels are valid after genericity hardening.
+            "DOMAIN_ROUTER": {"primary_domain": "invalid domain syntax"},
         }
         for name, override in invalid.items():
             self.model.overrides = {name: override}

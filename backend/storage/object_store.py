@@ -113,7 +113,7 @@ class S3ObjectStore(ObjectStore):
 
 
 def get_object_store(provider: str | None = None, **kwargs: Any) -> ObjectStore:
-    target_provider = (provider or os.getenv("OBJECT_STORE_PROVIDER", "mongodb")).strip().lower()
+    target_provider = (provider if provider is not None else os.getenv("OBJECT_STORE_PROVIDER", "mongodb")).strip().lower()
     if target_provider in {"mongodb", "gridfs", "local"}:
         return MongoGridFSObjectStore(**kwargs)
     elif target_provider in {"s3", "aws"}:

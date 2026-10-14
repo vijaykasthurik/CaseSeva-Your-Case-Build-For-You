@@ -1,3 +1,4 @@
+from ..adapters.capabilities import llm_is_live
 """Production registrations generated from the selected team and stable issue IDs."""
 from pydantic import TypeAdapter
 from ..models.orchestration import AgentContract, AgentResult
@@ -64,7 +65,7 @@ def foundation_handler(issue_ids, optional, corpus):
 def legal_registry(adapters, corpus, board=None):
     registry = core_registry(adapters)
     team, checks = LegalTeamAgents(adapters), LegalChecks(adapters, corpus)
-    reasoning_available = adapters is not None and (adapters.mode != 'mock' or getattr(adapters, 'phase4_test_double', False))
+    reasoning_available = adapters is not None and (llm_is_live(adapters) or getattr(adapters, 'phase4_test_double', False))
     def register(name, handler, reads, writes, deps, validators, *, model=False, pack=None, granular=()):
         registry.register(AgentContract(agent_type=name, version='1.0.0', engine=1,
             purpose='Verified legal foundation capability: ' + name, reads=tuple(reads), writes=tuple(writes), dependencies=tuple(deps),

@@ -88,7 +88,7 @@ def main():
     if status_code != 200:
         print(f"❌ Health check failed with HTTP {status_code}: {health}")
         sys.exit(1)
-    print(f"   ✅ Backend Status: {health.get('status')} | Adapter Mode: {health.get('adapter_mode')}")
+    print(f"   ✅ Backend Status: {health.get('status')} | Providers: {health.get('providers')} | Processing: {health.get('processing_mode')}")
 
     # 2. Client Signup
     email = f"smoketest-{int(time.time())}-{random.randint(1000,9999)}@caseseva.test"

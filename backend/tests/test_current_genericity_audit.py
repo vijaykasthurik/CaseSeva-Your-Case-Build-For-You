@@ -37,9 +37,12 @@ class CurrentGenericityTests(unittest.TestCase):
         tree = ast.parse(path.read_text())
         fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'run_legal_pipeline')
         guard = next(n.test for n in ast.walk(fn) if isinstance(n, ast.If)
-                     and isinstance(n.test, ast.Compare)
-                     and ast.unparse(n.test).endswith(".mode == 'mock'"))
+                     and ast.unparse(n.test) == "llm_is_mock(app.state.adapters)")
         expression = compile(ast.Expression(guard), '<fixture guard>', 'eval')
+        from backend.adapters.capabilities import llm_is_mock
         for mode in ('mock', 'mongodb', 'real', 'hybrid'):
             app = SimpleNamespace(state=SimpleNamespace(adapters=SimpleNamespace(mode=mode)))
-            self.assertEqual(eval(expression, {'app': app}), mode == 'mock')
+            self.assertFalse(eval(expression, {'app': app, 'llm_is_mock': llm_is_mock}))
+        for capability in ('mock', 'live', 'unavailable'):
+            app.state.adapters.llm_processing_mode = capability
+            self.assertEqual(eval(expression, {'app': app, 'llm_is_mock': llm_is_mock}), capability == 'mock')
