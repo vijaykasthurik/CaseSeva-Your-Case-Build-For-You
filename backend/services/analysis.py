@@ -37,7 +37,7 @@ def build_analysis_prompt(stage: str, current: dict[str, Any]) -> str:
 
     if stage == "FACT_EXTRACTION":
         return (
-            f"Extract all key material facts from the following consumer story and evidence.\n\n"
+            f"Extract all key material facts from the following case story and evidence.\n\n"
             f"CLIENT STORY:\n{story}\n\n"
             f"UPLOADED EVIDENCE:\n{evidence_str}"
         )

@@ -7,7 +7,7 @@ from typing import Any
 import requests
 import PyPDF2
 
-from ..legal_retrieval import LegalRetrievalAdapter
+from ..legal_retrieval import LegalRetrievalAdapter, normalize_domain_to_corpus
 from ..authorised_sources import validate_authorised_url, is_authorised_url
 
 logger = logging.getLogger("caseseva.live_retrieval")
@@ -173,12 +173,10 @@ class LiveLegalRetrievalAdapter(LegalRetrievalAdapter):
 
         return [], ""
 
-    def search(self, query: str, limit: int = 10, domain: str = "consumer") -> list[dict[str, Any]]:
-        norm_domain = domain.lower().split("/")[0].strip()
-        if "labour" in norm_domain or "employment" in norm_domain:
-            norm_domain = "labour"
-        elif "consumer" in norm_domain:
-            norm_domain = "consumer"
+    def search(self, query: str, limit: int = 10, domain: str = "") -> list[dict[str, Any]]:
+        norm_domain = normalize_domain_to_corpus(domain)
+        if not norm_domain:
+            return []
 
         # L1: Static corpus first
         static_results = self._search_static_corpus(norm_domain, query, limit)

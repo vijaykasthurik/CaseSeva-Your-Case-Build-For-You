@@ -1,0 +1,6 @@
+{
+  "domain_hints": ["CONSUMER", "LABOUR_EMPLOYMENT", "PROPERTY_TENANCY", "CRIMINAL_POLICE", "CIVIL_CONTRACT", "RTI_ADMINISTRATIVE", "CYBER", "OTHER_OR_UNCERTAIN"],
+  "authority_types": ["STATUTE", "RULE", "REGULATION", "NOTIFICATION", "ORDER", "CIRCULAR", "JUDGMENT"],
+  "jurisdiction_prefix_parents": {"IN-": "IN"},
+  "ocr_languages": ["tam", "eng"]
+}

@@ -1,3 +1,4 @@
+from ..adapters.legal_retrieval import normalize_domain_to_corpus
 import html
 import re
 from typing import Any
@@ -187,9 +188,9 @@ TEMPLATE_REGISTRY = {
 
 
 def build_documents(case: dict[str, Any]) -> dict[str, Any]:
-    raw_domain = case.get("legal_domain", {}).get("domain", "Consumer").lower().split("/")[0].strip()
-    norm_domain = "labour" if any(k in raw_domain for k in ["labour", "labor", "employment", "wages"]) else ("consumer" if "consumer" in raw_domain else raw_domain)
-    
+    raw_domain = case.get("legal_domain", {}).get("domain", "")
+    norm_domain = normalize_domain_to_corpus(raw_domain)
+
     if norm_domain not in TEMPLATE_REGISTRY:
         domain_name = case.get("legal_domain", {}).get("domain", raw_domain)
         raise ValueError(f"Document generation is not yet supported for domain: '{domain_name}'. Extracted facts and Intelligence Report remain available.")

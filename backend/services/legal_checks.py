@@ -6,6 +6,7 @@ from ..models.legal_foundation import ApplicationProposal
 from ..models.legal_outputs import Applications
 from .legal_team import generate
 from .understanding_agents import known_ids
+from .intelligence_config import jurisdiction_matches
 
 
 def compact(source):
@@ -86,7 +87,7 @@ class LegalChecks:
                     current = self.corpus.get(source['source_id'])
                     if current['version_id'] != source['version_id']:
                         state, reason = 'OUTDATED', 'SOURCE_VERSION_CHANGED'
-                    elif source['domain'] != issue['domain'] or source['jurisdiction'] not in {'IN', issue['jurisdiction']}:
+                    elif source['domain'] != issue['domain'] or not jurisdiction_matches(source['jurisdiction'], issue['jurisdiction']):
                         state, reason = 'NOT_APPLICABLE', 'WRONG_DOMAIN_OR_JURISDICTION'
                     elif source['source_type'] != 'JUDGMENT':
                         applicability = temporal.get(source['source_id'], {}).get('status')

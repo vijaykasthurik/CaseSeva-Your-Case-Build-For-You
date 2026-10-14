@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 from ..models.legal_foundation import LegalSource
 from .legal_knowledge import LegalKnowledge, source_record
 from .case_blackboard import digest, CaseBlackboard
+from .intelligence_config import jurisdiction_matches
 
 
 class VerifiedCorpus:
@@ -105,7 +106,7 @@ class VerifiedCorpus:
         terms = set(re.findall(r'\w+', query.casefold()))
         candidates = []
         for source in self.sources():
-            if source['domain'] != domain or not jurisdiction or source['jurisdiction'] not in {jurisdiction, 'IN'}:
+            if source['domain'] != domain or not jurisdiction_matches(source['jurisdiction'], jurisdiction):
                 continue
             if (kind == 'JUDGMENT') != (source['source_type'] == 'JUDGMENT'):
                 continue

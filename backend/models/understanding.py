@@ -1,8 +1,8 @@
 """Strict language-neutral candidate schemas. Persistent IDs belong to the server."""
-from typing import Literal
+from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
-Domain = Literal["CONSUMER", "LABOUR_EMPLOYMENT", "PROPERTY_TENANCY", "CRIMINAL_POLICE", "CIVIL_CONTRACT", "RTI_ADMINISTRATIVE", "OTHER_OR_UNCERTAIN"]
+Domain = Annotated[str, Field(pattern=r'^[A-Z][A-Z0-9_]{0,79}$')]
 
 
 class Strict(BaseModel):

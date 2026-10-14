@@ -1,64 +1,26 @@
-import logging
+"""Generic legacy corpus lookup; configured aliases do not imply reviewed eligibility."""
+import json
 import re
+from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Any
 
-logger = logging.getLogger(__name__)
-
-CORPUS_ALIAS_MAP = {
-    # Labour / Employment aliases
-    "labor": "labour",
-    "labour": "labour",
-    "employment": "labour",
-    "wages": "labour",
-    "labour employment": "labour",
-    "labor employment": "labour",
-    "employment and labour": "labour",
-    "employment and labor": "labour",
-    "wages and salary": "labour",
-    "wages and salary disputes": "labour",
-    "wages and salary dispute": "labour",
-    "labour disputes": "labour",
-    "labor disputes": "labour",
-    # Consumer aliases
-    "consumer": "consumer",
-    "consumer protection": "consumer",
-    "consumer disputes": "consumer",
-    "consumer dispute": "consumer",
-    "defective goods": "consumer",
-    "defective goods and replacement dispute": "consumer",
-    "consumer goods": "consumer",
-}
+REGISTRY = Path(__file__).resolve().parents[1] / 'registries'
+CORPUS_ALIAS_MAP = json.loads((REGISTRY / 'corpus_aliases.json').read_text())
 
 
 def normalize_domain_to_corpus(domain_str: str) -> str | None:
     if not domain_str:
-        logger.warning("[CorpusLookup] Empty domain string provided.")
         return None
-
-    # Lowercase and trim
-    raw = domain_str.lower().strip()
-
-    # Strip punctuation, slashes, and collapse whitespace
-    cleaned = re.sub(r"[^\w\s]", " ", raw)
-    cleaned = " ".join(cleaned.split())
-
-    # Exact alias match check
+    cleaned = ' '.join(re.sub(r'[^\w\s]', ' ', domain_str.lower()).split())
     if cleaned in CORPUS_ALIAS_MAP:
         return CORPUS_ALIAS_MAP[cleaned]
-
-    # Substring / key term fallback check
-    if any(k in cleaned for k in ["labor", "labour", "employment", "wages", "salary"]):
-        return "labour"
-    if any(k in cleaned for k in ["consumer", "defective goods", "defective item", "buyer"]):
-        return "consumer"
-
-    # Log unmatched domain string for visibility
-    logger.warning(f"[CorpusLookup] Unmatched domain string: '{domain_str}' (cleaned: '{cleaned}')")
-    return None
+    # Only registered corpus keys; never arbitrary caller-derived filesystem paths.
+    domains = json.loads((REGISTRY / 'domains.json').read_text())
+    return cleaned if cleaned in domains else None
 
 
 class LegalRetrievalAdapter(ABC):
     @abstractmethod
-    def search(self, query: str, limit: int = 10, domain: str = "consumer") -> list[dict[str, Any]]:
+    def search(self, query: str, limit: int = 10, domain: str = '') -> list[dict[str, Any]]:
         raise NotImplementedError

@@ -198,7 +198,7 @@ def build_legal_prompt(stage: str, current: dict[str, Any]) -> str:
         )
     elif stage == "CLAIMANT_COUNSEL":
         return (
-            f"Develop strong, concise legal arguments supporting the claimant/consumer.\n"
+            f"Develop strong, concise legal arguments supporting the claimant.\n"
             f"CONSTRAINTS:\n"
             f"- Provide at most 5 key argument points.\n"
             f"- Keep each point concise (maximum 2-3 sentences).\n\n"
@@ -317,21 +317,22 @@ def run_legal_pipeline(app, case_id: str, preserve_advocate_review: bool = False
             try:
                 time.sleep(0.05)
                 schema = schema_for(stage)
-                if stage == "DOMAIN_ROUTER":
-                    if "[NON_CONSUMER]" in current.get("client_story", ""):
-                        schema["fixture"] = "other_domain"
-                    elif any(k in current.get("client_story", "").lower() for k in ["salary", "wages", "employment", "labor", "labour"]):
-                        schema["fixture"] = "labor_domain"
-                if stage == "STATUTE_RETRIEVAL" and "[HALLUCINATED_STATUTE]" not in current.get("client_story", ""):
-                    domain_name = str(current.get("legal_domain", {}).get("domain", "")).lower()
-                    if domain_name in {"labor", "labour"} or any(k in current.get("client_story", "").lower() for k in ["salary", "wages", "employment", "labor", "labour"]):
-                        schema["fixture"] = "statute_retrieval_labor"
-                if "[LEGAL_MALFORMED]" in current.get("client_story", "") and stage == "LEGAL_ISSUE_IDENTIFICATION":
-                    schema["fixture"] = "malformed"
-                if "[HALLUCINATED_STATUTE]" in current.get("client_story", "") and stage == "STATUTE_RETRIEVAL":
-                    schema["fixture"] = "hallucinated_statute"
+                if adapters.mode == 'mock':
+                    if stage == "DOMAIN_ROUTER":
+                        if "[NON_CONSUMER]" in current.get("client_story", ""):
+                            schema["fixture"] = "other_domain"
+                        elif any(k in current.get("client_story", "").lower() for k in ["salary", "wages", "employment", "labor", "labour"]):
+                            schema["fixture"] = "labor_domain"
+                    if stage == "STATUTE_RETRIEVAL" and "[HALLUCINATED_STATUTE]" not in current.get("client_story", ""):
+                        domain_name = str(current.get("legal_domain", {}).get("domain", "")).lower()
+                        if domain_name in {"labor", "labour"} or any(k in current.get("client_story", "").lower() for k in ["salary", "wages", "employment", "labor", "labour"]):
+                            schema["fixture"] = "statute_retrieval_labor"
+                    if "[LEGAL_MALFORMED]" in current.get("client_story", "") and stage == "LEGAL_ISSUE_IDENTIFICATION":
+                        schema["fixture"] = "malformed"
+                    if "[HALLUCINATED_STATUTE]" in current.get("client_story", "") and stage == "STATUTE_RETRIEVAL":
+                        schema["fixture"] = "hallucinated_statute"
                 corpus_candidates: list[dict] = []
-                detected_domain = current.get("legal_domain", {}).get("domain", "Consumer")
+                detected_domain = current.get("legal_domain", {}).get("domain", "")
                 if stage in {"STATUTE_RETRIEVAL", "CITATION_VERIFICATION"}:
                     query = " ".join(
                         issue.get("question", "") for issue in current.get("legal_issues", [])

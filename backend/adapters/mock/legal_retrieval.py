@@ -9,7 +9,7 @@ class MockLegalRetrievalAdapter(LegalRetrievalAdapter):
     def __init__(self, corpus_root: str | Path = "backend/legal_corpus"):
         self.corpus_root = Path(corpus_root)
 
-    def search(self, query: str, limit: int = 10, domain: str = "consumer") -> list[dict[str, Any]]:
+    def search(self, query: str, limit: int = 10, domain: str = "") -> list[dict[str, Any]]:
         norm_domain = normalize_domain_to_corpus(domain)
         if not norm_domain:
             return []

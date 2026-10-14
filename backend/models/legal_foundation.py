@@ -1,5 +1,6 @@
 """Phase 4 candidate contracts. Authority and persistent identity are server-owned."""
 from typing import Literal
+from ..services.intelligence_config import CONFIG
 from pydantic import Field
 from .understanding import Strict, Domain
 
@@ -60,7 +61,7 @@ class SpecialistProposal(Strict):
 class LegalSource(Strict):
     source_id: str = Field(pattern=r'^[A-Za-z0-9_]+$')
     family: str
-    source_type: Literal['STATUTE', 'RULE', 'NOTIFICATION', 'JUDGMENT']
+    source_type: Literal[tuple(CONFIG['authority_types'])]
     domain: Domain
     jurisdiction: str
     title: str

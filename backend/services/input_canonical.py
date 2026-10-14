@@ -13,9 +13,9 @@ def text_hash(text):
 
 
 def detect_language(text):
-    tamil = bool(re.search(r"[\u0b80-\u0bff]", text))
-    english = bool(re.search(r"[A-Za-z]", text))
-    return "Tamil-English" if tamil and english else "Tamil" if tamil else "English" if english else "unknown"
+    # Script hints are not language identification; Latin is not necessarily English.
+    scripts = sorted({unicodedata.name(c, '').split(' ')[0] for c in text if c.isalpha()})
+    return "script:" + "+".join(scripts) if scripts else "unknown"
 
 
 def canonicalize(sources):
