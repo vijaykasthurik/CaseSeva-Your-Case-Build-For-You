@@ -29,6 +29,23 @@ class DeclarationOutput(BaseModel):
     items: list[Declaration] = Field(default_factory=list)
 
 
+class InputProcessingStatus:
+    """Standard input lifecycle states per Section 15 contract."""
+    STORED = "STORED"
+    EXTRACTION_PENDING = "EXTRACTION_PENDING"
+    EXTRACTED = "EXTRACTED"
+    TRANSCRIPTION_PENDING = "TRANSCRIPTION_PENDING"
+    TRANSCRIBED = "TRANSCRIBED"
+    TRANSLATION_PENDING = "TRANSLATION_PENDING"
+    TRANSLATED = "TRANSLATED"
+    REVIEW_REQUIRED = "REVIEW_REQUIRED"
+    CAPABILITY_UNAVAILABLE = "CAPABILITY_UNAVAILABLE"
+    FAILED = "FAILED"
+    # Legacy aliases preserved for backwards compatibility
+    COMPLETED = "COMPLETED"
+    PENDING = "PENDING"
+
+
 class SourceRecord(BaseModel):
     source_id: str
     actor_id: str | None = None
@@ -49,6 +66,10 @@ class SourceRecord(BaseModel):
     error_state: str | None = None
     original_text: str
     evidence_id: str | None = None
+    detailed_status: str | None = None
+    detected_languages: list[str] = Field(default_factory=list)
+    translation: dict | None = None
+    review_required: bool = False
 
 
 class RawCasePackage(BaseModel):

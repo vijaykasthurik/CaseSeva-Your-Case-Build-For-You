@@ -20,6 +20,8 @@ from .real.workflow import RealWorkflowAdapter
 from .real.legal_retrieval import RealLegalRetrievalAdapter
 from .mongo.database import MongoDatabaseAdapter
 from .mongo.storage import MongoGridFSStorageAdapter
+from .media import MediaAdapter
+from .mock.media import MockMediaAdapter
 
 load_dotenv(override=False)
 
@@ -66,6 +68,14 @@ class AdapterSet:
     llm_provider: str
     workflow_provider: str
     email_provider: str = "disabled"
+    media: MediaAdapter | None = None
+    media_provider: str = "mock"
+
+    @property
+    def media_capabilities(self):
+        if self.media:
+            return self.media.get_capabilities()
+        return {}
 
     @property
     def llm_processing_mode(self):
@@ -126,6 +136,16 @@ def load_adapters() -> AdapterSet:
     else:
         from .real.storage import RealStorageAdapter
         object_store = RealStorageAdapter()
+    media_val = os.environ.get("MEDIA_PROVIDER")
+    if media_val is None:
+        media_val = "aws" if _flag("ENABLE_AWS_MEDIA") else "mock"
+    media = _provider("MEDIA_PROVIDER", media_val,
+                      {"mock": "mock", "local": "mock", "aws": "aws", "real": "aws", "transcribe": "aws"})
+    if media == "aws":
+        from .real.media import RealMediaAdapter
+        media_adapter = RealMediaAdapter(llm_adapter)
+    else:
+        media_adapter = MockMediaAdapter()
     return AdapterSet(
         storage=object_store, database=database,
         llm=llm_adapter,
@@ -134,4 +154,5 @@ def load_adapters() -> AdapterSet:
         legal_retrieval=MockLegalRetrievalAdapter() if use_mock else RealLegalRetrievalAdapter(),
         persistence_provider=db, object_store_provider=storage, llm_provider=llm,
         workflow_provider=workflow, email_provider=email,
+        media=media_adapter, media_provider=media,
     )

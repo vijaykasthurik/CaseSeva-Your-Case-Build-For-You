@@ -12,10 +12,15 @@ def text_hash(text):
     return hashlib.sha256(normalize(text).encode("utf-8")).hexdigest()
 
 
-def detect_language(text):
-    # Script hints are not language identification; Latin is not necessarily English.
+def detect_script_hint(text):
+    """Unicode script hint only; script detection is never definitive language detection."""
     scripts = sorted({unicodedata.name(c, '').split(' ')[0] for c in text if c.isalpha()})
     return "script:" + "+".join(scripts) if scripts else "unknown"
+
+
+def detect_language(text):
+    """Weak script hint for backwards compatibility; real detection requires a LanguageDetectionProvider."""
+    return detect_script_hint(text)
 
 
 def canonicalize(sources):

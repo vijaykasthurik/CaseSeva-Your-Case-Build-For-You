@@ -9,9 +9,27 @@ def explicit_state(quote, state, kind):
     """Conservative bilingual guard: a known fact is never an availability declaration."""
     if kind == "DETAIL" and state != "UNKNOWN": return False
     patterns = {
-        "UNKNOWN": r"(?:do not know|don.t know|do not remember|don.t remember|unknown|not sure|uncertain|cannot (?:say|explain|remember)|can.t (?:say|recall)|தெரியாது|நினைவில் இல்லை|உறுதியாகக் கூற முடியாது)",
-        "NOT_AVAILABLE": r"(?:do not have|don.t have|not available|no (?:receipt|recording|report)|not (?:given|provided|received)|என்னிடம் இல்லை|வழங்கப்படவில்லை)",
-        "AVAILABLE_NOT_UPLOADED": r"(?:I have|we have|I possess|I kept|I can provide|in my possession|என்னிடம் உள்ள|என்னிடம் இருக்க)",
+        "UNKNOWN": (
+            r"(?:do not know|don.t know|do not remember|don.t remember|unknown|not sure|uncertain|cannot (?:say|explain|remember)|can.t (?:say|recall)|"
+            r"தெரியாது|நினைவில் இல்லை|உறுதியாகக் கூற முடியாது|"
+            r"नहीं पता|याद नहीं|मालूम नहीं|अनिश्चित|पता नहीं|"
+            r"తెలియదు|గుర్తులేదు|చెప్పలేను|"
+            r"theriyathu|theriyala|malum nahi|pata nahi)"
+        ),
+        "NOT_AVAILABLE": (
+            r"(?:do not have|don.t have|not available|no (?:receipt|recording|report)|not (?:given|provided|received)|unavailable|"
+            r"என்னிடம் இல்லை|வழங்கப்படவில்லை|கிடைக்கவில்லை|"
+            r"नहीं है|उपलब्ध नहीं|नहीं मिला|दिया नहीं गया|पास नहीं है|"
+            r"లేదు|అందుబాటులో లేదు|ఇవ్వలేదు|"
+            r"illa|illai|nahi hai)"
+        ),
+        "AVAILABLE_NOT_UPLOADED": (
+            r"(?:I have|we have|I possess|I kept|I can provide|in my possession|available with me|"
+            r"என்னிடம் உள்ள|என்னிடம் இருக்க|என்னிடம் உள்ளன|"
+            r"मेरे पास है|हमारे पास है|उपलब्ध है|दे सकता हूँ|"
+            r"నా వద్ద ఉంది|మా వద్ద ఉంది|ఉంది|"
+            r"ennidam irukku|mere paas hai)"
+        ),
     }
     if state == "AVAILABLE_NOT_UPLOADED" and re.search(patterns["NOT_AVAILABLE"], quote, re.I): return False
     return bool(re.search(patterns[state], quote, re.I))
@@ -67,8 +85,8 @@ def declarations(sources, adapters):
     for source_id, text in readable.items():
         for sentence in re.split(r"(?<=[.!?])\s+|\n", text):
             state = None
-            if re.search(r"(?:I (?:do not|don't) (?:know|remember)|எனக்குத் தெரியாது|நினைவில் இல்லை)", sentence, re.I): state = "UNKNOWN"
-            elif re.search(r"(?:I (?:do not|don't) have|என்னிடம் இல்லை|வழங்கப்படவில்லை)", sentence, re.I): state = "NOT_AVAILABLE"
-            elif re.search(r"(?:I have|என்னிடம் உள்ளன)", sentence, re.I): state = "AVAILABLE_NOT_UPLOADED"
+            if re.search(r"(?:I (?:do not|don't) (?:know|remember)|எனக்குத் தெரியாது|நினைவில் இல்லை|नहीं पता|याद नहीं|తెలియదు|గుర్తులేదు)", sentence, re.I): state = "UNKNOWN"
+            elif re.search(r"(?:I (?:do not|don't) have|என்னிடம் இல்லை|வழங்கப்படவில்லை|नहीं है|उपलब्ध नहीं|లేదు|అందుబాటులో లేదు)", sentence, re.I): state = "NOT_AVAILABLE"
+            elif re.search(r"(?:I have|என்னிடம் உள்ளன|என்னிடம் உள்ளது|मेरे पास है|उपलब्ध है|నా వద్ద ఉంది)", sentence, re.I): state = "AVAILABLE_NOT_UPLOADED"
             if state: items.append({"label": sentence.strip(), "state": state, "kind": "DETAIL" if state == "UNKNOWN" else "EVIDENCE", "source_id": source_id, "quote": sentence})
     return {"status": "DEVELOPMENT_ONLY", "method": "limited_explicit_rules", "items": items}
