@@ -317,7 +317,7 @@ def run_legal_pipeline(app, case_id: str, preserve_advocate_review: bool = False
             try:
                 time.sleep(0.05)
                 schema = schema_for(stage)
-                if adapters.mode == 'mock':
+                if app.state.adapters.mode == 'mock':
                     if stage == "DOMAIN_ROUTER":
                         if "[NON_CONSUMER]" in current.get("client_story", ""):
                             schema["fixture"] = "other_domain"

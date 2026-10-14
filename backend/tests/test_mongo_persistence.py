@@ -19,6 +19,7 @@ import copy
 import hashlib
 import json
 import os
+import tempfile
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -45,7 +46,7 @@ from backend.repositories import (
 from backend.services.case_blackboard import CaseBlackboard, VersionConflict
 from backend.adapters.factory import load_adapters
 
-TEST_DB_NAME = "caseseva_test"
+TEST_DB_NAME = "caseseva_test_" + uuid4().hex
 TEST_MONGO_URI = "mongodb://127.0.0.1:27017"
 
 BASELINE_AUTH_HASH = "b96220116ac40a01b4f96e6b620edc7eebfa35d39d11dfb33b677b9bf67716c3"
@@ -266,20 +267,24 @@ class MongoPersistenceTests(unittest.TestCase):
         self.assertFalse(store.object_exists(key))
 
     def test_10_migration_lineage_preservation_and_idempotency(self):
-        from scripts.migrate_to_mongodb import run_migration
-        res1 = run_migration(db_name=TEST_DB_NAME, mongo_uri=TEST_MONGO_URI)
-        self.assertEqual(res1["status"], "SUCCESS")
-
-        # Verify review receipts preserved
-        review_repo = MongoReviewRepository(self.db)
-        reviews = self.db["legal_authority_reviews"].find({})
-        review_count = self.db["legal_authority_reviews"].count_documents({})
-        self.assertGreater(review_count, 0)
-
-        # Idempotent re-run
-        res2 = run_migration(db_name=TEST_DB_NAME, mongo_uri=TEST_MONGO_URI)
-        self.assertEqual(res2["status"], "SUCCESS")
-        self.assertEqual(self.db["legal_authority_reviews"].count_documents({}), review_count)
+        from scripts import migrate_to_mongodb as migration
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            review = root / '.localdev/phase4-authority-review'
+            review.mkdir(parents=True)
+            receipt = {'id': 'synthetic-migration-receipt', 'source_id': 'synthetic-source',
+                       'input_version': 'synthetic-parent', 'decision': 'NEEDS_NEW_REVISION'}
+            (review / 'database.json').write_text(json.dumps({'legal_authority_reviews': {receipt['id']: receipt}}))
+            (review / 'identity.json').write_text('{}')
+            with patch.object(migration, 'ROOT', root), patch.object(migration, 'probe_s3_and_build_manifest',
+                    return_value={'unresolved_reason': 'OFFLINE_TEST_NO_S3'}) as probe:
+                for _ in range(2):
+                    result = migration.run_migration(db_name=TEST_DB_NAME, mongo_uri=TEST_MONGO_URI)
+                    self.assertEqual(result['status'], 'SUCCESS')
+                    stored = self.db['legal_authority_reviews'].find_one({'_id': receipt['id']})
+                    self.assertEqual({key: stored[key] for key in receipt}, receipt)
+                    self.assertEqual(self.db['legal_authority_reviews'].count_documents({'id': receipt['id']}), 1)
+                self.assertEqual(probe.call_count, 2)
 
     def test_11_aws_disabled_local_operation(self):
         """End-to-end flow with complete absence of AWS credentials."""

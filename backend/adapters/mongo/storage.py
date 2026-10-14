@@ -2,6 +2,7 @@
 import hashlib
 import io
 import os
+import re
 from typing import BinaryIO, Any
 import pymongo
 from gridfs import GridFS, NoFile
@@ -68,7 +69,7 @@ class MongoGridFSStorageAdapter(StorageAdapter):
             self.fs.delete(file._id)
 
     def list(self, prefix: str = "") -> list[str]:
-        query = {"filename": {"$regex": f"^{prefix}"}} if prefix else {}
+        query = {"filename": {"$regex": f"^{re.escape(prefix)}"}} if prefix else {}
         keys = set()
         for file in self.fs.find(query):
             if file.filename:

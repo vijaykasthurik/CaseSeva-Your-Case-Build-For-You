@@ -3,6 +3,7 @@
 Defaults to local MongoDB Community Server on mongodb://127.0.0.1:27017 with database 'caseseva'.
 """
 import os
+from threading import Lock
 import pymongo
 from gridfs import GridFS
 
@@ -15,22 +16,24 @@ def get_mongo_db_name() -> str:
     return os.getenv("MONGODB_DATABASE", "caseseva").strip()
 
 
-_client_instance: pymongo.MongoClient | None = None
+_clients: dict[str, pymongo.MongoClient] = {}
+_clients_lock = Lock()
 
 
 def get_mongo_client(uri: str | None = None) -> pymongo.MongoClient:
-    global _client_instance
     target_uri = (uri or get_mongo_uri()).strip()
-    if _client_instance is None or _client_instance.topology_description is None:
-        _client_instance = pymongo.MongoClient(
-            target_uri,
-            serverSelectionTimeoutMS=3000,
-            connectTimeoutMS=3000,
-            socketTimeoutMS=10000,
-            maxPoolSize=50,
-            minPoolSize=5,
-        )
-    return _client_instance
+    # Never reuse a connection to a different configured deployment.
+    with _clients_lock:
+        if target_uri not in _clients:
+            _clients[target_uri] = pymongo.MongoClient(
+                target_uri,
+                serverSelectionTimeoutMS=3000,
+                connectTimeoutMS=3000,
+                socketTimeoutMS=10000,
+                maxPoolSize=50,
+                minPoolSize=5,
+            )
+        return _clients[target_uri]
 
 
 def get_mongo_db(db_name: str | None = None, uri: str | None = None) -> pymongo.database.Database:
