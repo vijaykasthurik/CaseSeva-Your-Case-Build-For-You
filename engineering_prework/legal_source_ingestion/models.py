@@ -5,7 +5,7 @@ reviewed corpus without independent authenticated human administrative review.
 """
 from enum import Enum
 from typing import Literal, Any
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class StrictModel(BaseModel):
@@ -77,8 +77,8 @@ class OfficialSourceMetadata(StrictModel):
 
 class IngestionRecord(StrictModel):
     # Prework has no authenticated review integration. No record is reviewed law.
-    source_mode: Literal["UNVERIFIED", "TEST_FIXTURE"] = Field(default="UNVERIFIED", frozen=True)
-    officially_retrieved: Literal[False] = Field(default=False, frozen=True)
+    source_mode: Literal["UNVERIFIED", "TEST_FIXTURE", "OFFICIAL_ACQUISITION"] = Field(default="UNVERIFIED", frozen=True)
+    officially_retrieved: bool = Field(default=False, frozen=True)
     review_eligible: Literal[False] = Field(default=False, frozen=True)
 
     @field_validator("review_status", check_fields=False)
@@ -104,8 +104,18 @@ class RawDocumentRecord(IngestionRecord):
     http_headers: dict[str, str] = Field(default_factory=dict)
     provenance_notes: str = ""
     source_owner: str = Field(min_length=1)
-    retrieval_method: Literal["NOT_FETCHED", "TEST_FIXTURE"]
+    retrieval_method: Literal["NOT_FETCHED", "TEST_FIXTURE", "OFFICIAL_HTTPS_GET", "DIRECT_API"]
     http_status: int | None = Field(default=None, ge=100, le=599)
+    gridfs_file_id: str | None = None
+    gridfs_key: str | None = None
+    redirect_chain: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_official_retrieval(self):
+        if self.officially_retrieved:
+            if self.source_mode != "OFFICIAL_ACQUISITION" or self.retrieval_method not in ("OFFICIAL_HTTPS_GET", "DIRECT_API") or self.http_status != 200:
+                raise ValueError("officially_retrieved requires OFFICIAL_ACQUISITION, HTTP 200, and verified official retrieval method")
+        return self
 
 
 class ExtractedDocument(IngestionRecord):
@@ -124,6 +134,10 @@ class ExtractedDocument(IngestionRecord):
     publication_date: str | None = None
     act_number: str | None = None
     ministry_department: str | None = None
+    extractor_version: str | None = None
+    extraction_status: str = "EXTRACTED"
+    extraction_warnings: list[str] = Field(default_factory=list)
+    gridfs_file_id: str | None = None
 
 
 class ProvisionRecord(IngestionRecord):

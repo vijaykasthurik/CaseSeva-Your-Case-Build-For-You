@@ -1,0 +1,73 @@
+{
+  "executed_at": "2026-10-14T17:03:09.000000+00:00",
+  "counts_before": {
+    "legal_authority_heads": 14,
+    "legal_authority_versions": 21,
+    "legal_authority_reviews": 3,
+    "legal_review_submissions": 17,
+    "legal_ingestion_requests": 6,
+    "fs.files": 323,
+    "fs.chunks": 328
+  },
+  "counts_after": {
+    "legal_authority_heads": 14,
+    "legal_authority_versions": 23,
+    "legal_authority_reviews": 3,
+    "legal_review_submissions": 17,
+    "legal_ingestion_requests": 8,
+    "fs.files": 325,
+    "fs.chunks": 333
+  },
+  "results": [
+    {
+      "document_id": "dspe_act_1946",
+      "title": "The Delhi Special Police Establishment Act, 1946",
+      "domain": "CRIMINAL_POLICE",
+      "registry_id": "india_code_central",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/d21dc595-7daa-4e65-b739-0dd39973afc1/content",
+      "final_url": "https://indiacode.gov.in/server/api/core/bitstreams/d21dc595-7daa-4e65-b739-0dd39973afc1/content",
+      "raw_hash": "24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51",
+      "text_hash": "2c9de3a5f83bcbbc2ff3991d6628ce00d45c4e73ae99018104d58bb03664533a",
+      "byte_size": 156096,
+      "gridfs_file_id": "6acfb5c95ad39bf2882e5fbb",
+      "gridfs_key": "raw_legal_sources/india_code_central/24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51.pdf",
+      "already_in_gridfs": false,
+      "provisions_count": 63,
+      "ingestion_id": "1ba02106818a411492856c2dac698309",
+      "candidate_versions": [
+        "f684f9b31f9eab2864fe99d78b898f16a78fa7776c8c58bad97cecb584fbc61a"
+      ],
+      "review_status": "REVIEW_PENDING",
+      "verification": "PENDING",
+      "source_reviewed": false,
+      "review_eligible": false,
+      "status": "SUCCESS",
+      "elapsed_seconds": 0.73
+    },
+    {
+      "document_id": "it_act_2000",
+      "title": "The Information Technology Act, 2000",
+      "domain": "CYBER",
+      "registry_id": "india_code_central",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/770a7d02-48f2-4274-bab9-10d0f48ee264/content",
+      "final_url": "https://indiacode.gov.in/server/api/core/bitstreams/770a7d02-48f2-4274-bab9-10d0f48ee264/content",
+      "raw_hash": "003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529",
+      "text_hash": "488d6d332042ed4faa4d6e2d51dbb41db72580c5c6dca34cd2b62c5e1246143d",
+      "byte_size": 838383,
+      "gridfs_file_id": "6acfb5cc5ad39bf2882e5fbe",
+      "gridfs_key": "raw_legal_sources/india_code_central/003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529.pdf",
+      "already_in_gridfs": false,
+      "provisions_count": 656,
+      "ingestion_id": "15c966d4ee3341f09c99fee6a5ee6d4e",
+      "candidate_versions": [
+        "63625860d8e65b0cdd0ba7254852fc937ff843b982fb76574d6300432044327a"
+      ],
+      "review_status": "REVIEW_PENDING",
+      "verification": "PENDING",
+      "source_reviewed": false,
+      "review_eligible": false,
+      "status": "SUCCESS",
+      "elapsed_seconds": 0.99
+    }
+  ]
+}
