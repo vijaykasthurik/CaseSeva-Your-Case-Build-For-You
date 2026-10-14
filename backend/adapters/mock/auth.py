@@ -63,7 +63,8 @@ class MockAuthAdapter(AuthAdapter):
         import re
         from .database import MockDatabaseAdapter
         from ...models.case import utc_now
-        if not allow_bootstrap or type(self.database) is not MockDatabaseAdapter:
+        from ..mongo.database import MongoDatabaseAdapter
+        if not allow_bootstrap or not isinstance(self.database, (MockDatabaseAdapter, MongoDatabaseAdapter)):
             raise ValueError("Explicit local review bootstrap authorization required")
         normalized = self.validate_credentials(email, password)
         if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", normalized):
@@ -88,7 +89,8 @@ class MockAuthAdapter(AuthAdapter):
         import re
         from .database import MockDatabaseAdapter
         from ...models.case import utc_now
-        if not allow_onboarding or type(self.database) is not MockDatabaseAdapter:
+        from ..mongo.database import MongoDatabaseAdapter
+        if not allow_onboarding or not isinstance(self.database, (MockDatabaseAdapter, MongoDatabaseAdapter)):
             raise ValueError('Explicit local reviewer onboarding authorization required')
         authorizer = self.get_current_user(session_token)
         if not authorizer or authorizer.get('role') != 'admin':

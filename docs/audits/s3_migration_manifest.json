@@ -1,0 +1,132 @@
+{
+  "generated_at": "2026-10-14T06:45:57.392889+00:00",
+  "s3_connected": false,
+  "s3_connection_note": "Your session has expired or credentials have changed. Please reauthenticate using 'aws login'.",
+  "total_remote_references_discovered": 195,
+  "migrated_from_s3_count": 0,
+  "unresolved_remote_objects_count": 195,
+  "unresolved_reason": "Your session has expired or credentials have changed. Please reauthenticate using 'aws login'.",
+  "local_operation_status": "CaseSeva runs completely independently of AWS using MongoDB and local GridFS",
+  "sample_references": [
+    {
+      "type": "document",
+      "id": "117e7ac7618a45598b8baa4b57ec4b4b-report",
+      "case_id": "87dba4f684e84072bcfcfc7fc4e420a7",
+      "storage_key": "cases/87dba4f684e84072bcfcfc7fc4e420a7/documents/v1/report.html"
+    },
+    {
+      "type": "document",
+      "id": "117e7ac7618a45598b8baa4b57ec4b4b-draft",
+      "case_id": "87dba4f684e84072bcfcfc7fc4e420a7",
+      "storage_key": "cases/87dba4f684e84072bcfcfc7fc4e420a7/documents/v1/draft.html"
+    },
+    {
+      "type": "document",
+      "id": "9051ce6603f54d198d13e2b38b08bed6-report",
+      "case_id": "075683ec6af04799b4d5b3e12dd8cfb5",
+      "storage_key": "cases/075683ec6af04799b4d5b3e12dd8cfb5/documents/v1/report.html"
+    },
+    {
+      "type": "document",
+      "id": "9051ce6603f54d198d13e2b38b08bed6-draft",
+      "case_id": "075683ec6af04799b4d5b3e12dd8cfb5",
+      "storage_key": "cases/075683ec6af04799b4d5b3e12dd8cfb5/documents/v1/draft.html"
+    },
+    {
+      "type": "document",
+      "id": "cc55428433d444d99a546f974f10395c-report",
+      "case_id": "0d6c3cca40904ea2979883eb79f0a121",
+      "storage_key": "cases/0d6c3cca40904ea2979883eb79f0a121/documents/v1/report.html"
+    },
+    {
+      "type": "document",
+      "id": "cc55428433d444d99a546f974f10395c-draft",
+      "case_id": "0d6c3cca40904ea2979883eb79f0a121",
+      "storage_key": "cases/0d6c3cca40904ea2979883eb79f0a121/documents/v1/draft.html"
+    },
+    {
+      "type": "document",
+      "id": "4c4fded0902440b1acdfcd7af4fda8db-report",
+      "case_id": "166d964e2eaa49729f414499bb8ef1a8",
+      "storage_key": "cases/166d964e2eaa49729f414499bb8ef1a8/documents/v1/report.html"
+    },
+    {
+      "type": "document",
+      "id": "4c4fded0902440b1acdfcd7af4fda8db-draft",
+      "case_id": "166d964e2eaa49729f414499bb8ef1a8",
+      "storage_key": "cases/166d964e2eaa49729f414499bb8ef1a8/documents/v1/draft.html"
+    },
+    {
+      "type": "document",
+      "id": "26389dd64757452783b096d75f723e9f-report",
+      "case_id": "861acfcb8ad247e9af218267483d9593",
+      "storage_key": "cases/861acfcb8ad247e9af218267483d9593/documents/v1/report.html"
+    },
+    {
+      "type": "document",
+      "id": "26389dd64757452783b096d75f723e9f-draft",
+      "case_id": "861acfcb8ad247e9af218267483d9593",
+      "storage_key": "cases/861acfcb8ad247e9af218267483d9593/documents/v1/draft.html"
+    },
+    {
+      "type": "document",
+      "id": "ef4a6a67bf204126a24ffd2dbd60ba04-report",
+      "case_id": "48b672431df64ca79c336fb98fd17bce",
+      "storage_key": "cases/48b672431df64ca79c336fb98fd17bce/documents/v1/report.html"
+    },
+    {
+      "type": "document",
+      "id": "ef4a6a67bf204126a24ffd2dbd60ba04-draft",
+      "case_id": "48b672431df64ca79c336fb98fd17bce",
+      "storage_key": "cases/48b672431df64ca79c336fb98fd17bce/documents/v1/draft.html"
+    },
+    {
+      "type": "document",
+      "id": "41064a734f96401ab7dd5bef1a4600b1-report",
+      "case_id": "ece3ca99199c4cf89cfc03f5ca30cadd",
+      "storage_key": "cases/ece3ca99199c4cf89cfc03f5ca30cadd/documents/v1/report.html"
+    },
+    {
+      "type": "document",
+      "id": "41064a734f96401ab7dd5bef1a4600b1-draft",
+      "case_id": "ece3ca99199c4cf89cfc03f5ca30cadd",
+      "storage_key": "cases/ece3ca99199c4cf89cfc03f5ca30cadd/documents/v1/draft.html"
+    },
+    {
+      "type": "document",
+      "id": "f26038c4158a41a4aa1db94feb2e74d7-report",
+      "case_id": "dda5aa667d8b4a19b2d62c49ab1b6f0c",
+      "storage_key": "cases/dda5aa667d8b4a19b2d62c49ab1b6f0c/documents/v1/report.html"
+    },
+    {
+      "type": "document",
+      "id": "f26038c4158a41a4aa1db94feb2e74d7-draft",
+      "case_id": "dda5aa667d8b4a19b2d62c49ab1b6f0c",
+      "storage_key": "cases/dda5aa667d8b4a19b2d62c49ab1b6f0c/documents/v1/draft.html"
+    },
+    {
+      "type": "document",
+      "id": "c7bd2b06b3aa4e21a901031be4f4995a-report",
+      "case_id": "dda5aa667d8b4a19b2d62c49ab1b6f0c",
+      "storage_key": "cases/dda5aa667d8b4a19b2d62c49ab1b6f0c/documents/v2/report.html"
+    },
+    {
+      "type": "document",
+      "id": "c7bd2b06b3aa4e21a901031be4f4995a-draft",
+      "case_id": "dda5aa667d8b4a19b2d62c49ab1b6f0c",
+      "storage_key": "cases/dda5aa667d8b4a19b2d62c49ab1b6f0c/documents/v2/draft.html"
+    },
+    {
+      "type": "document",
+      "id": "fb59a28f573b4d8c8c60c72ec273149a-report",
+      "case_id": "32b7dda0196e46d4941fb83dcbac1598",
+      "storage_key": "cases/32b7dda0196e46d4941fb83dcbac1598/documents/v1/report.html"
+    },
+    {
+      "type": "document",
+      "id": "fb59a28f573b4d8c8c60c72ec273149a-draft",
+      "case_id": "32b7dda0196e46d4941fb83dcbac1598",
+      "storage_key": "cases/32b7dda0196e46d4941fb83dcbac1598/documents/v1/draft.html"
+    }
+  ]
+}

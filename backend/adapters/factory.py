@@ -21,6 +21,8 @@ from .real.llm import RealLLMAdapter
 from .real.storage import RealStorageAdapter
 from .real.workflow import RealWorkflowAdapter
 from .real.legal_retrieval import RealLegalRetrievalAdapter
+from .mongo.database import MongoDatabaseAdapter
+from .mongo.storage import MongoGridFSStorageAdapter
 
 env_keys_before_dotenv = set(os.environ.keys())
 env_vals_before_dotenv = {k: os.environ[k] for k in os.environ}
@@ -58,6 +60,29 @@ def load_adapters() -> AdapterSet:
         raise RuntimeError("Production configuration refuses mock or hybrid processing.")
 
 
+
+    db_provider = os.getenv("DATABASE_PROVIDER", "").strip().lower()
+    obj_provider = os.getenv("OBJECT_STORE_PROVIDER", "").strip().lower()
+    use_mongo = db_provider == "mongodb" or os.getenv("USE_MONGODB", "false").strip().lower() == "true"
+
+    if use_mongo:
+        database = MongoDatabaseAdapter()
+        if obj_provider in {"mongodb", "gridfs", ""}:
+            storage = MongoGridFSStorageAdapter()
+        elif obj_provider in {"s3", "real"} or use_real_storage:
+            storage = RealStorageAdapter()
+        else:
+            storage = MockStorageAdapter()
+        llm = RealLLMAdapter() if use_real_llm else MockLLMAdapter()
+        return AdapterSet(
+            storage=storage,
+            database=database,
+            llm=llm,
+            auth=MockAuthAdapter(database, seed_demo=False),
+            workflow=MockWorkflowAdapter(database),
+            legal_retrieval=RealLegalRetrievalAdapter() if not use_mock else MockLegalRetrievalAdapter(),
+            mode="mongodb",
+        )
 
     if use_mock and not (use_real_database or use_real_storage or use_real_llm):
         database = MockDatabaseAdapter()
