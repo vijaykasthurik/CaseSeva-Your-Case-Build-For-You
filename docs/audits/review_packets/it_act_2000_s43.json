@@ -1,0 +1,65 @@
+{
+  "packet_id": "revpkt_fb66bb523bb20530",
+  "source_id": "it_act_2000_s43",
+  "version_id": "fb66bb523bb2053055bcf94656c91c2d0a65ae9a5dc63935f15c6872b8db692a",
+  "parent_document_id": "it_act_2000",
+  "official_title": "The Information Technology Act, 2000",
+  "authority_type": "STATUTE",
+  "provision": "43",
+  "heading": "The Information Technology Act, 2000",
+  "exact_official_excerpt": "43. Penalty and compensation for damage to computer, computer system, etc. \n",
+  "section_start": 3609,
+  "section_end": 3685,
+  "surrounding_context": "ertificate. \n39. Notice of suspension or revocation. \nCHAPTER VIII \nDUTIES OF SUBSCRIBERS \n40. Generating key pair. \n40A. Duties of subscriber of Electronic Signature Certificate. \n41. Acceptance of Digital Signature Certificate. \n42. Control of private key. \nCHAPTER IX \nPENALTIES AND ADJUDICATION \n43. Penalty and compensation for damage to computer, computer system, etc. \n43A. Compensation for failure to protect data. \n44. Penalty for failure to furnish information, return, etc. \n45. Residuary penalty. \n46. Power to adjudicate. \n47. Factors to be taken into account by the adjudicating officer. \nCHAPTER X \nAPPELLATE TRIBUNAL \n48. Establishment of Appellate Tribunal. \n",
+  "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/770a7d02-48f2-4274-bab9-10d0f48ee264/content",
+  "final_url": "https://indiacode.gov.in/server/api/core/bitstreams/770a7d02-48f2-4274-bab9-10d0f48ee264/content",
+  "official_owner": "Official Government Publisher",
+  "registry_id": "india_code_central",
+  "raw_sha256": "003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529",
+  "extracted_text_sha256": "488d6d332042ed4faa4d6e2d51dbb41db72580c5c6dca34cd2b62c5e1246143d",
+  "raw_gridfs_file_id": "6acfb5cc5ad39bf2882e5fbe",
+  "raw_gridfs_key": "raw_legal_sources/india_code_central/003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529.pdf",
+  "retrieval_timestamp": "2026-10-14T17:03:07.827061+00:00",
+  "extraction_method": "pymupdf",
+  "provenance_chain": [
+    {
+      "state": "DISCOVERED",
+      "at": "2026-10-14T17:03:08.814107+00:00"
+    },
+    {
+      "state": "DOWNLOADED",
+      "at": "2026-10-14T17:03:08.814107+00:00",
+      "raw_hash": "003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529",
+      "gridfs_file_id": "6acfb5cc5ad39bf2882e5fbe"
+    },
+    {
+      "state": "PARSED",
+      "at": "2026-10-14T17:03:08.814107+00:00",
+      "provisions_count": 656,
+      "text_hash": "488d6d332042ed4faa4d6e2d51dbb41db72580c5c6dca34cd2b62c5e1246143d"
+    }
+  ],
+  "temporal_warnings": [
+    "Current-law coverage has not been established.",
+    "Do not infer that an official consolidated PDF is current through today.",
+    "Amendment, commencement, and repeal coverage remain unverified pending independent authenticated human review."
+  ],
+  "discovered_relationships": [
+    {
+      "type": "STATUTORY_AMENDMENT_LINEAGE",
+      "status": "UNVERIFIED",
+      "note": "Commencement and amendment notifications require independent human verification"
+    }
+  ],
+  "review_eligible": false,
+  "current_review_state": "REVIEW_PENDING",
+  "temporal_reviewed": false,
+  "reviewer_decision_options": [
+    "REVIEWED_PRIMARY",
+    "REJECTED",
+    "STALE",
+    "NEEDS_NEW_REVISION"
+  ],
+  "recommendation": null,
+  "inspection_ready": true
+}

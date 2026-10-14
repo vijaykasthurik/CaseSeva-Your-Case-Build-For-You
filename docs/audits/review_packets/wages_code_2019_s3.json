@@ -1,0 +1,65 @@
+{
+  "packet_id": "revpkt_2a639da5c89913f2",
+  "source_id": "wages_code_2019_s3",
+  "version_id": "2a639da5c89913f25ba6c64d98f23c2ff86fca99014146f2e3cc2ecbe3c72062",
+  "parent_document_id": "wages_code_2019",
+  "official_title": "The Code on Wages, 2019",
+  "authority_type": "STATUTE",
+  "provision": "3",
+  "heading": "The Code on Wages, 2019",
+  "exact_official_excerpt": "3. Prohibition of discrimination on ground of gender. \n",
+  "section_start": 618,
+  "section_end": 673,
+  "surrounding_context": "ion. \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \nIndiaCode\n\n3 \n \nTHE CODE ON WAGES, 2019 \n_______________ \nARRANGEMENT OF SECTIONS \n___________ \nCHAPTER I \nPRELIMINARY \nSECTIONS  \n1. Short title, extent and commencement. \n2. Definitions. \n3. Prohibition of discrimination on ground of gender. \n4. Decision as to disputes with regard to same or similar nature of work. \nCHAPTER II \nMINIMUM WAGES \n5. Payment of minimum rate of wages. \n6. Fixation of minimum wages. \n7. Components of minimum wages. \n8. Procedure for fixing and revising minimum wages. \n9. Power of Central Government to fix floor",
+  "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/7e3863af-0263-4c95-a42a-1bdd0a55a5fc/content",
+  "final_url": "https://indiacode.gov.in/server/api/core/bitstreams/7e3863af-0263-4c95-a42a-1bdd0a55a5fc/content",
+  "official_owner": "Official Government Publisher",
+  "registry_id": "india_code_central",
+  "raw_sha256": "23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687",
+  "extracted_text_sha256": "daa497cdba58df3bd771b3a08a8d0f9d1e932d685dd97c791b86f263328a3ff4",
+  "raw_gridfs_file_id": "6acfb8968da4303adef98ab4",
+  "raw_gridfs_key": "raw_legal_sources/india_code_central/23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687.pdf",
+  "retrieval_timestamp": "2026-10-14T17:15:01.870635+00:00",
+  "extraction_method": "pymupdf",
+  "provenance_chain": [
+    {
+      "state": "DISCOVERED",
+      "at": "2026-10-14T17:15:02.702502+00:00"
+    },
+    {
+      "state": "DOWNLOADED",
+      "at": "2026-10-14T17:15:02.702502+00:00",
+      "raw_hash": "23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687",
+      "gridfs_file_id": "6acfb8968da4303adef98ab4"
+    },
+    {
+      "state": "PARSED",
+      "at": "2026-10-14T17:15:02.702502+00:00",
+      "provisions_count": 426,
+      "text_hash": "daa497cdba58df3bd771b3a08a8d0f9d1e932d685dd97c791b86f263328a3ff4"
+    }
+  ],
+  "temporal_warnings": [
+    "Current-law coverage has not been established.",
+    "Do not infer that an official consolidated PDF is current through today.",
+    "Amendment, commencement, and repeal coverage remain unverified pending independent authenticated human review."
+  ],
+  "discovered_relationships": [
+    {
+      "type": "STATUTORY_AMENDMENT_LINEAGE",
+      "status": "UNVERIFIED",
+      "note": "Commencement and amendment notifications require independent human verification"
+    }
+  ],
+  "review_eligible": false,
+  "current_review_state": "REVIEW_PENDING",
+  "temporal_reviewed": false,
+  "reviewer_decision_options": [
+    "REVIEWED_PRIMARY",
+    "REJECTED",
+    "STALE",
+    "NEEDS_NEW_REVISION"
+  ],
+  "recommendation": null,
+  "inspection_ready": true
+}

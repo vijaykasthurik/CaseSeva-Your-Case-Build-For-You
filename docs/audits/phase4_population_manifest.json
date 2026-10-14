@@ -1,0 +1,132 @@
+{
+  "executed_at": "2026-10-14T17:17:05.295376+00:00",
+  "counts_before": {
+    "legal_authority_heads": 14,
+    "legal_authority_versions": 36,
+    "legal_authority_reviews": 3,
+    "legal_review_submissions": 17,
+    "legal_ingestion_requests": 9,
+    "fs.files": 326,
+    "fs.chunks": 336
+  },
+  "counts_after": {
+    "legal_authority_heads": 14,
+    "legal_authority_versions": 36,
+    "legal_authority_reviews": 3,
+    "legal_review_submissions": 17,
+    "legal_ingestion_requests": 9,
+    "fs.files": 326,
+    "fs.chunks": 336
+  },
+  "total_populated": 12,
+  "candidates": [
+    {
+      "source_id": "dspe_act_1946_s1",
+      "version_id": "4297fc1997cba692cdb5c8c2fe0ef9dcbee2dedf66970c3447a944fae9fcda9a",
+      "section": "1",
+      "domain": "CRIMINAL_POLICE",
+      "title": "The Delhi Special Police Establishment Act, 1946",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\dspe_act_1946_s1.json"
+    },
+    {
+      "source_id": "dspe_act_1946_s2",
+      "version_id": "89ce02ccd0d7b53df34fd7e23066aa1f3f55bd04d5de1133e65387b9bf6f30d6",
+      "section": "2",
+      "domain": "CRIMINAL_POLICE",
+      "title": "The Delhi Special Police Establishment Act, 1946",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\dspe_act_1946_s2.json"
+    },
+    {
+      "source_id": "dspe_act_1946_s3",
+      "version_id": "38a342f2a3a4ce36dfa6ec8eb5a768075b734bc36254998e970c3cce1f54503c",
+      "section": "3",
+      "domain": "CRIMINAL_POLICE",
+      "title": "The Delhi Special Police Establishment Act, 1946",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\dspe_act_1946_s3.json"
+    },
+    {
+      "source_id": "dspe_act_1946_s6",
+      "version_id": "9e5cbab77e2386e852b0a00dc56470b381179d663afa91fbdd4e4755753210ac",
+      "section": "6",
+      "domain": "CRIMINAL_POLICE",
+      "title": "The Delhi Special Police Establishment Act, 1946",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\dspe_act_1946_s6.json"
+    },
+    {
+      "source_id": "it_act_2000_s1",
+      "version_id": "fc8d6d1c8b948c49ace6c59712a6e3bad9aba9152565f53abbb238ead16481ca",
+      "section": "1",
+      "domain": "CYBER",
+      "title": "The Information Technology Act, 2000",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\it_act_2000_s1.json"
+    },
+    {
+      "source_id": "it_act_2000_s3",
+      "version_id": "b3b5925b41dc54b9ff54ae90c557fafb2a6779960d4d6c7bef6b50217446a8bd",
+      "section": "3",
+      "domain": "CYBER",
+      "title": "The Information Technology Act, 2000",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\it_act_2000_s3.json"
+    },
+    {
+      "source_id": "it_act_2000_s43",
+      "version_id": "fb66bb523bb2053055bcf94656c91c2d0a65ae9a5dc63935f15c6872b8db692a",
+      "section": "43",
+      "domain": "CYBER",
+      "title": "The Information Technology Act, 2000",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\it_act_2000_s43.json"
+    },
+    {
+      "source_id": "it_act_2000_s66",
+      "version_id": "7996a9c4994c855020791af2699ffa6798535f478c437fc38847cc01b609455b",
+      "section": "66",
+      "domain": "CYBER",
+      "title": "The Information Technology Act, 2000",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\it_act_2000_s66.json"
+    },
+    {
+      "source_id": "wages_code_2019_s1",
+      "version_id": "d1c00549bf81f6ece2d9f3258237bd6e4930336f6bac1bc2da0dd14ec33f6d3c",
+      "section": "1",
+      "domain": "LABOUR_EMPLOYMENT",
+      "title": "The Code on Wages, 2019",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\wages_code_2019_s1.json"
+    },
+    {
+      "source_id": "wages_code_2019_s3",
+      "version_id": "2a639da5c89913f25ba6c64d98f23c2ff86fca99014146f2e3cc2ecbe3c72062",
+      "section": "3",
+      "domain": "LABOUR_EMPLOYMENT",
+      "title": "The Code on Wages, 2019",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\wages_code_2019_s3.json"
+    },
+    {
+      "source_id": "wages_code_2019_s5",
+      "version_id": "96307452acb717de5c6574b6ee5b2ef17a46f323b5e5a59ab39fcdcaf9a4c414",
+      "section": "5",
+      "domain": "LABOUR_EMPLOYMENT",
+      "title": "The Code on Wages, 2019",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\wages_code_2019_s5.json"
+    },
+    {
+      "source_id": "wages_code_2019_s6",
+      "version_id": "b70c9b635e6ab88d57041d080b41862330df1e7e6183e1022b2785f14dfcf439",
+      "section": "6",
+      "domain": "LABOUR_EMPLOYMENT",
+      "title": "The Code on Wages, 2019",
+      "review_state": "REVIEW_PENDING",
+      "packet_file": "docs\\audits\\review_packets\\wages_code_2019_s6.json"
+    }
+  ]
+}
