@@ -11,12 +11,13 @@ def ensure_indexes(db: pymongo.database.Database) -> dict[str, list[str]]:
     """Create all required indexes idempotently on the given MongoDB database."""
     created = {}
 
-    # 1. users: unique email, role index
+    # 1. users: unique identity and normalized email, role index
     users = db["users"]
+    users.create_index([("id", ASCENDING)], unique=True, sparse=True, name="idx_users_id_unique")
     users.create_index([("email", ASCENDING)], unique=True, sparse=True, name="idx_users_email_unique")
     users.create_index([("role", ASCENDING)], name="idx_users_role")
     users.create_index([("verification_status", ASCENDING)], name="idx_users_verification_status")
-    created["users"] = ["idx_users_email_unique", "idx_users_role", "idx_users_verification_status"]
+    created["users"] = ["idx_users_id_unique", "idx_users_email_unique", "idx_users_role", "idx_users_verification_status"]
 
     # 2. sessions: token unique, user_id lookup
     sessions = db["sessions"]

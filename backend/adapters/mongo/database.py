@@ -9,12 +9,19 @@ import time
 from typing import Any, Callable
 import pymongo
 from pymongo.errors import DuplicateKeyError
+from pymongo.write_concern import WriteConcern
 
 from ..database import DatabaseAdapter
-from ...database.mongo_client import get_mongo_db, get_mongo_client
+from ...database.mongo_client import get_mongo_db
 
 
 class MongoDatabaseAdapter(DatabaseAdapter):
+    IMMUTABLE_COLLECTIONS = frozenset({
+        "legal_authority_versions", "legal_authority_reviews", "legal_review_submissions",
+        "legal_revision_requests", "audit_events", "review_admin_bootstrap",
+        "review_admin_provisioning",
+    })
+
     def __init__(self, db_name: str | None = None, uri: str | None = None):
         self.db_name = db_name or os.getenv("MONGODB_DATABASE", "caseseva").strip()
         self.uri = uri or os.getenv("MONGODB_URI", "mongodb://127.0.0.1:27017").strip()
@@ -58,6 +65,8 @@ class MongoDatabaseAdapter(DatabaseAdapter):
         return self.mutate(collection, record_id, lambda current: changes)
 
     def mutate(self, collection: str, record_id: str, transform: Callable[[dict[str, Any]], dict[str, Any]]) -> dict[str, Any]:
+        if collection in self.IMMUTABLE_COLLECTIONS:
+            raise ValueError("Historical records are append-only")
         coll = self._db[collection]
         target_id = str(record_id)
         for attempt in range(50):
@@ -90,6 +99,8 @@ class MongoDatabaseAdapter(DatabaseAdapter):
         raise RuntimeError("Concurrent database updates could not be resolved; retry the operation.")
 
     def delete(self, collection: str, record_id: str) -> bool:
+        if collection in self.IMMUTABLE_COLLECTIONS:
+            raise ValueError("Historical records are append-only")
         coll = self._db[collection]
         target_id = str(record_id)
         result = coll.delete_one({"_id": target_id})
@@ -101,70 +112,92 @@ class MongoDatabaseAdapter(DatabaseAdapter):
         coll = self._db[collection]
         return [self._clean_doc(doc) for doc in coll.find({})]
 
-    def create_local_review_admin(self, user: dict[str, Any]) -> None:
-        """Atomically claim the one-time bootstrap and insert a new dedicated user."""
-        users_coll = self._db["users"]
-        bootstrap_coll = self._db["review_admin_bootstrap"]
+    def _provisioning_collections(self):
+        # Provisioning must enforce constraints even when startup index setup was
+        # omitted. Existing invalid data makes index creation fail closed.
+        users = self._db.get_collection("users", write_concern=WriteConcern(w="majority", j=True))
+        users.create_index("id", unique=True, sparse=True, name="idx_users_id_unique")
+        users.create_index("email", unique=True, sparse=True, name="idx_users_email_unique")
+        return users
 
-        # Check existing emails
-        user_email = user["email"].strip().lower()
-        if users_coll.find_one({"email": user_email}):
-            raise ValueError("Account already exists; bootstrap never promotes existing users")
-
-        # Check existing admin or bootstrap
-        if bootstrap_coll.count_documents({}) > 0 or users_coll.find_one({"role": "admin"}):
-            raise ValueError("Local review administrator bootstrap has already been used or an admin exists")
-
-        if user.get("role") != "admin" or user.get("provisioning", {}).get("scope") != "PHASE4_REVIEW_ONLY":
+    @staticmethod
+    def _review_user(user):
+        value = copy.deepcopy(user)
+        audit = value.get("provisioning", {})
+        if (value.get("role") != "admin" or audit.get("scope") != "PHASE4_REVIEW_ONLY"
+                or not isinstance(value.get("id"), str) or not value["id"]):
             raise ValueError("Invalid local review provisioning request")
+        if {"id", "_id", "user_id", "email", "protocol"} & set(audit):
+            raise ValueError("Provisioning metadata cannot override identity bindings")
+        value["email"] = value["email"].strip().lower()
+        if not value["email"]:
+            raise ValueError("Reviewer email is required")
+        value["_id"] = value["id"]
+        return value
 
-        user_doc = dict(user)
-        user_doc["_id"] = user["id"]
-        users_coll.insert_one(user_doc)
+    def _insert_reserved_reviewer(self, users, user, collection, claim_id):
+        # The audit is the durable reservation; inserting the user is the commit
+        # point. Never roll back a claim after an ambiguous network/write failure.
+        # Orphan reservations are intentionally retained and require investigation.
+        claims = self._db.get_collection(collection, write_concern=WriteConcern(w="majority", j=True))
+        index_name = "idx_bootstrap_id_unique" if collection == "review_admin_bootstrap" else "idx_provisioning_id_unique"
+        claims.create_index("id", unique=True, name=index_name)
+        audit = copy.deepcopy(user["provisioning"])
+        claim = {**audit, "_id": claim_id, "id": claim_id,
+                 "user_id": user["id"], "email": user["email"],
+                 "protocol": "AUDIT_BEFORE_IDENTITY_V1"}
+        try:
+            claims.insert_one(claim)
+            users.insert_one(user)
+        except DuplicateKeyError as exc:
+            raise ValueError("Reviewer identity or provisioning claim already exists") from exc
 
-        bootstrap_doc = {
-            "_id": "one-time",
-            "id": "one-time",
-            "user_id": user["id"],
-            **user["provisioning"]
-        }
-        bootstrap_coll.insert_one(bootstrap_doc)
+    def create_local_review_admin(self, user: dict[str, Any]) -> None:
+        """Fail closed on standalone Mongo: reserve once, then insert identity."""
+        value = self._review_user(user)
+        if value["provisioning"].get("method") != "LOCAL_INTERACTIVE_REVIEW_BOOTSTRAP":
+            raise ValueError("Invalid bootstrap method")
+        users = self._provisioning_collections()
+        if users.find_one({"$or": [{"id": value["id"]}, {"email": value["email"]}]}):
+            raise ValueError("Account already exists; bootstrap never promotes existing users")
+        if self._db.review_admin_bootstrap.count_documents({}) or users.find_one({"role": "admin"}):
+            raise ValueError("Local review administrator bootstrap has already been used or an admin exists")
+        self._insert_reserved_reviewer(users, value, "review_admin_bootstrap", "one-time")
+
+    def _has_review_audit(self, user):
+        if not user or user.get("role") != "admin":
+            return False
+        audit = user.get("provisioning", {})
+        if audit.get("scope") != "PHASE4_REVIEW_ONLY":
+            return False
+        method = audit.get("method")
+        if method == "LOCAL_INTERACTIVE_REVIEW_BOOTSTRAP":
+            collection, key = "review_admin_bootstrap", "one-time"
+        elif method == "AUTHENTICATED_LOCAL_REVIEW_ONBOARDING":
+            collection, key = "review_admin_provisioning", user["id"]
+        else:
+            return False
+        claim = self._db[collection].find_one({"_id": key})
+        return bool(claim and claim.get("user_id") == user["id"]
+                    and all(claim.get(k) == v for k, v in audit.items())
+                    and ("email" not in claim or claim["email"] == user["email"]))
 
     def create_additional_review_admin(self, user: dict[str, Any], *, session_token: str) -> None:
-        """Recheck authorization and duplicates atomically; leave bootstrap history untouched."""
-        users_coll = self._db["users"]
-        sessions_coll = self._db["sessions"]
-        bootstrap_coll = self._db["review_admin_bootstrap"]
-        prov_coll = self._db["review_admin_provisioning"]
-
-        session = sessions_coll.find_one({"_id": session_token}) or sessions_coll.find_one({"id": session_token})
-        authorizer = None
-        if session:
-            authorizer = users_coll.find_one({"_id": session.get("user_id")}) or users_coll.find_one({"id": session.get("user_id")})
-
-        if not authorizer or authorizer.get("role") != "admin":
-            raise ValueError("An authenticated existing administrator is required")
-
-        if bootstrap_coll.count_documents({}) == 0:
-            raise ValueError("Existing review bootstrap history is required; onboarding cannot bootstrap")
-
-        user_email = user["email"].strip().lower()
-        if users_coll.find_one({"_id": user["id"]}) or users_coll.find_one({"email": user_email}):
-            raise ValueError("Account already exists; onboarding never promotes existing users")
-
-        audit = user.get("provisioning", {})
-        if (user.get("role") != "admin" or audit.get("scope") != "PHASE4_REVIEW_ONLY"
+        """Validate authenticated reviewer provenance, reserve audit, insert identity."""
+        value = self._review_user(user)
+        users = self._provisioning_collections()
+        session = self.get("sessions", session_token)
+        authorizer = self.get("users", session["user_id"]) if session else None
+        if not self._has_review_audit(authorizer):
+            raise ValueError("An authenticated existing review administrator is required")
+        bootstrap = self._db.review_admin_bootstrap.find_one({"_id": "one-time"})
+        founder = self.get("users", bootstrap["user_id"]) if bootstrap else None
+        if not self._has_review_audit(founder):
+            raise ValueError("Completed review bootstrap history is required")
+        audit = value["provisioning"]
+        if (audit.get("method") != "AUTHENTICATED_LOCAL_REVIEW_ONBOARDING"
                 or audit.get("authorized_by") != authorizer["id"]):
             raise ValueError("Invalid local reviewer onboarding request")
-
-        user_doc = dict(user)
-        user_doc["_id"] = user["id"]
-        users_coll.insert_one(user_doc)
-
-        prov_doc = {
-            "_id": user["id"],
-            "id": user["id"],
-            "user_id": user["id"],
-            **audit
-        }
-        prov_coll.insert_one(prov_doc)
+        if users.find_one({"$or": [{"id": value["id"]}, {"email": value["email"]}]}):
+            raise ValueError("Account already exists; onboarding never promotes existing users")
+        self._insert_reserved_reviewer(users, value, "review_admin_provisioning", value["id"])

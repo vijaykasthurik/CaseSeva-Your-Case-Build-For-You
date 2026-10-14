@@ -2,6 +2,12 @@
 from abc import ABC, abstractmethod
 from typing import Any
 import pymongo
+from pymongo.errors import DuplicateKeyError
+from .immutable import insert_immutable
+
+
+class VersionConflict(ValueError):
+    """The expected authority head is no longer current."""
 
 
 class AuthorityRepository(ABC):
@@ -35,6 +41,8 @@ class MongoAuthorityRepository(AuthorityRepository):
         self.db = db
         self.heads = db["legal_authority_heads"]
         self.versions = db["legal_authority_versions"]
+        self.heads.create_index("id", unique=True, name="idx_auth_heads_id_unique")
+        self.versions.create_index("id", unique=True, name="idx_auth_versions_id_unique")
 
     def _clean(self, doc: dict[str, Any] | None) -> dict[str, Any] | None:
         if not doc:
@@ -53,15 +61,20 @@ class MongoAuthorityRepository(AuthorityRepository):
 
     def set_head(self, source_id: str, version_id: str, expected_version: str | None = None) -> dict[str, Any]:
         target = str(source_id)
-        current = self.heads.find_one({"$or": [{"_id": target}, {"id": target}]})
-        if current and expected_version is not None and current.get("version") != expected_version:
-            raise ValueError("Authority changed during review")
-        head_doc = {
-            "_id": target,
-            "id": target,
-            "version": str(version_id)
-        }
-        self.heads.replace_one({"_id": target}, head_doc, upsert=True)
+        head_doc = {"_id": target, "id": target, "version": str(version_id), "_revision": 1}
+        # None means create only, never an unconditional overwrite.
+        if expected_version is None:
+            try:
+                self.heads.insert_one(head_doc)
+            except DuplicateKeyError as exc:
+                raise VersionConflict("Authority head already exists") from exc
+        else:
+            head_doc = self.heads.find_one_and_update(
+                {"_id": target, "version": str(expected_version)},
+                {"$set": {"version": str(version_id)}, "$inc": {"_revision": 1}},
+                return_document=pymongo.ReturnDocument.AFTER)
+            if head_doc is None:
+                raise VersionConflict("Authority changed during review")
         return self._clean(head_doc) or head_doc
 
     def save_version(self, version_id: str, source: dict[str, Any], reason: str) -> dict[str, Any]:
@@ -72,7 +85,7 @@ class MongoAuthorityRepository(AuthorityRepository):
             "source": dict(source),
             "reason": reason
         }
-        self.versions.replace_one({"_id": vid}, doc, upsert=True)
+        insert_immutable(self.versions, doc)
         return self._clean(doc) or doc
 
     def get_version(self, version_id: str) -> dict[str, Any] | None:
@@ -128,6 +141,8 @@ class MongoReviewRepository(ReviewRepository):
         self.reviews = db["legal_authority_reviews"]
         self.submissions = db["legal_review_submissions"]
         self.ingestions = db["legal_ingestion_requests"]
+        self.reviews.create_index("id", unique=True, name="idx_auth_reviews_id_unique")
+        self.submissions.create_index("id", unique=True, name="idx_submissions_id_unique")
 
     def _clean(self, doc: dict[str, Any] | None) -> dict[str, Any] | None:
         if not doc:
@@ -143,7 +158,7 @@ class MongoReviewRepository(ReviewRepository):
         doc = dict(review)
         rid = str(doc["id"])
         doc["_id"] = rid
-        self.reviews.replace_one({"_id": rid}, doc, upsert=True)
+        insert_immutable(self.reviews, doc)
         return self._clean(doc) or doc
 
     def get_review(self, review_id: str) -> dict[str, Any] | None:
@@ -158,7 +173,7 @@ class MongoReviewRepository(ReviewRepository):
         doc = dict(submission)
         sid = str(doc["id"])
         doc["_id"] = sid
-        self.submissions.replace_one({"_id": sid}, doc, upsert=True)
+        insert_immutable(self.submissions, doc)
         return self._clean(doc) or doc
 
     def list_submissions_for_source(self, source_id: str) -> list[dict[str, Any]]:
@@ -169,7 +184,7 @@ class MongoReviewRepository(ReviewRepository):
         doc = dict(request)
         rid = str(doc["id"])
         doc["_id"] = rid
-        self.ingestions.replace_one({"_id": rid}, doc, upsert=True)
+        insert_immutable(self.ingestions, doc)
         return self._clean(doc) or doc
 
     def get_ingestion_request(self, request_id: str) -> dict[str, Any] | None:
@@ -178,5 +193,7 @@ class MongoReviewRepository(ReviewRepository):
 
     def update_ingestion_request(self, request_id: str, updates: dict[str, Any]) -> dict[str, Any]:
         target = str(request_id)
+        if {"id", "_id"} & set(updates):
+            raise ValueError("Ingestion identity cannot change")
         self.ingestions.update_one({"$or": [{"_id": target}, {"id": target}]}, {"$set": updates})
         return self.get_ingestion_request(target) or {}

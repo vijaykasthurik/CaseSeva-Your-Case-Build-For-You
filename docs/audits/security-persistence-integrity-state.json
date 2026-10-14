@@ -1,0 +1,176 @@
+{
+  "before": {
+    "baseline": "672c937ef3c655af5cba0b9b5120fab159503228",
+    "database": "caseseva",
+    "deployment": {
+      "setName": null,
+      "msg": null,
+      "logicalSessionTimeoutMinutes": 30,
+      "maxWireVersion": 25
+    },
+    "counts": {
+      "users": 210,
+      "reviewer_identities": 4,
+      "review_admin_bootstrap": 1,
+      "review_admin_provisioning": 3,
+      "legal_authority_heads": 14,
+      "legal_authority_versions": 21,
+      "legal_authority_reviews": 3,
+      "legal_review_submissions": 17,
+      "legal_revision_requests": 0,
+      "audit_events": 4
+    },
+    "admin_count": 0,
+    "indexes": {
+      "users": [
+        "_id_",
+        "email_1",
+        "idx_users_email_unique",
+        "idx_users_role",
+        "idx_users_verification_status"
+      ],
+      "reviewer_identities": [
+        "_id_",
+        "idx_reviewer_id_unique",
+        "idx_reviewer_email_unique"
+      ],
+      "review_admin_bootstrap": [
+        "_id_",
+        "idx_bootstrap_id_unique"
+      ],
+      "review_admin_provisioning": [
+        "_id_",
+        "idx_provisioning_id_unique"
+      ],
+      "legal_authority_heads": [
+        "_id_",
+        "idx_auth_heads_id_unique"
+      ],
+      "legal_authority_versions": [
+        "_id_",
+        "idx_auth_versions_id_unique",
+        "idx_auth_versions_source_id"
+      ],
+      "legal_authority_reviews": [
+        "_id_",
+        "idx_auth_reviews_id_unique",
+        "idx_auth_reviews_source_id"
+      ],
+      "legal_review_submissions": [
+        "_id_",
+        "idx_submissions_id_unique",
+        "idx_submissions_source_id"
+      ],
+      "legal_revision_requests": [],
+      "audit_events": [
+        "_id_",
+        "idx_audit_events_id_unique",
+        "idx_audit_case_created"
+      ]
+    },
+    "hashes": {
+      "database.json": "b96220116ac40a01b4f96e6b620edc7eebfa35d39d11dfb33b677b9bf67716c3",
+      "identity.json": "bd055fe4bd996aba38a243fbb3572f68646be7cd469e0382a3b57920a9a15b17"
+    }
+  },
+  "after": {
+    "counts": {
+      "users": 210,
+      "reviewer_identities": 4,
+      "review_admin_bootstrap": 1,
+      "review_admin_provisioning": 3,
+      "legal_authority_heads": 14,
+      "legal_authority_versions": 21,
+      "legal_authority_reviews": 3,
+      "legal_review_submissions": 17,
+      "legal_revision_requests": 0,
+      "audit_events": 4
+    },
+    "admin_count": 0,
+    "hashes": {
+      "database.json": "b96220116ac40a01b4f96e6b620edc7eebfa35d39d11dfb33b677b9bf67716c3",
+      "identity.json": "bd055fe4bd996aba38a243fbb3572f68646be7cd469e0382a3b57920a9a15b17"
+    },
+    "indexes": {
+      "users": [
+        "_id_",
+        "email_1",
+        "idx_users_email_unique",
+        "idx_users_role",
+        "idx_users_verification_status"
+      ],
+      "reviewer_identities": [
+        "_id_",
+        "idx_reviewer_id_unique",
+        "idx_reviewer_email_unique"
+      ],
+      "review_admin_bootstrap": [
+        "_id_",
+        "idx_bootstrap_id_unique"
+      ],
+      "review_admin_provisioning": [
+        "_id_",
+        "idx_provisioning_id_unique"
+      ],
+      "legal_authority_heads": [
+        "_id_",
+        "idx_auth_heads_id_unique"
+      ],
+      "legal_authority_versions": [
+        "_id_",
+        "idx_auth_versions_id_unique",
+        "idx_auth_versions_source_id"
+      ],
+      "legal_authority_reviews": [
+        "_id_",
+        "idx_auth_reviews_id_unique",
+        "idx_auth_reviews_source_id"
+      ],
+      "legal_review_submissions": [
+        "_id_",
+        "idx_submissions_id_unique",
+        "idx_submissions_source_id"
+      ],
+      "legal_revision_requests": [],
+      "audit_events": [
+        "_id_",
+        "idx_audit_events_id_unique",
+        "idx_audit_case_created"
+      ]
+    }
+  },
+  "unchanged": {
+    "counts": true,
+    "admin_count": true,
+    "hashes": true,
+    "indexes": true
+  },
+  "before_fix_reproduction": {
+    "bootstrap_failure": "RuntimeError",
+    "orphan_active_admins": 1,
+    "concurrent_bootstrap": [
+      "success",
+      "DuplicateKeyError"
+    ],
+    "concurrent_admin_count": 2,
+    "onboard_failure": "RuntimeError",
+    "onboard_orphan_active": 1,
+    "history_overwritten": true,
+    "concurrent_head_updates": [
+      "success",
+      "success"
+    ]
+  },
+  "validation": {
+    "regression_run": {
+      "tests": 118,
+      "result": "PASS"
+    },
+    "final_head_interoperation_targeted_run": {
+      "tests": 40,
+      "result": "PASS"
+    },
+    "compileall": "PASS",
+    "diff_check": "PASS"
+  }
+}
