@@ -1,8 +1,16 @@
 """Strict language-neutral candidate schemas. Persistent IDs belong to the server."""
 from typing import Annotated, Literal
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, AfterValidator
+from ..services.intelligence_config import CONFIG
 
-Domain = Annotated[str, Field(pattern=r'^[A-Z][A-Z0-9_]{0,79}$')]
+
+def check_domain(val: str) -> str:
+    if val not in CONFIG['domain_hints']:
+        raise ValueError(f"Domain '{val}' is not configured in intelligence registry")
+    return val
+
+
+Domain = Annotated[str, Field(pattern=r'^[A-Z][A-Z0-9_]{0,79}$'), AfterValidator(check_domain)]
 
 
 class Strict(BaseModel):

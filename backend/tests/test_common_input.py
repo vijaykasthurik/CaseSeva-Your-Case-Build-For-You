@@ -18,7 +18,7 @@ class CommonInputTests(unittest.TestCase):
         return build_raw_package(case, SimpleNamespace(mode="mock"))
 
     def test_typed_languages_and_original_provenance(self):
-        for text, language in (("My story", "English"), ("என் கதை", "Tamil"), ("என் receipt 24,500", "Tamil-English")):
+        for text, language in (("My story", "script:LATIN"), ("என் கதை", "script:TAMIL"), ("என் receipt 24,500", "script:LATIN+TAMIL")):
             raw = self.package(text)
             self.assertEqual(raw["original_story"], text)
             self.assertEqual(raw["canonical_narrative"], text)

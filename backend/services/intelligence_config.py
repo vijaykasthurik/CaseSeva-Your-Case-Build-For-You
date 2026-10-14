@@ -12,3 +12,9 @@ def jurisdiction_matches(source, target):
         return True
     return any(target.startswith(prefix) and source == parent
                for prefix, parent in CONFIG['jurisdiction_prefix_parents'].items())
+
+
+def reload_config():
+    global CONFIG
+    CONFIG = json.loads((Path(__file__).resolve().parents[1] / 'registries/intelligence.json').read_text(encoding='utf-8'))
+    return CONFIG

@@ -324,8 +324,8 @@ def run_legal_pipeline(app, case_id: str, preserve_advocate_review: bool = False
                         elif any(k in current.get("client_story", "").lower() for k in ["salary", "wages", "employment", "labor", "labour"]):
                             schema["fixture"] = "labor_domain"
                     if stage == "STATUTE_RETRIEVAL" and "[HALLUCINATED_STATUTE]" not in current.get("client_story", ""):
-                        domain_name = str(current.get("legal_domain", {}).get("domain", "")).lower()
-                        if domain_name in {"labor", "labour"} or any(k in current.get("client_story", "").lower() for k in ["salary", "wages", "employment", "labor", "labour"]):
+                        norm_domain = normalize_domain_to_corpus(str(current.get("legal_domain", {}).get("domain", "")))
+                        if norm_domain == "labour" or any(k in current.get("client_story", "").lower() for k in ["salary", "wages", "employment", "labor", "labour"]):
                             schema["fixture"] = "statute_retrieval_labor"
                     if "[LEGAL_MALFORMED]" in current.get("client_story", "") and stage == "LEGAL_ISSUE_IDENTIFICATION":
                         schema["fixture"] = "malformed"
@@ -442,7 +442,7 @@ def run_legal_pipeline(app, case_id: str, preserve_advocate_review: bool = False
                 if stage == "DOMAIN_ROUTER" and normalize_domain_to_corpus(output.domain) is None:
                     db.update("cases", case_id, {
                         "status": "OUT_OF_SCOPE",
-                        "out_of_scope_message": "This MVP currently supports Consumer matters in depth; an advocate should review this domain.",
+                        "out_of_scope_message": f"Statutory grounding is not currently configured for domain '{output.domain}'. An advocate should review this matter.",
                         "forum": {"forum_family": "UNSUPPORTED_DOMAIN", "commission_level": "No verified forum rules for domain", "territorial_basis": "Address verification required"},
                         "limitation": {"result": "UNKNOWN", "explanation": "No verified limitation rules for domain"},
                         "version": db.get("cases", case_id).get("version", 1) + 1,

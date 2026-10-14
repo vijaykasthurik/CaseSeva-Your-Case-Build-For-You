@@ -2,5 +2,12 @@
   "domain_hints": ["CONSUMER", "LABOUR_EMPLOYMENT", "PROPERTY_TENANCY", "CRIMINAL_POLICE", "CIVIL_CONTRACT", "RTI_ADMINISTRATIVE", "CYBER", "OTHER_OR_UNCERTAIN"],
   "authority_types": ["STATUTE", "RULE", "REGULATION", "NOTIFICATION", "ORDER", "CIRCULAR", "JUDGMENT"],
   "jurisdiction_prefix_parents": {"IN-": "IN"},
-  "ocr_languages": ["tam", "eng"]
+  "ocr_languages": ["tam", "eng"],
+  "auxiliary_secondary_domains": {
+    "RTI_ADMINISTRATIVE": {
+      "requires_unavailable_evidence": true,
+      "gate_description": "Secondary RTI requires grounded, unavailable public record dependency",
+      "prompt_instruction": "Secondary RTI only when a necessary public record is explicitly unavailable, not because land/government records exist. Do not add RTI if that record is already uploaded."
+    }
+  }
 }
