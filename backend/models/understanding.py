@@ -4,12 +4,19 @@ from pydantic import BaseModel, ConfigDict, Field, AfterValidator
 from ..services.intelligence_config import CONFIG
 
 
+def is_known_domain_pack(val: str) -> bool:
+    """Checks whether a domain has a pre-registered specialist pack or capability configuration."""
+    return val in CONFIG.get('domain_hints', [])
+
+
 def check_domain(val: str) -> str:
-    if val not in CONFIG['domain_hints']:
-        raise ValueError(f"Domain '{val}' is not configured in intelligence registry")
+    """Validates domain string format. Preserves open multi-domain labels without closing the universe."""
+    if not isinstance(val, str) or not val.strip():
+        raise ValueError("Domain must be a non-empty string identifier")
     return val
 
 
+# Case-driven, open domain label: supports pre-configured packs and emerging/unregistered domain labels
 Domain = Annotated[str, Field(pattern=r'^[A-Z][A-Z0-9_]{0,79}$'), AfterValidator(check_domain)]
 
 

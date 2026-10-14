@@ -74,49 +74,39 @@ class DomainExtensibilityAndTypingTests(unittest.TestCase):
                 )
                 self.assertEqual(cand.primary_domain, dom)
 
-    def test_unconfigured_domain_fails_closed(self):
-        """An unconfigured invented domain must be rejected by check_domain and pydantic validation."""
+    def test_dynamic_unregistered_domain_label_is_representable(self):
+        """A dynamically detected domain label (e.g. AVIATION_PASSENGER_COMPENSATION) is representable even without pre-registration."""
+        from backend.models.understanding import is_known_domain_pack
+        emerging_domain = "AVIATION_PASSENGER_COMPENSATION"
+        self.assertFalse(is_known_domain_pack(emerging_domain))
+
         lang = LanguageAssessment(detected_languages=["script:LATIN"], supported=True)
-        with self.assertRaises(ValueError) as ctx:
-            DomainCandidates(
-                language=lang,
-                primary_domain="INVENTED_NONEXISTENT_DOMAIN",
-                primary_subdomain="general",
-                fact_ids=["F001"],
-                confidence="HIGH",
-                review_required=False,
-                reasons=["Test"],
-            )
-        self.assertIn("is not configured in intelligence registry", str(ctx.exception))
+        cand = DomainCandidates(
+            language=lang,
+            primary_domain=emerging_domain,
+            primary_subdomain="delayed_flight_refund",
+            fact_ids=["F001"],
+            confidence="HIGH",
+            review_required=False,
+            reasons=["Flight delayed by 8 hours without meal or refund"],
+        )
+        self.assertEqual(cand.primary_domain, emerging_domain)
 
-    def test_adding_domain_to_config_is_accepted_without_code_changes(self):
-        """Adding a new domain to CONFIG['domain_hints'] dynamically allows schema validation without Python edits."""
-        synthetic_domain = "SYNTHETIC_MARITIME"
-        self.assertNotIn(synthetic_domain, CONFIG['domain_hints'])
-
-        # Before adding to config, it fails
-        with self.assertRaises(ValueError):
-            check_domain(synthetic_domain)
-
-        # Extend config dynamically
-        CONFIG['domain_hints'].append(synthetic_domain)
-        try:
-            val = check_domain(synthetic_domain)
-            self.assertEqual(val, synthetic_domain)
-
-            lang = LanguageAssessment(detected_languages=["script:LATIN"], supported=True)
-            cand = DomainCandidates(
-                language=lang,
-                primary_domain=synthetic_domain,
-                primary_subdomain="admiralty",
-                fact_ids=["F001"],
-                confidence="HIGH",
-                review_required=False,
-                reasons=["Maritime cargo salvage"],
-            )
-            self.assertEqual(cand.primary_domain, synthetic_domain)
-        finally:
-            CONFIG['domain_hints'].remove(synthetic_domain)
+    def test_invalid_domain_syntax_rejected(self):
+        """Invalid domain syntax (lowercase, special characters, spaces) is rejected by schema."""
+        lang = LanguageAssessment(detected_languages=["script:LATIN"], supported=True)
+        for invalid in ["lowercase_domain", "WITH SPACES", "INVALID!CHARS", ""]:
+            with self.subTest(invalid=invalid):
+                with self.assertRaises((ValueError, Exception)):
+                    DomainCandidates(
+                        language=lang,
+                        primary_domain=invalid,
+                        primary_subdomain="general",
+                        fact_ids=["F001"],
+                        confidence="HIGH",
+                        review_required=False,
+                        reasons=["Test"],
+                    )
 
 
 class NoSilentConsumerDefaultTests(unittest.TestCase):
