@@ -5,11 +5,11 @@ reviewed corpus without independent authenticated human administrative review.
 """
 from enum import Enum
 from typing import Literal, Any
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class StrictModel(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
 
 class AuthorityType(str, Enum):
@@ -75,7 +75,21 @@ class OfficialSourceMetadata(StrictModel):
     notes: str = ""
 
 
-class RawDocumentRecord(StrictModel):
+class IngestionRecord(StrictModel):
+    # Prework has no authenticated review integration. No record is reviewed law.
+    source_mode: Literal["UNVERIFIED", "TEST_FIXTURE"] = Field(default="UNVERIFIED", frozen=True)
+    officially_retrieved: Literal[False] = Field(default=False, frozen=True)
+    review_eligible: Literal[False] = Field(default=False, frozen=True)
+
+    @field_validator("review_status", check_fields=False)
+    @classmethod
+    def no_reviewed_law(cls, value):
+        if value == ReviewStatus.REVIEWED_PRIMARY:
+            raise ValueError("Isolated ingestion records cannot be reviewed law")
+        return value
+
+
+class RawDocumentRecord(IngestionRecord):
     document_id: str = Field(min_length=1, max_length=120)
     source_id: str = Field(min_length=1, max_length=100)
     title: str = Field(min_length=1, max_length=500)
@@ -86,18 +100,22 @@ class RawDocumentRecord(StrictModel):
     raw_content_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     content_type: str
     file_extension: str
-    file_size_bytes: int
+    file_size_bytes: int = Field(ge=1)
     http_headers: dict[str, str] = Field(default_factory=dict)
     provenance_notes: str = ""
+    source_owner: str = Field(min_length=1)
+    retrieval_method: Literal["NOT_FETCHED", "TEST_FIXTURE"]
+    http_status: int | None = Field(default=None, ge=100, le=599)
 
 
-class ExtractedDocument(StrictModel):
+class ExtractedDocument(IngestionRecord):
     document_id: str
     source_id: str
     title: str
     authority_type: AuthorityType
     official_url: str
     raw_hash: str
+    source_owner: str = ""
     text_content: str
     text_hash: str
     language: str = "en"
@@ -108,7 +126,7 @@ class ExtractedDocument(StrictModel):
     ministry_department: str | None = None
 
 
-class ProvisionRecord(StrictModel):
+class ProvisionRecord(IngestionRecord):
     provision_id: str = Field(pattern=r"^[a-z0-9_]{1,120}$")
     parent_document_id: str
     parent_document_title: str
@@ -139,7 +157,7 @@ class ProvisionRecord(StrictModel):
     review_status: ReviewStatus = ReviewStatus.DISCOVERED
 
 
-class VersionRelationship(StrictModel):
+class VersionRelationship(IngestionRecord):
     source_id: str
     target_id: str
     relationship: RelationshipType
@@ -149,10 +167,11 @@ class VersionRelationship(StrictModel):
     repeal_date: str | None = None
     supported_through_date: str | None = None
     unresolved_coverage: list[str] = Field(default_factory=list)
-    verified: bool = False
+    # Disabled until independently authenticated evidence/review is integrated.
+    verified: Literal[False] = Field(default=False, frozen=True)
 
 
-class JudgmentRecord(StrictModel):
+class JudgmentRecord(IngestionRecord):
     judgment_id: str = Field(pattern=r"^[a-z0-9_]{1,120}$")
     court: str = Field(min_length=1, max_length=200)
     bench: str | None = None

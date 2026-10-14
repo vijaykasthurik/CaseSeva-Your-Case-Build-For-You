@@ -35,7 +35,7 @@ from .models import (
 from .base_adapter import BaseSourceAdapter
 from .sectionizer import StatutorySectionizer
 from .version_graph import VersionGraph
-from .adapters.indiacode_adapter import IndiaCodeAdapter
+from .tests.fixtures.adapters import FixtureIndiaCodeAdapter, FLAGS
 from .adapters.ministry_adapter import MinistryPortalAdapter
 from .adapters.judgment_adapter import JudgmentSourceAdapter
 
@@ -104,19 +104,19 @@ class IngestionTestHarness(unittest.TestCase):
             priority="P0_CRITICAL",
             implementation_status="AUTOMATABLE_VALIDATED",
         )
-        self.adapter = IndiaCodeAdapter(self.meta_indiacode)
+        self.adapter = FixtureIndiaCodeAdapter(self.meta_indiacode)
         self.sectionizer = StatutorySectionizer()
         self.graph = VersionGraph()
 
     def test_document_discovery_normalization(self):
-        """1. Discovers official document candidates with normalized title and identifier metadata."""
+        """1. Discovers test-only document candidates with normalized title and identifier metadata."""
         results = self.adapter.discover_documents("Consumer Protection")
         self.assertGreaterEqual(len(results), 1)
         cpa = results[0]
         self.assertEqual(cpa["document_id"], "cpa_2019")
         self.assertIn("Consumer Protection Act", cpa["title"])
         self.assertEqual(cpa["authority_type"], AuthorityType.ACT)
-        self.assertIn("handle/123456789", cpa["official_url"])
+        self.assertIn("fixtures.invalid", cpa["official_url"])
 
     def test_section_extraction(self):
         """2. Extracts statutory sections with exact substring offsets and SHA-256 verification."""
@@ -164,7 +164,7 @@ class IngestionTestHarness(unittest.TestCase):
         self.assertIn("the consumer to whom such goods are sold", clause_35_1_a.quote)
 
     def test_amendment_linkage(self):
-        """5. Tracks AMENDED_BY relationship with verified evidence and citation."""
+        """5. Tracks AMENDED_BY relationship with pending evidence and citation."""
         self.graph.add_node("cpa_2019", "Consumer Protection Act, 2019", AuthorityType.ACT, "https://indiacode.gov.in/handle/123456789/15256")
         self.graph.add_node("cpa_amend_2024", "Consumer Protection (Amendment) Act, 2024", AuthorityType.AMENDMENT_ACT, "https://indiacode.gov.in/handle/123456789/99999")
 
@@ -174,7 +174,7 @@ class IngestionTestHarness(unittest.TestCase):
             relationship=RelationshipType.AMENDED_BY,
             evidence_url="https://egazette.gov.in/amend2024.pdf",
             evidence_text="In section 35 of the Consumer Protection Act, 2019, in sub-section (1), clause (a) shall be substituted.",
-            verified=True,
+            verified=False,
         )
         amendments = self.graph.get_amendments("cpa_2019")
         self.assertEqual(len(amendments), 1)
@@ -194,7 +194,7 @@ class IngestionTestHarness(unittest.TestCase):
             evidence_url="https://egazette.gov.in/so2351.pdf",
             evidence_text="S.O. 2351(E) bringing Act into force w.e.f. 20-07-2020.",
             commencement_date="2020-07-20",
-            verified=True,
+            verified=False,
         )
 
         # Pre-commencement date must fail
@@ -250,6 +250,7 @@ class IngestionTestHarness(unittest.TestCase):
                     text_hash="b" * 64,
                     language=lang,
                     jurisdiction="IN",
+                    **FLAGS,
                 )
                 self.assertEqual(extracted.language, lang)
                 self.assertEqual(extracted.title, title)
@@ -259,15 +260,7 @@ class IngestionTestHarness(unittest.TestCase):
         doc = self.adapter.fetch_document("digital_commerce_2026", "https://indiacode.gov.in/handle/123456789/9999", SYNTHETIC_DUAL_DOMAIN_TEXT)
         extracted = self.adapter.extract_text(doc, SYNTHETIC_DUAL_DOMAIN_TEXT)
 
-        provisions = self.sectionizer.extract_provisions(
-            document_id=extracted.document_id,
-            title=extracted.title,
-            text=extracted.text_content,
-            official_url=extracted.official_url,
-            source_owner=self.meta_indiacode.owner,
-            raw_document_hash=extracted.raw_hash,
-            domain="CONSUMER",
-        )
+        provisions = self.adapter.enumerate_sections(extracted, domain="CONSUMER")
         # Provisions can be cross-indexed to both CONSUMER and CYBER without re-scraping
         sec2 = next(p for p in provisions if p.section == "2" and p.subsection is None)
         cyber_sec2 = copy.deepcopy(sec2)

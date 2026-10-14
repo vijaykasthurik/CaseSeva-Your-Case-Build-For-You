@@ -87,12 +87,9 @@ class VersionGraph:
             return False, "ENACTMENT_NOT_FOUND"
 
         effective_from = node.get("effective_from")
-        commencements = self.get_commencements(document_id)
-        if not effective_from and commencements:
-            verified_dates = [c.commencement_date for c in commencements if c.commencement_date]
-            if verified_dates:
-                effective_from = min(verified_dates)
-
+        # No authenticated relationship review contract exists in prework. Even an
+        # unchecked model_copy/model_construct flag cannot confer temporal trust.
+        # Explicit node intervals remain a simulation input, not reviewed law.
         if not effective_from:
             return False, "COMMENCEMENT_DATE_UNRESOLVED"
 
@@ -100,10 +97,6 @@ class VersionGraph:
             return False, f"PRE_COMMENCEMENT (commenced {effective_from}, event {event_date})"
 
         effective_until = node.get("effective_until")
-        for e in self.edges:
-            if e.target_id == document_id and e.repeal_date:
-                effective_until = min(effective_until, e.repeal_date) if effective_until else e.repeal_date
-
         if effective_until and event_date >= effective_until:
             return False, f"REPEALED (repealed {effective_until}, event {event_date})"
 

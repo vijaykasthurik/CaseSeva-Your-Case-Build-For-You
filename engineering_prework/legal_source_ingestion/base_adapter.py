@@ -64,17 +64,5 @@ class BaseSourceAdapter(ABC):
         raise NotImplementedError
 
     def build_provenance(self, raw_doc: RawDocumentRecord, extracted: ExtractedDocument) -> dict[str, Any]:
-        """Constructs an immutable provenance receipt for ingestion audit."""
-        return {
-            "source_id": self.source_id,
-            "document_id": raw_doc.document_id,
-            "official_domain": self.metadata.official_domain,
-            "official_url": raw_doc.official_url,
-            "final_url": raw_doc.final_url,
-            "raw_content_hash": raw_doc.raw_content_hash,
-            "extracted_text_hash": extracted.text_hash,
-            "retrieved_at": raw_doc.retrieved_at,
-            "file_size_bytes": raw_doc.file_size_bytes,
-            "acquisition_method": self.metadata.recommended_acquisition_method.value,
-            "verification_status": "DISCOVERED_PENDING_INDEPENDENT_REVIEW",
-        }
+        """No receipt without a validated acquisition implementation and source bytes."""
+        raise NotImplementedError("NOT_FETCHED: validated byte-bound retrieval required")
