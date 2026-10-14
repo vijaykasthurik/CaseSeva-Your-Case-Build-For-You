@@ -420,7 +420,7 @@ class CorpusPopulationTests(unittest.TestCase):
         self.assertEqual(receipts[0]["reviewer_id"], "admin_reviewer_1")
 
     # ---------------------------------------------------------
-    # 6. Review Queue Summary Excludes Test Fixtures
+    # 6. Review Queue Summary Excludes Test Fixtures & Non-Pure Entries
     # ---------------------------------------------------------
     def test_review_queue_report_excludes_test_fixtures(self):
         # Genuine candidate
@@ -455,6 +455,41 @@ class CorpusPopulationTests(unittest.TestCase):
                 "raw_hash": "b" * 64,
                 "official_url": "https://fixtures.invalid/act",
             },
+        })
+
+        # Candidate with missing GridFS lineage
+        self.db["legal_authority_versions"].insert_one({
+            "_id": "ver_no_gridfs_001",
+            "id": "ver_no_gridfs_001",
+            "source": {
+                "source_id": "unpersisted_act_s1",
+                "title": "Unpersisted Act",
+                "section": "1",
+                "domain": "CYBER",
+                "review_state": "REVIEW_PENDING",
+                "temporal_reviewed": False,
+                "raw_hash": "c" * 64,
+                "official_url": "https://indiacode.gov.in/unpersisted",
+            },
+            "gridfs_file_id": None,
+        })
+
+        # Candidate with test owner
+        self.db["legal_authority_versions"].insert_one({
+            "_id": "ver_testowner_001",
+            "id": "ver_testowner_001",
+            "source": {
+                "source_id": "testowner_act_s1",
+                "title": "Test Owner Act",
+                "section": "1",
+                "domain": "CYBER",
+                "source_owner": "TEST FIXTURE OWNER",
+                "review_state": "REVIEW_PENDING",
+                "temporal_reviewed": False,
+                "raw_hash": "d" * 64,
+                "official_url": "https://indiacode.gov.in/act",
+            },
+            "gridfs_file_id": "grid_002",
         })
 
         report = generate_review_queue_report(self.db)

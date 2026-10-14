@@ -276,38 +276,62 @@ def generate_review_queue_report(
 
     for v in versions:
         src = v.get("source", {})
-        # Filter strictly to genuine official candidates in REVIEW_PENDING
-        if src.get("review_state") == "REVIEW_PENDING":
-            sid = src.get("source_id", "")
-            # Ensure not a synthetic fixture
-            if "fixture" in sid.lower() or "synthetic" in sid.lower():
+        if src.get("review_state") != "REVIEW_PENDING":
+            continue
+
+        sid = src.get("source_id", "")
+        url = src.get("official_url", "")
+        owner = src.get("source_owner", "")
+        reg_id = src.get("registry_id", "")
+        gridfs_id = v.get("gridfs_file_id") or src.get("gridfs_file_id")
+
+        # 1. Purity: Reject fixture identity or synthetic provenance
+        if "fixture" in sid.lower() or "synthetic" in sid.lower():
+            continue
+        # 2. Purity: Reject fixture URLs
+        if "fixtures.invalid" in url.lower():
+            continue
+        # 3. Purity: Reject test owners and test registries
+        if "test fixture" in owner.lower() or "test" in reg_id.lower():
+            continue
+        # 4. Purity: Reject missing genuine GridFS lineage
+        if not gridfs_id:
+            continue
+
+        vid = v.get("id") or str(v.get("_id"))
+        packet_ref = None
+        if review_packet_dir:
+            pkt_file = review_packet_dir / f"{sid}.json"
+            if pkt_file.exists():
+                try:
+                    pkt_data = json.loads(pkt_file.read_text(encoding="utf-8"))
+                    if pkt_data.get("version_id") != vid:
+                        # Version superseded or unpacketed preliminary entry
+                        continue
+                except Exception:
+                    continue
+                packet_ref = str(pkt_file).replace("\\", "/")
+            else:
                 continue
+        if not packet_ref:
+            packet_ref = f"docs/audits/review_packets/{sid}.json"
 
-            vid = v.get("id") or str(v.get("_id"))
-            packet_ref = None
-            if review_packet_dir:
-                pkt_file = review_packet_dir / f"{sid}.json"
-                if pkt_file.exists():
-                    packet_ref = str(pkt_file).replace("\\", "/")
-            if not packet_ref:
-                packet_ref = f"docs/audits/review_packets/{sid}.json"
-
-            item = {
-                "source_id": sid,
-                "version_id": vid,
-                "document": src.get("title"),
-                "section_provision": src.get("section"),
-                "domain": src.get("domain"),
-                "review_state": src.get("review_state"),
-                "temporal_reviewed": src.get("temporal_reviewed", False),
-                "raw_hash": src.get("raw_hash"),
-                "review_packet_reference": packet_ref,
-                "gridfs_file_id": v.get("gridfs_file_id"),
-                "gridfs_key": v.get("gridfs_key"),
-                "retrieved_at": src.get("retrieved_at"),
-                "official_url": src.get("official_url"),
-            }
-            queue_items.append(item)
+        item = {
+            "source_id": sid,
+            "version_id": vid,
+            "document": src.get("title"),
+            "section_provision": src.get("section"),
+            "domain": src.get("domain"),
+            "review_state": src.get("review_state"),
+            "temporal_reviewed": src.get("temporal_reviewed", False),
+            "raw_hash": src.get("raw_hash"),
+            "review_packet_reference": packet_ref,
+            "gridfs_file_id": gridfs_id,
+            "gridfs_key": v.get("gridfs_key") or src.get("gridfs_key"),
+            "retrieved_at": src.get("retrieved_at"),
+            "official_url": src.get("official_url"),
+        }
+        queue_items.append(item)
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
