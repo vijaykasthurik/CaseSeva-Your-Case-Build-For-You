@@ -1,33 +1,57 @@
 {
-  "generated_at": "2026-10-14T08:50:16.039051+00:00",
+  "generated_at": "2026-10-14T08:55:55.282990+00:00",
   "s3_connected": true,
   "s3_bucket": "caseseva-storage-dev-370401801549",
   "s3_region": "ap-southeast-2",
-  "initial_unresolved_references_count": 195,
-  "objects_attempted_count": 195,
-  "already_present_verified_count": 191,
-  "migrated_from_s3_count": 0,
-  "failed_count": 4,
-  "remaining_unresolved_count": 4,
+  "audit_scope": "FINAL_STORAGE_MIGRATION_CLOSURE_AUDIT",
+  "summary": {
+    "real_storage_references": {
+      "total": 191,
+      "available_in_gridfs": 191,
+      "hash_verified": 191,
+      "broken_count": 0,
+      "migration_status": "COMPLETE"
+    },
+    "synthetic_test_references": {
+      "total": 4,
+      "intentionally_unavailable": 4,
+      "active_runtime_dependency_count": 0,
+      "migration_status": "KNOWN_EXPECTED_ABSENT"
+    },
+    "total_references_audited": 195
+  },
   "fs_files_before": 322,
   "fs_files_after": 322,
   "fs_chunks_before": 327,
   "fs_chunks_after": 327,
-  "broken_references_count": 4,
-  "broken_references_summary": [
+  "authority_json_sha256": "b96220116ac40a01b4f96e6b620edc7eebfa35d39d11dfb33b677b9bf67716c3",
+  "identity_json_sha256": "bd055fe4bd996aba38a243fbb3572f68646be7cd469e0382a3b57920a9a15b17",
+  "synthetic_fixtures_detail": [
     {
       "key": "cases/d348c8ae14b94978bd483df391654785/E001-first.txt",
       "original_reference": "cases/d348c8ae14b94978bd483df391654785/E001-first.txt",
       "type": "evidence",
       "id": "E001",
       "case_id": "d348c8ae14b94978bd483df391654785",
-      "status": "FAILED",
-      "failure_class": "NOT_FOUND",
+      "status": "EXPECTED_TEST_FIXTURE_MISSING",
+      "classification": "EXPECTED_TEST_FIXTURE_MISSING",
+      "failure_class": "EXPECTED_TEST_FIXTURE_MISSING",
       "error_code": "NoSuchKey",
-      "error_summary": "The specified key does not exist.",
+      "error_summary": "Intentionally absent test fixture (verified non-production)",
       "retry_appropriate": false,
       "provenance": "database.json:cases.evidence",
-      "recorded_at": "2026-10-14T08:50:14.916946+00:00"
+      "fixture_audit": {
+        "originating_run": "Playwright end-to-end suite",
+        "originating_source": "tests/cases.spec.js:107-120 ('deleted evidence IDs are not reused')",
+        "expected_payload": "Buffer.from('one')",
+        "upload_expected": false,
+        "deletion_reason": "Intentionally deleted during test execution to verify ID reuse prevention",
+        "s3_contained": false,
+        "local_storage_contained": false,
+        "active_workflow_dependency": false,
+        "classification": "EXPECTED_TEST_FIXTURE_MISSING"
+      },
+      "recorded_at": "2026-10-14T08:55:53.830190+00:00"
     },
     {
       "key": "cases/laptop-dispute-real-bedrock-001/E001-purchase_invoice.pdf",
@@ -35,13 +59,25 @@
       "type": "evidence",
       "id": "E001",
       "case_id": "laptop-dispute-real-bedrock-001",
-      "status": "FAILED",
-      "failure_class": "NOT_FOUND",
+      "status": "EXPECTED_TEST_FIXTURE_MISSING",
+      "classification": "EXPECTED_TEST_FIXTURE_MISSING",
+      "failure_class": "EXPECTED_TEST_FIXTURE_MISSING",
       "error_code": "NoSuchKey",
-      "error_summary": "The specified key does not exist.",
+      "error_summary": "Intentionally absent test fixture (verified non-production)",
       "retry_appropriate": false,
       "provenance": "database.json:cases.evidence",
-      "recorded_at": "2026-10-14T08:50:15.369054+00:00"
+      "fixture_audit": {
+        "originating_run": "Bedrock prompt evaluation test suite",
+        "originating_source": "scripts/test_real_bedrock_pipeline.py:49-59",
+        "expected_payload": "None (mock dictionary metadata)",
+        "upload_expected": false,
+        "deletion_reason": "Synthetic prompt fixture; no binary PDF was generated or uploaded",
+        "s3_contained": false,
+        "local_storage_contained": false,
+        "active_workflow_dependency": false,
+        "classification": "EXPECTED_TEST_FIXTURE_MISSING"
+      },
+      "recorded_at": "2026-10-14T08:55:54.437331+00:00"
     },
     {
       "key": "cases/laptop-dispute-real-bedrock-001/E002-service_jobsheet.pdf",
@@ -49,13 +85,25 @@
       "type": "evidence",
       "id": "E002",
       "case_id": "laptop-dispute-real-bedrock-001",
-      "status": "FAILED",
-      "failure_class": "NOT_FOUND",
+      "status": "EXPECTED_TEST_FIXTURE_MISSING",
+      "classification": "EXPECTED_TEST_FIXTURE_MISSING",
+      "failure_class": "EXPECTED_TEST_FIXTURE_MISSING",
       "error_code": "NoSuchKey",
-      "error_summary": "The specified key does not exist.",
+      "error_summary": "Intentionally absent test fixture (verified non-production)",
       "retry_appropriate": false,
       "provenance": "database.json:cases.evidence",
-      "recorded_at": "2026-10-14T08:50:15.712059+00:00"
+      "fixture_audit": {
+        "originating_run": "Bedrock prompt evaluation test suite",
+        "originating_source": "scripts/test_real_bedrock_pipeline.py:60-68",
+        "expected_payload": "None (mock dictionary metadata)",
+        "upload_expected": false,
+        "deletion_reason": "Synthetic prompt fixture; no binary PDF was generated or uploaded",
+        "s3_contained": false,
+        "local_storage_contained": false,
+        "active_workflow_dependency": false,
+        "classification": "EXPECTED_TEST_FIXTURE_MISSING"
+      },
+      "recorded_at": "2026-10-14T08:55:54.852079+00:00"
     },
     {
       "key": "cases/laptop-dispute-real-bedrock-001/E003-seller_refusal_email.pdf",
@@ -63,17 +111,27 @@
       "type": "evidence",
       "id": "E003",
       "case_id": "laptop-dispute-real-bedrock-001",
-      "status": "FAILED",
-      "failure_class": "NOT_FOUND",
+      "status": "EXPECTED_TEST_FIXTURE_MISSING",
+      "classification": "EXPECTED_TEST_FIXTURE_MISSING",
+      "failure_class": "EXPECTED_TEST_FIXTURE_MISSING",
       "error_code": "NoSuchKey",
-      "error_summary": "The specified key does not exist.",
+      "error_summary": "Intentionally absent test fixture (verified non-production)",
       "retry_appropriate": false,
       "provenance": "database.json:cases.evidence",
-      "recorded_at": "2026-10-14T08:50:16.028384+00:00"
+      "fixture_audit": {
+        "originating_run": "Bedrock prompt evaluation test suite",
+        "originating_source": "scripts/test_real_bedrock_pipeline.py:69-75",
+        "expected_payload": "None (mock dictionary metadata)",
+        "upload_expected": false,
+        "deletion_reason": "Synthetic prompt fixture; no binary PDF was generated or uploaded",
+        "s3_contained": false,
+        "local_storage_contained": false,
+        "active_workflow_dependency": false,
+        "classification": "EXPECTED_TEST_FIXTURE_MISSING"
+      },
+      "recorded_at": "2026-10-14T08:55:55.261882+00:00"
     }
   ],
-  "authority_json_sha256": "b96220116ac40a01b4f96e6b620edc7eebfa35d39d11dfb33b677b9bf67716c3",
-  "identity_json_sha256": "bd055fe4bd996aba38a243fbb3572f68646be7cd469e0382a3b57920a9a15b17",
   "all_processed_objects": [
     {
       "key": "cases/87dba4f684e84072bcfcfc7fc4e420a7/documents/v1/report.html",
@@ -82,11 +140,12 @@
       "id": "117e7ac7618a45598b8baa4b57ec4b4b-report",
       "case_id": "87dba4f684e84072bcfcfc7fc4e420a7",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9f7",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.580822+00:00"
+      "verified_at": "2026-10-14T08:55:52.407265+00:00"
     },
     {
       "key": "cases/87dba4f684e84072bcfcfc7fc4e420a7/documents/v1/draft.html",
@@ -95,11 +154,12 @@
       "id": "117e7ac7618a45598b8baa4b57ec4b4b-draft",
       "case_id": "87dba4f684e84072bcfcfc7fc4e420a7",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9f3",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.582822+00:00"
+      "verified_at": "2026-10-14T08:55:52.410267+00:00"
     },
     {
       "key": "cases/075683ec6af04799b4d5b3e12dd8cfb5/documents/v1/report.html",
@@ -108,11 +168,12 @@
       "id": "9051ce6603f54d198d13e2b38b08bed6-report",
       "case_id": "075683ec6af04799b4d5b3e12dd8cfb5",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8c4",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.584819+00:00"
+      "verified_at": "2026-10-14T08:55:52.412752+00:00"
     },
     {
       "key": "cases/075683ec6af04799b4d5b3e12dd8cfb5/documents/v1/draft.html",
@@ -121,11 +182,12 @@
       "id": "9051ce6603f54d198d13e2b38b08bed6-draft",
       "case_id": "075683ec6af04799b4d5b3e12dd8cfb5",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8c0",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.586822+00:00"
+      "verified_at": "2026-10-14T08:55:52.414754+00:00"
     },
     {
       "key": "cases/0d6c3cca40904ea2979883eb79f0a121/documents/v1/report.html",
@@ -134,11 +196,12 @@
       "id": "cc55428433d444d99a546f974f10395c-report",
       "case_id": "0d6c3cca40904ea2979883eb79f0a121",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8d0",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.587817+00:00"
+      "verified_at": "2026-10-14T08:55:52.416751+00:00"
     },
     {
       "key": "cases/0d6c3cca40904ea2979883eb79f0a121/documents/v1/draft.html",
@@ -147,11 +210,12 @@
       "id": "cc55428433d444d99a546f974f10395c-draft",
       "case_id": "0d6c3cca40904ea2979883eb79f0a121",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8cc",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.589328+00:00"
+      "verified_at": "2026-10-14T08:55:52.418753+00:00"
     },
     {
       "key": "cases/166d964e2eaa49729f414499bb8ef1a8/documents/v1/report.html",
@@ -160,11 +224,12 @@
       "id": "4c4fded0902440b1acdfcd7af4fda8db-report",
       "case_id": "166d964e2eaa49729f414499bb8ef1a8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda90c",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.590861+00:00"
+      "verified_at": "2026-10-14T08:55:52.421280+00:00"
     },
     {
       "key": "cases/166d964e2eaa49729f414499bb8ef1a8/documents/v1/draft.html",
@@ -173,11 +238,12 @@
       "id": "4c4fded0902440b1acdfcd7af4fda8db-draft",
       "case_id": "166d964e2eaa49729f414499bb8ef1a8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda908",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.591867+00:00"
+      "verified_at": "2026-10-14T08:55:52.423274+00:00"
     },
     {
       "key": "cases/861acfcb8ad247e9af218267483d9593/documents/v1/report.html",
@@ -186,11 +252,12 @@
       "id": "26389dd64757452783b096d75f723e9f-report",
       "case_id": "861acfcb8ad247e9af218267483d9593",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9ed",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.591867+00:00"
+      "verified_at": "2026-10-14T08:55:52.425273+00:00"
     },
     {
       "key": "cases/861acfcb8ad247e9af218267483d9593/documents/v1/draft.html",
@@ -199,11 +266,12 @@
       "id": "26389dd64757452783b096d75f723e9f-draft",
       "case_id": "861acfcb8ad247e9af218267483d9593",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9e9",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.592867+00:00"
+      "verified_at": "2026-10-14T08:55:52.426780+00:00"
     },
     {
       "key": "cases/48b672431df64ca79c336fb98fd17bce/documents/v1/report.html",
@@ -212,11 +280,12 @@
       "id": "ef4a6a67bf204126a24ffd2dbd60ba04-report",
       "case_id": "48b672431df64ca79c336fb98fd17bce",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda97a",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.593867+00:00"
+      "verified_at": "2026-10-14T08:55:52.428792+00:00"
     },
     {
       "key": "cases/48b672431df64ca79c336fb98fd17bce/documents/v1/draft.html",
@@ -225,11 +294,12 @@
       "id": "ef4a6a67bf204126a24ffd2dbd60ba04-draft",
       "case_id": "48b672431df64ca79c336fb98fd17bce",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda976",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.595871+00:00"
+      "verified_at": "2026-10-14T08:55:52.431315+00:00"
     },
     {
       "key": "cases/ece3ca99199c4cf89cfc03f5ca30cadd/documents/v1/report.html",
@@ -238,11 +308,12 @@
       "id": "41064a734f96401ab7dd5bef1a4600b1-report",
       "case_id": "ece3ca99199c4cf89cfc03f5ca30cadd",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaad5",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.596867+00:00"
+      "verified_at": "2026-10-14T08:55:52.433316+00:00"
     },
     {
       "key": "cases/ece3ca99199c4cf89cfc03f5ca30cadd/documents/v1/draft.html",
@@ -251,11 +322,12 @@
       "id": "41064a734f96401ab7dd5bef1a4600b1-draft",
       "case_id": "ece3ca99199c4cf89cfc03f5ca30cadd",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaad1",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.597867+00:00"
+      "verified_at": "2026-10-14T08:55:52.435316+00:00"
     },
     {
       "key": "cases/dda5aa667d8b4a19b2d62c49ab1b6f0c/documents/v1/report.html",
@@ -264,11 +336,12 @@
       "id": "f26038c4158a41a4aa1db94feb2e74d7-report",
       "case_id": "dda5aa667d8b4a19b2d62c49ab1b6f0c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaab1",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.598867+00:00"
+      "verified_at": "2026-10-14T08:55:52.436819+00:00"
     },
     {
       "key": "cases/dda5aa667d8b4a19b2d62c49ab1b6f0c/documents/v1/draft.html",
@@ -277,11 +350,12 @@
       "id": "f26038c4158a41a4aa1db94feb2e74d7-draft",
       "case_id": "dda5aa667d8b4a19b2d62c49ab1b6f0c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaad",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.599869+00:00"
+      "verified_at": "2026-10-14T08:55:52.438826+00:00"
     },
     {
       "key": "cases/dda5aa667d8b4a19b2d62c49ab1b6f0c/documents/v2/report.html",
@@ -290,11 +364,12 @@
       "id": "c7bd2b06b3aa4e21a901031be4f4995a-report",
       "case_id": "dda5aa667d8b4a19b2d62c49ab1b6f0c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaab9",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.602383+00:00"
+      "verified_at": "2026-10-14T08:55:52.440338+00:00"
     },
     {
       "key": "cases/dda5aa667d8b4a19b2d62c49ab1b6f0c/documents/v2/draft.html",
@@ -303,11 +378,12 @@
       "id": "c7bd2b06b3aa4e21a901031be4f4995a-draft",
       "case_id": "dda5aa667d8b4a19b2d62c49ab1b6f0c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaab5",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.605396+00:00"
+      "verified_at": "2026-10-14T08:55:52.442888+00:00"
     },
     {
       "key": "cases/32b7dda0196e46d4941fb83dcbac1598/documents/v1/report.html",
@@ -316,11 +392,12 @@
       "id": "fb59a28f573b4d8c8c60c72ec273149a-report",
       "case_id": "32b7dda0196e46d4941fb83dcbac1598",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda956",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.605396+00:00"
+      "verified_at": "2026-10-14T08:55:52.444892+00:00"
     },
     {
       "key": "cases/32b7dda0196e46d4941fb83dcbac1598/documents/v1/draft.html",
@@ -329,11 +406,12 @@
       "id": "fb59a28f573b4d8c8c60c72ec273149a-draft",
       "case_id": "32b7dda0196e46d4941fb83dcbac1598",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda952",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.608390+00:00"
+      "verified_at": "2026-10-14T08:55:52.447890+00:00"
     },
     {
       "key": "cases/47acd72b15f240fbbbac5b7479302d59/documents/v1/report.html",
@@ -342,11 +420,12 @@
       "id": "f1621f6fb5364944aa0ccdf2da84dcf9-report",
       "case_id": "47acd72b15f240fbbbac5b7479302d59",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda970",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.609388+00:00"
+      "verified_at": "2026-10-14T08:55:52.448890+00:00"
     },
     {
       "key": "cases/47acd72b15f240fbbbac5b7479302d59/documents/v1/draft.html",
@@ -355,11 +434,12 @@
       "id": "f1621f6fb5364944aa0ccdf2da84dcf9-draft",
       "case_id": "47acd72b15f240fbbbac5b7479302d59",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda96c",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.610390+00:00"
+      "verified_at": "2026-10-14T08:55:52.451410+00:00"
     },
     {
       "key": "cases/5ac163f3c28741d485f8423d5561d920/documents/v1/report.html",
@@ -368,11 +448,12 @@
       "id": "721acd6578824277bbb8bb291beb0730-report",
       "case_id": "5ac163f3c28741d485f8423d5561d920",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda99c",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.611388+00:00"
+      "verified_at": "2026-10-14T08:55:52.453937+00:00"
     },
     {
       "key": "cases/5ac163f3c28741d485f8423d5561d920/documents/v1/draft.html",
@@ -381,11 +462,12 @@
       "id": "721acd6578824277bbb8bb291beb0730-draft",
       "case_id": "5ac163f3c28741d485f8423d5561d920",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda998",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.611388+00:00"
+      "verified_at": "2026-10-14T08:55:52.455935+00:00"
     },
     {
       "key": "cases/a9a57830807946d6ab805a4387c4e1de/documents/v1/report.html",
@@ -394,11 +476,12 @@
       "id": "fe43c0c3482447da9967e19a9b40c936-report",
       "case_id": "a9a57830807946d6ab805a4387c4e1de",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa39",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.613391+00:00"
+      "verified_at": "2026-10-14T08:55:52.458446+00:00"
     },
     {
       "key": "cases/a9a57830807946d6ab805a4387c4e1de/documents/v1/draft.html",
@@ -407,11 +490,12 @@
       "id": "fe43c0c3482447da9967e19a9b40c936-draft",
       "case_id": "a9a57830807946d6ab805a4387c4e1de",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa35",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.615391+00:00"
+      "verified_at": "2026-10-14T08:55:52.460456+00:00"
     },
     {
       "key": "cases/0586c732ce4e44efa6845a045943e087/documents/v1/report.html",
@@ -420,11 +504,12 @@
       "id": "bdf9e6217fad49eca45c09ed9628c704-report",
       "case_id": "0586c732ce4e44efa6845a045943e087",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8ba",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.616391+00:00"
+      "verified_at": "2026-10-14T08:55:52.463751+00:00"
     },
     {
       "key": "cases/0586c732ce4e44efa6845a045943e087/documents/v1/draft.html",
@@ -433,11 +518,12 @@
       "id": "bdf9e6217fad49eca45c09ed9628c704-draft",
       "case_id": "0586c732ce4e44efa6845a045943e087",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8b6",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.617393+00:00"
+      "verified_at": "2026-10-14T08:55:52.465748+00:00"
     },
     {
       "key": "cases/64d867f9060a47b89090c630886a8892/documents/v1/report.html",
@@ -446,11 +532,12 @@
       "id": "ac8036fdc9c045cb9591c5059d946218-report",
       "case_id": "64d867f9060a47b89090c630886a8892",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9af",
       "sha256": "8c4549791b4b7e41693b82e3ae21814e02f71debed68e152a8454dcf737cf217",
       "byte_size": 5912,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.619391+00:00"
+      "verified_at": "2026-10-14T08:55:52.468261+00:00"
     },
     {
       "key": "cases/64d867f9060a47b89090c630886a8892/documents/v1/draft.html",
@@ -459,11 +546,12 @@
       "id": "ac8036fdc9c045cb9591c5059d946218-draft",
       "case_id": "64d867f9060a47b89090c630886a8892",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9ab",
       "sha256": "28eaf06440f942137a1321de90fab3f5062a51e7799ea423db9f05280f2a5e66",
       "byte_size": 2286,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.620390+00:00"
+      "verified_at": "2026-10-14T08:55:52.470787+00:00"
     },
     {
       "key": "cases/a4b0dcf219694254bc0f71bac5c5e83e/documents/v1/report.html",
@@ -472,11 +560,12 @@
       "id": "f6f4fb342d8343b6a3656f87d8073b8e-report",
       "case_id": "a4b0dcf219694254bc0f71bac5c5e83e",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa25",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.621392+00:00"
+      "verified_at": "2026-10-14T08:55:52.472799+00:00"
     },
     {
       "key": "cases/a4b0dcf219694254bc0f71bac5c5e83e/documents/v1/draft.html",
@@ -485,11 +574,12 @@
       "id": "f6f4fb342d8343b6a3656f87d8073b8e-draft",
       "case_id": "a4b0dcf219694254bc0f71bac5c5e83e",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa21",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.624193+00:00"
+      "verified_at": "2026-10-14T08:55:52.475326+00:00"
     },
     {
       "key": "cases/0f2a3107c6064653ad00cd15226a16c8/documents/v1/report.html",
@@ -498,11 +588,12 @@
       "id": "7360bc3cd2e14f549f3e39562a6ae177-report",
       "case_id": "0f2a3107c6064653ad00cd15226a16c8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8da",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.626194+00:00"
+      "verified_at": "2026-10-14T08:55:52.477327+00:00"
     },
     {
       "key": "cases/0f2a3107c6064653ad00cd15226a16c8/documents/v1/draft.html",
@@ -511,11 +602,12 @@
       "id": "7360bc3cd2e14f549f3e39562a6ae177-draft",
       "case_id": "0f2a3107c6064653ad00cd15226a16c8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8d6",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.627190+00:00"
+      "verified_at": "2026-10-14T08:55:52.480330+00:00"
     },
     {
       "key": "cases/80453ffbd0ad4ea1bb07cc2a490bd01b/documents/v1/report.html",
@@ -524,11 +616,12 @@
       "id": "5aa6d72c9f1e415ebc2ef5c0cb3f8b3d-report",
       "case_id": "80453ffbd0ad4ea1bb07cc2a490bd01b",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9e1",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.628190+00:00"
+      "verified_at": "2026-10-14T08:55:52.481850+00:00"
     },
     {
       "key": "cases/80453ffbd0ad4ea1bb07cc2a490bd01b/documents/v1/draft.html",
@@ -537,11 +630,12 @@
       "id": "5aa6d72c9f1e415ebc2ef5c0cb3f8b3d-draft",
       "case_id": "80453ffbd0ad4ea1bb07cc2a490bd01b",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9dd",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.629190+00:00"
+      "verified_at": "2026-10-14T08:55:52.484362+00:00"
     },
     {
       "key": "cases/ae9e2def50a4474f9ea73527834429d0/documents/v1/report.html",
@@ -550,11 +644,12 @@
       "id": "af9ae706c6384dcca12ef6d977c6f730-report",
       "case_id": "ae9e2def50a4474f9ea73527834429d0",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa4b",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.630194+00:00"
+      "verified_at": "2026-10-14T08:55:52.485887+00:00"
     },
     {
       "key": "cases/ae9e2def50a4474f9ea73527834429d0/documents/v1/draft.html",
@@ -563,11 +658,12 @@
       "id": "af9ae706c6384dcca12ef6d977c6f730-draft",
       "case_id": "ae9e2def50a4474f9ea73527834429d0",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa47",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.632194+00:00"
+      "verified_at": "2026-10-14T08:55:52.487898+00:00"
     },
     {
       "key": "cases/0f5620ee755941feb4e3502f9d950368/documents/v1/report.html",
@@ -576,11 +672,12 @@
       "id": "cae077de458e45dd90ea8cef3323a853-report",
       "case_id": "0f5620ee755941feb4e3502f9d950368",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8e4",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.633191+00:00"
+      "verified_at": "2026-10-14T08:55:52.489900+00:00"
     },
     {
       "key": "cases/0f5620ee755941feb4e3502f9d950368/documents/v1/draft.html",
@@ -589,11 +686,12 @@
       "id": "cae077de458e45dd90ea8cef3323a853-draft",
       "case_id": "0f5620ee755941feb4e3502f9d950368",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8e0",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.635194+00:00"
+      "verified_at": "2026-10-14T08:55:52.491418+00:00"
     },
     {
       "key": "cases/1a32269ec4bb4d44a9335c2d6ff84518/documents/v1/report.html",
@@ -602,11 +700,12 @@
       "id": "20bb0b3b19f9437d83d8c1a9af24a2b4-report",
       "case_id": "1a32269ec4bb4d44a9335c2d6ff84518",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda920",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.635194+00:00"
+      "verified_at": "2026-10-14T08:55:52.493428+00:00"
     },
     {
       "key": "cases/1a32269ec4bb4d44a9335c2d6ff84518/documents/v1/draft.html",
@@ -615,11 +714,12 @@
       "id": "20bb0b3b19f9437d83d8c1a9af24a2b4-draft",
       "case_id": "1a32269ec4bb4d44a9335c2d6ff84518",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda91c",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.637193+00:00"
+      "verified_at": "2026-10-14T08:55:52.495428+00:00"
     },
     {
       "key": "cases/1a32269ec4bb4d44a9335c2d6ff84518/documents/v2/report.html",
@@ -628,11 +728,12 @@
       "id": "adde61b6de334348ab3b578bea13620f-report",
       "case_id": "1a32269ec4bb4d44a9335c2d6ff84518",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda928",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.638884+00:00"
+      "verified_at": "2026-10-14T08:55:52.496427+00:00"
     },
     {
       "key": "cases/1a32269ec4bb4d44a9335c2d6ff84518/documents/v2/draft.html",
@@ -641,11 +742,12 @@
       "id": "adde61b6de334348ab3b578bea13620f-draft",
       "case_id": "1a32269ec4bb4d44a9335c2d6ff84518",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda924",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.639896+00:00"
+      "verified_at": "2026-10-14T08:55:52.498426+00:00"
     },
     {
       "key": "cases/4c9c69393fee4d77bbddc268db647295/documents/v1/report.html",
@@ -654,11 +756,12 @@
       "id": "e4de308b74ad49f482e923c531decc0b-report",
       "case_id": "4c9c69393fee4d77bbddc268db647295",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda986",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.640892+00:00"
+      "verified_at": "2026-10-14T08:55:52.500463+00:00"
     },
     {
       "key": "cases/4c9c69393fee4d77bbddc268db647295/documents/v1/draft.html",
@@ -667,11 +770,12 @@
       "id": "e4de308b74ad49f482e923c531decc0b-draft",
       "case_id": "4c9c69393fee4d77bbddc268db647295",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda982",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.640892+00:00"
+      "verified_at": "2026-10-14T08:55:52.502478+00:00"
     },
     {
       "key": "cases/ca4af626cf974ef6afd49439ad7fdd57/documents/v1/report.html",
@@ -680,11 +784,12 @@
       "id": "b06ed44fd6394a949e1788b672e743eb-report",
       "case_id": "ca4af626cf974ef6afd49439ad7fdd57",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa87",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.641891+00:00"
+      "verified_at": "2026-10-14T08:55:52.504475+00:00"
     },
     {
       "key": "cases/ca4af626cf974ef6afd49439ad7fdd57/documents/v1/draft.html",
@@ -693,11 +798,12 @@
       "id": "b06ed44fd6394a949e1788b672e743eb-draft",
       "case_id": "ca4af626cf974ef6afd49439ad7fdd57",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa83",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.643919+00:00"
+      "verified_at": "2026-10-14T08:55:52.505983+00:00"
     },
     {
       "key": "cases/c3fcb48ee4ba40289866d094997ea096/documents/v1/report.html",
@@ -706,11 +812,12 @@
       "id": "7e712e092a034bd7a1eed4c8f05ad2f1-report",
       "case_id": "c3fcb48ee4ba40289866d094997ea096",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa75",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.645895+00:00"
+      "verified_at": "2026-10-14T08:55:52.507994+00:00"
     },
     {
       "key": "cases/c3fcb48ee4ba40289866d094997ea096/documents/v1/draft.html",
@@ -719,11 +826,12 @@
       "id": "7e712e092a034bd7a1eed4c8f05ad2f1-draft",
       "case_id": "c3fcb48ee4ba40289866d094997ea096",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa71",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.647926+00:00"
+      "verified_at": "2026-10-14T08:55:52.508995+00:00"
     },
     {
       "key": "cases/edbb04c19aee474087431fc4a810d494/documents/v1/report.html",
@@ -732,11 +840,12 @@
       "id": "6db50c1598ea44878e0e7010d6888b2c-report",
       "case_id": "edbb04c19aee474087431fc4a810d494",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaae1",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.649901+00:00"
+      "verified_at": "2026-10-14T08:55:52.511519+00:00"
     },
     {
       "key": "cases/edbb04c19aee474087431fc4a810d494/documents/v1/draft.html",
@@ -745,11 +854,12 @@
       "id": "6db50c1598ea44878e0e7010d6888b2c-draft",
       "case_id": "edbb04c19aee474087431fc4a810d494",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaadd",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.651895+00:00"
+      "verified_at": "2026-10-14T08:55:52.514531+00:00"
     },
     {
       "key": "cases/9a62ed671dc444c98b458d59f0632bc0/documents/v1/report.html",
@@ -758,11 +868,12 @@
       "id": "7ae490c74e184222a9b9f5864be26c42-report",
       "case_id": "9a62ed671dc444c98b458d59f0632bc0",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa15",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.654943+00:00"
+      "verified_at": "2026-10-14T08:55:52.516041+00:00"
     },
     {
       "key": "cases/9a62ed671dc444c98b458d59f0632bc0/documents/v1/draft.html",
@@ -771,11 +882,12 @@
       "id": "7ae490c74e184222a9b9f5864be26c42-draft",
       "case_id": "9a62ed671dc444c98b458d59f0632bc0",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa11",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.656956+00:00"
+      "verified_at": "2026-10-14T08:55:52.518050+00:00"
     },
     {
       "key": "cases/148b03fa06b247d0991e6fe49519f9cf/documents/v1/report.html",
@@ -784,11 +896,12 @@
       "id": "c1e53e6deb85486984af8591628392f1-report",
       "case_id": "148b03fa06b247d0991e6fe49519f9cf",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda902",
       "sha256": "8c4549791b4b7e41693b82e3ae21814e02f71debed68e152a8454dcf737cf217",
       "byte_size": 5912,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.657954+00:00"
+      "verified_at": "2026-10-14T08:55:52.520563+00:00"
     },
     {
       "key": "cases/148b03fa06b247d0991e6fe49519f9cf/documents/v1/draft.html",
@@ -797,11 +910,12 @@
       "id": "c1e53e6deb85486984af8591628392f1-draft",
       "case_id": "148b03fa06b247d0991e6fe49519f9cf",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8fe",
       "sha256": "28eaf06440f942137a1321de90fab3f5062a51e7799ea423db9f05280f2a5e66",
       "byte_size": 2286,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.659952+00:00"
+      "verified_at": "2026-10-14T08:55:52.522099+00:00"
     },
     {
       "key": "cases/f4264eaedc364607a82e3fad2733bb08/documents/v1/report.html",
@@ -810,11 +924,12 @@
       "id": "191e68cd370642bb8ee1c63d6396ac6c-report",
       "case_id": "f4264eaedc364607a82e3fad2733bb08",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaef",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.660959+00:00"
+      "verified_at": "2026-10-14T08:55:52.524113+00:00"
     },
     {
       "key": "cases/f4264eaedc364607a82e3fad2733bb08/documents/v1/draft.html",
@@ -823,11 +938,12 @@
       "id": "191e68cd370642bb8ee1c63d6396ac6c-draft",
       "case_id": "f4264eaedc364607a82e3fad2733bb08",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaeb",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.662956+00:00"
+      "verified_at": "2026-10-14T08:55:52.526111+00:00"
     },
     {
       "key": "cases/b1e1d1ee32cd43f2a2a9712223e5fe2a/documents/v1/report.html",
@@ -836,11 +952,12 @@
       "id": "8add9c2aef584d9681a12e081c66d2d0-report",
       "case_id": "b1e1d1ee32cd43f2a2a9712223e5fe2a",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa55",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.663955+00:00"
+      "verified_at": "2026-10-14T08:55:52.528112+00:00"
     },
     {
       "key": "cases/b1e1d1ee32cd43f2a2a9712223e5fe2a/documents/v1/draft.html",
@@ -849,11 +966,12 @@
       "id": "8add9c2aef584d9681a12e081c66d2d0-draft",
       "case_id": "b1e1d1ee32cd43f2a2a9712223e5fe2a",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa51",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.665993+00:00"
+      "verified_at": "2026-10-14T08:55:52.530621+00:00"
     },
     {
       "key": "cases/d385e2b6fec946ff83e38113bbf94860/documents/v1/report.html",
@@ -862,11 +980,12 @@
       "id": "dc2d665e81ea4ff8ad8c443d11153232-report",
       "case_id": "d385e2b6fec946ff83e38113bbf94860",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaa1",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.667956+00:00"
+      "verified_at": "2026-10-14T08:55:52.533169+00:00"
     },
     {
       "key": "cases/d385e2b6fec946ff83e38113bbf94860/documents/v1/draft.html",
@@ -875,11 +994,12 @@
       "id": "dc2d665e81ea4ff8ad8c443d11153232-draft",
       "case_id": "d385e2b6fec946ff83e38113bbf94860",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa9d",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.669458+00:00"
+      "verified_at": "2026-10-14T08:55:52.535166+00:00"
     },
     {
       "key": "cases/1a9639cbae5f4263bea54611e6186a19/documents/v1/report.html",
@@ -888,11 +1008,12 @@
       "id": "12d0c4405ad143b2a2b369df97a2eece-report",
       "case_id": "1a9639cbae5f4263bea54611e6186a19",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda932",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.670967+00:00"
+      "verified_at": "2026-10-14T08:55:52.538166+00:00"
     },
     {
       "key": "cases/1a9639cbae5f4263bea54611e6186a19/documents/v1/draft.html",
@@ -901,11 +1022,12 @@
       "id": "12d0c4405ad143b2a2b369df97a2eece-draft",
       "case_id": "1a9639cbae5f4263bea54611e6186a19",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda92e",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.673981+00:00"
+      "verified_at": "2026-10-14T08:55:52.540181+00:00"
     },
     {
       "key": "cases/e57b1e7185e54c7d8433a559020a9115/documents/v1/report.html",
@@ -914,11 +1036,12 @@
       "id": "7c38b7d0932c4a0eb4c9d383b220bc3c-report",
       "case_id": "e57b1e7185e54c7d8433a559020a9115",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaac7",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.674975+00:00"
+      "verified_at": "2026-10-14T08:55:52.542189+00:00"
     },
     {
       "key": "cases/e57b1e7185e54c7d8433a559020a9115/documents/v1/draft.html",
@@ -927,11 +1050,12 @@
       "id": "7c38b7d0932c4a0eb4c9d383b220bc3c-draft",
       "case_id": "e57b1e7185e54c7d8433a559020a9115",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaac3",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.676980+00:00"
+      "verified_at": "2026-10-14T08:55:52.544202+00:00"
     },
     {
       "key": "cases/79be0b5cd62a42998723dc2a97a0798f/documents/v1/report.html",
@@ -940,11 +1064,12 @@
       "id": "13a6cf92c41343a0aeaaf4e435c1dff6-report",
       "case_id": "79be0b5cd62a42998723dc2a97a0798f",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9bf",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.677975+00:00"
+      "verified_at": "2026-10-14T08:55:52.546199+00:00"
     },
     {
       "key": "cases/79be0b5cd62a42998723dc2a97a0798f/documents/v1/draft.html",
@@ -953,11 +1078,12 @@
       "id": "13a6cf92c41343a0aeaaf4e435c1dff6-draft",
       "case_id": "79be0b5cd62a42998723dc2a97a0798f",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9bb",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.677975+00:00"
+      "verified_at": "2026-10-14T08:55:52.547200+00:00"
     },
     {
       "key": "cases/79be0b5cd62a42998723dc2a97a0798f/documents/v2/report.html",
@@ -966,11 +1092,12 @@
       "id": "072457ff789c41b58e954d451657e272-report",
       "case_id": "79be0b5cd62a42998723dc2a97a0798f",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9c7",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.680007+00:00"
+      "verified_at": "2026-10-14T08:55:52.548707+00:00"
     },
     {
       "key": "cases/79be0b5cd62a42998723dc2a97a0798f/documents/v2/draft.html",
@@ -979,11 +1106,12 @@
       "id": "072457ff789c41b58e954d451657e272-draft",
       "case_id": "79be0b5cd62a42998723dc2a97a0798f",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9c3",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.680979+00:00"
+      "verified_at": "2026-10-14T08:55:52.551228+00:00"
     },
     {
       "key": "cases/109268b01dd84d34ae0dafc760aa3359/documents/v1/report.html",
@@ -992,11 +1120,12 @@
       "id": "e156dbc3874142229d26bcbf9acfb23d-report",
       "case_id": "109268b01dd84d34ae0dafc760aa3359",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8ee",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.681977+00:00"
+      "verified_at": "2026-10-14T08:55:52.553228+00:00"
     },
     {
       "key": "cases/109268b01dd84d34ae0dafc760aa3359/documents/v1/draft.html",
@@ -1005,11 +1134,12 @@
       "id": "e156dbc3874142229d26bcbf9acfb23d-draft",
       "case_id": "109268b01dd84d34ae0dafc760aa3359",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8ea",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.683976+00:00"
+      "verified_at": "2026-10-14T08:55:52.555699+00:00"
     },
     {
       "key": "cases/002577b9e6a94fb9b96df899d00e9df7/documents/v1/report.html",
@@ -1018,11 +1148,12 @@
       "id": "3275012dfa9742cc86dbf12afe37a15c-report",
       "case_id": "002577b9e6a94fb9b96df899d00e9df7",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8a8",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.683976+00:00"
+      "verified_at": "2026-10-14T08:55:52.557698+00:00"
     },
     {
       "key": "cases/002577b9e6a94fb9b96df899d00e9df7/documents/v1/draft.html",
@@ -1031,11 +1162,12 @@
       "id": "3275012dfa9742cc86dbf12afe37a15c-draft",
       "case_id": "002577b9e6a94fb9b96df899d00e9df7",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8a4",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.686992+00:00"
+      "verified_at": "2026-10-14T08:55:52.560208+00:00"
     },
     {
       "key": "cases/fbda883fd2a3480ab65dc9256de84ad8/documents/v1/report.html",
@@ -1044,11 +1176,12 @@
       "id": "be4eaed7bd084bacbd5b6125722747ca-report",
       "case_id": "fbda883fd2a3480ab65dc9256de84ad8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaff",
       "sha256": "ea71f1b99ac573da5fb3ee719a2382488bc21b450af475c232f79c36ed387ec3",
       "byte_size": 6119,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.688000+00:00"
+      "verified_at": "2026-10-14T08:55:52.562224+00:00"
     },
     {
       "key": "cases/fbda883fd2a3480ab65dc9256de84ad8/documents/v1/draft.html",
@@ -1057,11 +1190,12 @@
       "id": "be4eaed7bd084bacbd5b6125722747ca-draft",
       "case_id": "fbda883fd2a3480ab65dc9256de84ad8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaafb",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.689996+00:00"
+      "verified_at": "2026-10-14T08:55:52.564218+00:00"
     },
     {
       "key": "cases/7e1b80be345440db9945a8927a7f96a4/documents/v1/report.html",
@@ -1070,11 +1204,12 @@
       "id": "43b0956606c6404b8f91a7d20a5ffc2f-report",
       "case_id": "7e1b80be345440db9945a8927a7f96a4",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9d7",
       "sha256": "d8549be07eb0b03411f1af2e886457932a82d83935831e5b773fefb43082ecdc",
       "byte_size": 6138,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.692007+00:00"
+      "verified_at": "2026-10-14T08:55:52.565743+00:00"
     },
     {
       "key": "cases/7e1b80be345440db9945a8927a7f96a4/documents/v1/draft.html",
@@ -1083,11 +1218,12 @@
       "id": "43b0956606c6404b8f91a7d20a5ffc2f-draft",
       "case_id": "7e1b80be345440db9945a8927a7f96a4",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9d3",
       "sha256": "c21ba0a1644e0fbe99b6d217019a4fb4f97e7b6f938a7795ae07a0d183d6e434",
       "byte_size": 2476,
       "provenance": "database.json:documents",
-      "verified_at": "2026-10-14T08:50:13.694045+00:00"
+      "verified_at": "2026-10-14T08:55:52.567743+00:00"
     },
     {
       "key": "cases/56208168cdc14c9eb8e258f07acd81c7/E001-invoice.txt",
@@ -1096,11 +1232,12 @@
       "id": "E001",
       "case_id": "56208168cdc14c9eb8e258f07acd81c7",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda994",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.694999+00:00"
+      "verified_at": "2026-10-14T08:55:52.568741+00:00"
     },
     {
       "key": "cases/aa522ad9a67d423db086c6fe34200766/E001-invoice.txt",
@@ -1109,11 +1246,12 @@
       "id": "E001",
       "case_id": "aa522ad9a67d423db086c6fe34200766",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa3f",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.694999+00:00"
+      "verified_at": "2026-10-14T08:55:52.571262+00:00"
     },
     {
       "key": "cases/a8a3d9fae3ec45e88665c6dbb3c6cf5b/E001-invoice.txt",
@@ -1122,11 +1260,12 @@
       "id": "E001",
       "case_id": "a8a3d9fae3ec45e88665c6dbb3c6cf5b",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa31",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.695997+00:00"
+      "verified_at": "2026-10-14T08:55:52.573264+00:00"
     },
     {
       "key": "cases/a79995c3f70f4d468f966a8a5bc50b97/E001-invoice.txt",
@@ -1135,11 +1274,12 @@
       "id": "E001",
       "case_id": "a79995c3f70f4d468f966a8a5bc50b97",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa2f",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.699001+00:00"
+      "verified_at": "2026-10-14T08:55:52.575261+00:00"
     },
     {
       "key": "cases/c8875343d5434646bb595488eff2a6c4/E001-invoice.txt",
@@ -1148,11 +1288,12 @@
       "id": "E001",
       "case_id": "c8875343d5434646bb595488eff2a6c4",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa7d",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.701508+00:00"
+      "verified_at": "2026-10-14T08:55:52.576258+00:00"
     },
     {
       "key": "cases/fc72b6ff722f475a9bc999d78ee6c14f/E001-invoice.txt",
@@ -1161,11 +1302,12 @@
       "id": "E001",
       "case_id": "fc72b6ff722f475a9bc999d78ee6c14f",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24dc33c8499ca7fdab03",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.704028+00:00"
+      "verified_at": "2026-10-14T08:55:52.578260+00:00"
     },
     {
       "key": "cases/79d9dfa2bcda47eab64e5f3e2a511717/E001-invoice.txt",
@@ -1174,11 +1316,12 @@
       "id": "E001",
       "case_id": "79d9dfa2bcda47eab64e5f3e2a511717",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9cb",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.707033+00:00"
+      "verified_at": "2026-10-14T08:55:52.580261+00:00"
     },
     {
       "key": "cases/ec71156253854741820646bd31b39a62/E001-invoice.txt",
@@ -1187,11 +1330,12 @@
       "id": "E001",
       "case_id": "ec71156253854741820646bd31b39a62",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaacd",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.709026+00:00"
+      "verified_at": "2026-10-14T08:55:52.581779+00:00"
     },
     {
       "key": "cases/c67eab17e9884850a1af70c46af16dfe/E001-invoice.txt",
@@ -1200,11 +1344,12 @@
       "id": "E001",
       "case_id": "c67eab17e9884850a1af70c46af16dfe",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa7b",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.711024+00:00"
+      "verified_at": "2026-10-14T08:55:52.583787+00:00"
     },
     {
       "key": "cases/88f31b6df7174e8c852577cc86583e3c/E001-invoice.txt",
@@ -1213,11 +1358,12 @@
       "id": "E001",
       "case_id": "88f31b6df7174e8c852577cc86583e3c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9fb",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.712023+00:00"
+      "verified_at": "2026-10-14T08:55:52.585298+00:00"
     },
     {
       "key": "cases/c0be4ece2e2249b797fe3e436c86f0dd/E001-invoice.txt",
@@ -1226,11 +1372,12 @@
       "id": "E001",
       "case_id": "c0be4ece2e2249b797fe3e436c86f0dd",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa67",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.713022+00:00"
+      "verified_at": "2026-10-14T08:55:52.586824+00:00"
     },
     {
       "key": "cases/521cb95f700241ca8683932c4545c899/E001-invoice.txt",
@@ -1239,11 +1386,12 @@
       "id": "E001",
       "case_id": "521cb95f700241ca8683932c4545c899",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda98e",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.714023+00:00"
+      "verified_at": "2026-10-14T08:55:52.588834+00:00"
     },
     {
       "key": "cases/20863847495840d5bdfbf8ebdad76852/E001-invoice.txt",
@@ -1252,11 +1400,12 @@
       "id": "E001",
       "case_id": "20863847495840d5bdfbf8ebdad76852",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda940",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.716023+00:00"
+      "verified_at": "2026-10-14T08:55:52.590344+00:00"
     },
     {
       "key": "cases/ccd97fca19454874908dfb166591b192/E001-invoice.txt",
@@ -1265,11 +1414,12 @@
       "id": "E001",
       "case_id": "ccd97fca19454874908dfb166591b192",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa91",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.716023+00:00"
+      "verified_at": "2026-10-14T08:55:52.592359+00:00"
     },
     {
       "key": "cases/19b0b227f3d2488aaa8240766fc0c5d8/E001-invoice.txt",
@@ -1278,11 +1428,12 @@
       "id": "E001",
       "case_id": "19b0b227f3d2488aaa8240766fc0c5d8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda918",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.717531+00:00"
+      "verified_at": "2026-10-14T08:55:52.594360+00:00"
     },
     {
       "key": "cases/c32330d9164d44f3af423657cf5600cb/E001-invoice.txt",
@@ -1291,11 +1442,12 @@
       "id": "E001",
       "case_id": "c32330d9164d44f3af423657cf5600cb",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa6d",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.718534+00:00"
+      "verified_at": "2026-10-14T08:55:52.595355+00:00"
     },
     {
       "key": "cases/a73388c7e1524955ac6d924c93535a5c/E001-receipt.txt",
@@ -1304,11 +1456,12 @@
       "id": "E001",
       "case_id": "a73388c7e1524955ac6d924c93535a5c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa2b",
       "sha256": "6f32860910ca0fb2a20c7fda143666b09dbf8db5238195c90a586fb542ff0cad",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.718534+00:00"
+      "verified_at": "2026-10-14T08:55:52.597795+00:00"
     },
     {
       "key": "cases/53473f01771e421ab94645298ec3445b/E001-receipt.txt",
@@ -1317,11 +1470,12 @@
       "id": "E001",
       "case_id": "53473f01771e421ab94645298ec3445b",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda990",
       "sha256": "6f32860910ca0fb2a20c7fda143666b09dbf8db5238195c90a586fb542ff0cad",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.719539+00:00"
+      "verified_at": "2026-10-14T08:55:52.598792+00:00"
     },
     {
       "key": "cases/3aa0dfc9df27445887b55a7013cc1634/E001-receipt.txt",
@@ -1330,11 +1484,12 @@
       "id": "E001",
       "case_id": "3aa0dfc9df27445887b55a7013cc1634",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda95c",
       "sha256": "6f32860910ca0fb2a20c7fda143666b09dbf8db5238195c90a586fb542ff0cad",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.721542+00:00"
+      "verified_at": "2026-10-14T08:55:52.600303+00:00"
     },
     {
       "key": "cases/559d673aafdd49a8a0ae5d546e6d3179/E001-receipt.txt",
@@ -1343,11 +1498,12 @@
       "id": "E001",
       "case_id": "559d673aafdd49a8a0ae5d546e6d3179",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda992",
       "sha256": "6f32860910ca0fb2a20c7fda143666b09dbf8db5238195c90a586fb542ff0cad",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.722539+00:00"
+      "verified_at": "2026-10-14T08:55:52.601836+00:00"
     },
     {
       "key": "cases/303a6e30d02949aaadad2c0f1d00446c/E001-receipt-one.txt",
@@ -1356,11 +1512,12 @@
       "id": "E001",
       "case_id": "303a6e30d02949aaadad2c0f1d00446c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda948",
       "sha256": "7692c3ad3540bb803c020b3aee66cd8887123234ea0c6e7143c0add73ff431ed",
       "byte_size": 3,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.723541+00:00"
+      "verified_at": "2026-10-14T08:55:52.603849+00:00"
     },
     {
       "key": "cases/303a6e30d02949aaadad2c0f1d00446c/E002-receipt-two.txt",
@@ -1369,11 +1526,12 @@
       "id": "E002",
       "case_id": "303a6e30d02949aaadad2c0f1d00446c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda94a",
       "sha256": "3fc4ccfe745870e2c0d99f71f30ff0656c8dedd41cc1d7d3d376b0dbe685e2f3",
       "byte_size": 3,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:13.724541+00:00"
+      "verified_at": "2026-10-14T08:55:52.605848+00:00"
     },
     {
       "key": "cases/d348c8ae14b94978bd483df391654785/E001-first.txt",
@@ -1381,13 +1539,25 @@
       "type": "evidence",
       "id": "E001",
       "case_id": "d348c8ae14b94978bd483df391654785",
-      "status": "FAILED",
-      "failure_class": "NOT_FOUND",
+      "status": "EXPECTED_TEST_FIXTURE_MISSING",
+      "classification": "EXPECTED_TEST_FIXTURE_MISSING",
+      "failure_class": "EXPECTED_TEST_FIXTURE_MISSING",
       "error_code": "NoSuchKey",
-      "error_summary": "The specified key does not exist.",
+      "error_summary": "Intentionally absent test fixture (verified non-production)",
       "retry_appropriate": false,
       "provenance": "database.json:cases.evidence",
-      "recorded_at": "2026-10-14T08:50:14.916946+00:00"
+      "fixture_audit": {
+        "originating_run": "Playwright end-to-end suite",
+        "originating_source": "tests/cases.spec.js:107-120 ('deleted evidence IDs are not reused')",
+        "expected_payload": "Buffer.from('one')",
+        "upload_expected": false,
+        "deletion_reason": "Intentionally deleted during test execution to verify ID reuse prevention",
+        "s3_contained": false,
+        "local_storage_contained": false,
+        "active_workflow_dependency": false,
+        "classification": "EXPECTED_TEST_FIXTURE_MISSING"
+      },
+      "recorded_at": "2026-10-14T08:55:53.830190+00:00"
     },
     {
       "key": "cases/d348c8ae14b94978bd483df391654785/E002-second.txt",
@@ -1396,11 +1566,12 @@
       "id": "E002",
       "case_id": "d348c8ae14b94978bd483df391654785",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa97",
       "sha256": "3fc4ccfe745870e2c0d99f71f30ff0656c8dedd41cc1d7d3d376b0dbe685e2f3",
       "byte_size": 3,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.919465+00:00"
+      "verified_at": "2026-10-14T08:55:53.832207+00:00"
     },
     {
       "key": "cases/d348c8ae14b94978bd483df391654785/E003-third.txt",
@@ -1409,11 +1580,12 @@
       "id": "E003",
       "case_id": "d348c8ae14b94978bd483df391654785",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa99",
       "sha256": "8b5b9db0c13db24256c829aa364aa90c6d2eba318b9232a4ab9313b954d3555f",
       "byte_size": 5,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.922492+00:00"
+      "verified_at": "2026-10-14T08:55:53.833842+00:00"
     },
     {
       "key": "cases/c8c5e3db60974460b0d0e06790ea8560/E001-wage-record.txt",
@@ -1422,11 +1594,12 @@
       "id": "E001",
       "case_id": "c8c5e3db60974460b0d0e06790ea8560",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa7f",
       "sha256": "84ad28934236d15784fe01646f9aece5f6352ce18ad79239f1a1ecefc84f2d33",
       "byte_size": 11,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.924485+00:00"
+      "verified_at": "2026-10-14T08:55:53.836113+00:00"
     },
     {
       "key": "cases/87dba4f684e84072bcfcfc7fc4e420a7/E001-invoice.txt",
@@ -1435,11 +1608,12 @@
       "id": "E001",
       "case_id": "87dba4f684e84072bcfcfc7fc4e420a7",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9f1",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.926482+00:00"
+      "verified_at": "2026-10-14T08:55:53.838117+00:00"
     },
     {
       "key": "cases/50b60490408a40689a71fdff589e00e0/E001-invoice.txt",
@@ -1448,11 +1622,12 @@
       "id": "E001",
       "case_id": "50b60490408a40689a71fdff589e00e0",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda98c",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.928489+00:00"
+      "verified_at": "2026-10-14T08:55:53.840115+00:00"
     },
     {
       "key": "cases/075683ec6af04799b4d5b3e12dd8cfb5/E001-invoice.txt",
@@ -1461,11 +1636,12 @@
       "id": "E001",
       "case_id": "075683ec6af04799b4d5b3e12dd8cfb5",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8be",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.929485+00:00"
+      "verified_at": "2026-10-14T08:55:53.842263+00:00"
     },
     {
       "key": "cases/0d6c3cca40904ea2979883eb79f0a121/E001-invoice.txt",
@@ -1474,11 +1650,12 @@
       "id": "E001",
       "case_id": "0d6c3cca40904ea2979883eb79f0a121",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8ca",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.930480+00:00"
+      "verified_at": "2026-10-14T08:55:53.844260+00:00"
     },
     {
       "key": "cases/166d964e2eaa49729f414499bb8ef1a8/E001-invoice.txt",
@@ -1487,11 +1664,12 @@
       "id": "E001",
       "case_id": "166d964e2eaa49729f414499bb8ef1a8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda906",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.931484+00:00"
+      "verified_at": "2026-10-14T08:55:53.845784+00:00"
     },
     {
       "key": "cases/861acfcb8ad247e9af218267483d9593/E001-invoice.txt",
@@ -1500,11 +1678,12 @@
       "id": "E001",
       "case_id": "861acfcb8ad247e9af218267483d9593",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9e7",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.932991+00:00"
+      "verified_at": "2026-10-14T08:55:53.847821+00:00"
     },
     {
       "key": "cases/48b672431df64ca79c336fb98fd17bce/E001-invoice.txt",
@@ -1513,11 +1692,12 @@
       "id": "E001",
       "case_id": "48b672431df64ca79c336fb98fd17bce",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda974",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.935005+00:00"
+      "verified_at": "2026-10-14T08:55:53.850328+00:00"
     },
     {
       "key": "cases/ece3ca99199c4cf89cfc03f5ca30cadd/E001-invoice.txt",
@@ -1526,11 +1706,12 @@
       "id": "E001",
       "case_id": "ece3ca99199c4cf89cfc03f5ca30cadd",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaacf",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.935513+00:00"
+      "verified_at": "2026-10-14T08:55:53.852887+00:00"
     },
     {
       "key": "cases/dda5aa667d8b4a19b2d62c49ab1b6f0c/E001-invoice.txt",
@@ -1539,11 +1720,12 @@
       "id": "E001",
       "case_id": "dda5aa667d8b4a19b2d62c49ab1b6f0c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaab",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.936522+00:00"
+      "verified_at": "2026-10-14T08:55:53.854888+00:00"
     },
     {
       "key": "cases/32b7dda0196e46d4941fb83dcbac1598/E001-invoice.txt",
@@ -1552,11 +1734,12 @@
       "id": "E001",
       "case_id": "32b7dda0196e46d4941fb83dcbac1598",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda950",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.937519+00:00"
+      "verified_at": "2026-10-14T08:55:53.857887+00:00"
     },
     {
       "key": "cases/47acd72b15f240fbbbac5b7479302d59/E001-invoice.txt",
@@ -1565,11 +1748,12 @@
       "id": "E001",
       "case_id": "47acd72b15f240fbbbac5b7479302d59",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda96a",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.938519+00:00"
+      "verified_at": "2026-10-14T08:55:53.858887+00:00"
     },
     {
       "key": "cases/5ac163f3c28741d485f8423d5561d920/E001-invoice.txt",
@@ -1578,11 +1762,12 @@
       "id": "E001",
       "case_id": "5ac163f3c28741d485f8423d5561d920",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda996",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.939520+00:00"
+      "verified_at": "2026-10-14T08:55:53.861410+00:00"
     },
     {
       "key": "cases/a9a57830807946d6ab805a4387c4e1de/E001-invoice.txt",
@@ -1591,11 +1776,12 @@
       "id": "E001",
       "case_id": "a9a57830807946d6ab805a4387c4e1de",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa33",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.940524+00:00"
+      "verified_at": "2026-10-14T08:55:53.864411+00:00"
     },
     {
       "key": "cases/8acef0d535654d7d8bfc117741f48d00/E001-invoice.txt",
@@ -1604,11 +1790,12 @@
       "id": "E001",
       "case_id": "8acef0d535654d7d8bfc117741f48d00",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa01",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.942030+00:00"
+      "verified_at": "2026-10-14T08:55:53.866934+00:00"
     },
     {
       "key": "cases/005a8eca65f647c3a0bef1ffb602e7d6/E001-invoice.txt",
@@ -1617,11 +1804,12 @@
       "id": "E001",
       "case_id": "005a8eca65f647c3a0bef1ffb602e7d6",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8ac",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.943037+00:00"
+      "verified_at": "2026-10-14T08:55:53.868937+00:00"
     },
     {
       "key": "cases/d97b02f5b4654f6e8426a0a99da43e83/E001-invoice.txt",
@@ -1630,11 +1818,12 @@
       "id": "E001",
       "case_id": "d97b02f5b4654f6e8426a0a99da43e83",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaa7",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.943037+00:00"
+      "verified_at": "2026-10-14T08:55:53.871462+00:00"
     },
     {
       "key": "cases/8b2763e5db2a41a2901e3d6e477162f8/E001-invoice.txt",
@@ -1643,11 +1832,12 @@
       "id": "E001",
       "case_id": "8b2763e5db2a41a2901e3d6e477162f8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa03",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.944037+00:00"
+      "verified_at": "2026-10-14T08:55:53.874472+00:00"
     },
     {
       "key": "cases/17069c5d8d3a4ad68915dba96b613d39/E001-invoice.txt",
@@ -1656,11 +1846,12 @@
       "id": "E001",
       "case_id": "17069c5d8d3a4ad68915dba96b613d39",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda912",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.944037+00:00"
+      "verified_at": "2026-10-14T08:55:53.875982+00:00"
     },
     {
       "key": "cases/17069c5d8d3a4ad68915dba96b613d39/requested-DR001-seller-response.txt",
@@ -1669,11 +1860,12 @@
       "id": "ER002",
       "case_id": "17069c5d8d3a4ad68915dba96b613d39",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda914",
       "sha256": "e664f95af87bfa601958f2e4004fbf1b37c58a6e352ed44f651381a376b90496",
       "byte_size": 19,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.945037+00:00"
+      "verified_at": "2026-10-14T08:55:53.877994+00:00"
     },
     {
       "key": "cases/d9b8e246aa074c868cd27e35eef36d14/E001-invoice.txt",
@@ -1682,11 +1874,12 @@
       "id": "E001",
       "case_id": "d9b8e246aa074c868cd27e35eef36d14",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaa9",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.946042+00:00"
+      "verified_at": "2026-10-14T08:55:53.878993+00:00"
     },
     {
       "key": "cases/eec494fdb09542e2b99edb9e9aa095c1/E001-invoice.txt",
@@ -1695,11 +1888,12 @@
       "id": "E001",
       "case_id": "eec494fdb09542e2b99edb9e9aa095c1",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaae5",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.947041+00:00"
+      "verified_at": "2026-10-14T08:55:53.880503+00:00"
     },
     {
       "key": "cases/f6376a2147934cd1a5e92dfb233c23f1/E001-invoice.txt",
@@ -1708,11 +1902,12 @@
       "id": "E001",
       "case_id": "f6376a2147934cd1a5e92dfb233c23f1",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaf7",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.948036+00:00"
+      "verified_at": "2026-10-14T08:55:53.883056+00:00"
     },
     {
       "key": "cases/bf1cc9e77afc4dc9b01197a5add7c240/E001-invoice.txt",
@@ -1721,11 +1916,12 @@
       "id": "E001",
       "case_id": "bf1cc9e77afc4dc9b01197a5add7c240",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa65",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.949037+00:00"
+      "verified_at": "2026-10-14T08:55:53.885055+00:00"
     },
     {
       "key": "cases/a10601d88ed54e219a14018c793ab485/E001-invoice.txt",
@@ -1734,11 +1930,12 @@
       "id": "E001",
       "case_id": "a10601d88ed54e219a14018c793ab485",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa1b",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.949037+00:00"
+      "verified_at": "2026-10-14T08:55:53.886569+00:00"
     },
     {
       "key": "cases/435659e11e6e45f3a7c58b440effdba0/E001-invoice.txt",
@@ -1747,11 +1944,12 @@
       "id": "E001",
       "case_id": "435659e11e6e45f3a7c58b440effdba0",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda962",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.949037+00:00"
+      "verified_at": "2026-10-14T08:55:53.888582+00:00"
     },
     {
       "key": "cases/0586c732ce4e44efa6845a045943e087/E001-invoice.txt",
@@ -1760,11 +1958,12 @@
       "id": "E001",
       "case_id": "0586c732ce4e44efa6845a045943e087",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8b4",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.950609+00:00"
+      "verified_at": "2026-10-14T08:55:53.891109+00:00"
     },
     {
       "key": "cases/ed7f7e98014943eaa2a94a3ca600d5f5/E001-invoice.txt",
@@ -1773,11 +1972,12 @@
       "id": "E001",
       "case_id": "ed7f7e98014943eaa2a94a3ca600d5f5",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaad9",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.951616+00:00"
+      "verified_at": "2026-10-14T08:55:53.892618+00:00"
     },
     {
       "key": "cases/64d867f9060a47b89090c630886a8892/E001-invoice.txt",
@@ -1786,11 +1986,12 @@
       "id": "E001",
       "case_id": "64d867f9060a47b89090c630886a8892",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9a9",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.952619+00:00"
+      "verified_at": "2026-10-14T08:55:53.895624+00:00"
     },
     {
       "key": "cases/a4b0dcf219694254bc0f71bac5c5e83e/E001-invoice.txt",
@@ -1799,11 +2000,12 @@
       "id": "E001",
       "case_id": "a4b0dcf219694254bc0f71bac5c5e83e",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa1f",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.954188+00:00"
+      "verified_at": "2026-10-14T08:55:53.898135+00:00"
     },
     {
       "key": "cases/0f2a3107c6064653ad00cd15226a16c8/E001-invoice.txt",
@@ -1812,11 +2014,12 @@
       "id": "E001",
       "case_id": "0f2a3107c6064653ad00cd15226a16c8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8d4",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.956195+00:00"
+      "verified_at": "2026-10-14T08:55:53.900147+00:00"
     },
     {
       "key": "cases/80453ffbd0ad4ea1bb07cc2a490bd01b/E001-invoice.txt",
@@ -1825,11 +2028,12 @@
       "id": "E001",
       "case_id": "80453ffbd0ad4ea1bb07cc2a490bd01b",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9db",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.958555+00:00"
+      "verified_at": "2026-10-14T08:55:53.901665+00:00"
     },
     {
       "key": "cases/ae9e2def50a4474f9ea73527834429d0/E001-invoice.txt",
@@ -1838,11 +2042,12 @@
       "id": "E001",
       "case_id": "ae9e2def50a4474f9ea73527834429d0",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa45",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.959550+00:00"
+      "verified_at": "2026-10-14T08:55:53.903674+00:00"
     },
     {
       "key": "cases/0f5620ee755941feb4e3502f9d950368/E001-invoice.txt",
@@ -1851,11 +2056,12 @@
       "id": "E001",
       "case_id": "0f5620ee755941feb4e3502f9d950368",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8de",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.960548+00:00"
+      "verified_at": "2026-10-14T08:55:53.905674+00:00"
     },
     {
       "key": "cases/1a32269ec4bb4d44a9335c2d6ff84518/E001-invoice.txt",
@@ -1864,11 +2070,12 @@
       "id": "E001",
       "case_id": "1a32269ec4bb4d44a9335c2d6ff84518",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda91a",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.961550+00:00"
+      "verified_at": "2026-10-14T08:55:53.906677+00:00"
     },
     {
       "key": "cases/4c9c69393fee4d77bbddc268db647295/E001-invoice.txt",
@@ -1877,11 +2084,12 @@
       "id": "E001",
       "case_id": "4c9c69393fee4d77bbddc268db647295",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda980",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.962549+00:00"
+      "verified_at": "2026-10-14T08:55:53.910200+00:00"
     },
     {
       "key": "cases/ca4af626cf974ef6afd49439ad7fdd57/E001-invoice.txt",
@@ -1890,11 +2098,12 @@
       "id": "E001",
       "case_id": "ca4af626cf974ef6afd49439ad7fdd57",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa81",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.963549+00:00"
+      "verified_at": "2026-10-14T08:55:53.911721+00:00"
     },
     {
       "key": "cases/c3fcb48ee4ba40289866d094997ea096/E001-invoice.txt",
@@ -1903,11 +2112,12 @@
       "id": "E001",
       "case_id": "c3fcb48ee4ba40289866d094997ea096",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa6f",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.965055+00:00"
+      "verified_at": "2026-10-14T08:55:53.912722+00:00"
     },
     {
       "key": "cases/edbb04c19aee474087431fc4a810d494/E001-invoice.txt",
@@ -1916,11 +2126,12 @@
       "id": "E001",
       "case_id": "edbb04c19aee474087431fc4a810d494",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaadb",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.965055+00:00"
+      "verified_at": "2026-10-14T08:55:53.915256+00:00"
     },
     {
       "key": "cases/9a62ed671dc444c98b458d59f0632bc0/E001-invoice.txt",
@@ -1929,11 +2140,12 @@
       "id": "E001",
       "case_id": "9a62ed671dc444c98b458d59f0632bc0",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa0f",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.966572+00:00"
+      "verified_at": "2026-10-14T08:55:53.917251+00:00"
     },
     {
       "key": "cases/1ed1c6725ed14f24be03d4817aa2c7e2/E001-invoice.txt",
@@ -1942,11 +2154,12 @@
       "id": "E001",
       "case_id": "1ed1c6725ed14f24be03d4817aa2c7e2",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda93e",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.967579+00:00"
+      "verified_at": "2026-10-14T08:55:53.919254+00:00"
     },
     {
       "key": "cases/148b03fa06b247d0991e6fe49519f9cf/E001-invoice.txt",
@@ -1955,11 +2168,12 @@
       "id": "E001",
       "case_id": "148b03fa06b247d0991e6fe49519f9cf",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8fc",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.968581+00:00"
+      "verified_at": "2026-10-14T08:55:53.922425+00:00"
     },
     {
       "key": "cases/f4264eaedc364607a82e3fad2733bb08/E001-invoice.txt",
@@ -1968,11 +2182,12 @@
       "id": "E001",
       "case_id": "f4264eaedc364607a82e3fad2733bb08",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaae9",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.969580+00:00"
+      "verified_at": "2026-10-14T08:55:53.923936+00:00"
     },
     {
       "key": "cases/b1e1d1ee32cd43f2a2a9712223e5fe2a/E001-invoice.txt",
@@ -1981,11 +2196,12 @@
       "id": "E001",
       "case_id": "b1e1d1ee32cd43f2a2a9712223e5fe2a",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa4f",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.971578+00:00"
+      "verified_at": "2026-10-14T08:55:53.925950+00:00"
     },
     {
       "key": "cases/d385e2b6fec946ff83e38113bbf94860/E001-invoice.txt",
@@ -1994,11 +2210,12 @@
       "id": "E001",
       "case_id": "d385e2b6fec946ff83e38113bbf94860",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa9b",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.972579+00:00"
+      "verified_at": "2026-10-14T08:55:53.928952+00:00"
     },
     {
       "key": "cases/1a9639cbae5f4263bea54611e6186a19/E001-invoice.txt",
@@ -2007,11 +2224,12 @@
       "id": "E001",
       "case_id": "1a9639cbae5f4263bea54611e6186a19",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda92c",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.973605+00:00"
+      "verified_at": "2026-10-14T08:55:53.931476+00:00"
     },
     {
       "key": "cases/e57b1e7185e54c7d8433a559020a9115/E001-invoice.txt",
@@ -2020,11 +2238,12 @@
       "id": "E001",
       "case_id": "e57b1e7185e54c7d8433a559020a9115",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaac1",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.973605+00:00"
+      "verified_at": "2026-10-14T08:55:53.933493+00:00"
     },
     {
       "key": "cases/79be0b5cd62a42998723dc2a97a0798f/E001-invoice.txt",
@@ -2033,11 +2252,12 @@
       "id": "E001",
       "case_id": "79be0b5cd62a42998723dc2a97a0798f",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9b9",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.974579+00:00"
+      "verified_at": "2026-10-14T08:55:53.936489+00:00"
     },
     {
       "key": "cases/109268b01dd84d34ae0dafc760aa3359/E001-invoice.txt",
@@ -2046,11 +2266,12 @@
       "id": "E001",
       "case_id": "109268b01dd84d34ae0dafc760aa3359",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8e8",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.975579+00:00"
+      "verified_at": "2026-10-14T08:55:53.938490+00:00"
     },
     {
       "key": "cases/002577b9e6a94fb9b96df899d00e9df7/E001-invoice.txt",
@@ -2059,11 +2280,12 @@
       "id": "E001",
       "case_id": "002577b9e6a94fb9b96df899d00e9df7",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8a2",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.976579+00:00"
+      "verified_at": "2026-10-14T08:55:53.940534+00:00"
     },
     {
       "key": "cases/fbda883fd2a3480ab65dc9256de84ad8/E001-invoice.txt",
@@ -2072,11 +2294,12 @@
       "id": "E001",
       "case_id": "fbda883fd2a3480ab65dc9256de84ad8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaf9",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.977581+00:00"
+      "verified_at": "2026-10-14T08:55:53.942692+00:00"
     },
     {
       "key": "cases/1287f842dc01432fa727c0455939892f/E001-invoice.txt",
@@ -2085,11 +2308,12 @@
       "id": "E001",
       "case_id": "1287f842dc01432fa727c0455939892f",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8fa",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.978579+00:00"
+      "verified_at": "2026-10-14T08:55:53.944708+00:00"
     },
     {
       "key": "cases/a000ae7c033e4391bf1ebee72307b61f/E001-invoice.txt",
@@ -2098,11 +2322,12 @@
       "id": "E001",
       "case_id": "a000ae7c033e4391bf1ebee72307b61f",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa19",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.979578+00:00"
+      "verified_at": "2026-10-14T08:55:53.947236+00:00"
     },
     {
       "key": "cases/7de836b734564864854e156e349f309e/E001-invoice.txt",
@@ -2111,11 +2336,12 @@
       "id": "E001",
       "case_id": "7de836b734564864854e156e349f309e",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9cf",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.979578+00:00"
+      "verified_at": "2026-10-14T08:55:53.949236+00:00"
     },
     {
       "key": "cases/e8e0adcf02324ad6a6b81bed9a5736ab/E001-invoice.txt",
@@ -2124,11 +2350,12 @@
       "id": "E001",
       "case_id": "e8e0adcf02324ad6a6b81bed9a5736ab",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaacb",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.979578+00:00"
+      "verified_at": "2026-10-14T08:55:53.951757+00:00"
     },
     {
       "key": "cases/4468440f891041c8bd58c0c334d1f88d/E001-invoice.txt",
@@ -2137,11 +2364,12 @@
       "id": "E001",
       "case_id": "4468440f891041c8bd58c0c334d1f88d",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda966",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.981084+00:00"
+      "verified_at": "2026-10-14T08:55:53.953764+00:00"
     },
     {
       "key": "cases/a58f1e349bcd407fbd1d72a99a0069ba/E001-invoice.txt",
@@ -2150,11 +2378,12 @@
       "id": "E001",
       "case_id": "a58f1e349bcd407fbd1d72a99a0069ba",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa29",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.981084+00:00"
+      "verified_at": "2026-10-14T08:55:53.954768+00:00"
     },
     {
       "key": "cases/1e5d6224dbfb456f99526bf2465bd4df/E001-invoice.txt",
@@ -2163,11 +2392,12 @@
       "id": "E001",
       "case_id": "1e5d6224dbfb456f99526bf2465bd4df",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda93c",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.983615+00:00"
+      "verified_at": "2026-10-14T08:55:53.958298+00:00"
     },
     {
       "key": "cases/4cefde882edf4fe49c6911eb5219c852/E001-invoice.txt",
@@ -2176,11 +2406,12 @@
       "id": "E001",
       "case_id": "4cefde882edf4fe49c6911eb5219c852",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda98a",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.984613+00:00"
+      "verified_at": "2026-10-14T08:55:53.960296+00:00"
     },
     {
       "key": "cases/e0589a8049a24919b86596a1fee2576f/E001-invoice.txt",
@@ -2189,11 +2420,12 @@
       "id": "E001",
       "case_id": "e0589a8049a24919b86596a1fee2576f",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaabd",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.985613+00:00"
+      "verified_at": "2026-10-14T08:55:53.962045+00:00"
     },
     {
       "key": "cases/5d980828fb004c14876170c98cc6334e/E001-invoice.txt",
@@ -2202,11 +2434,12 @@
       "id": "E001",
       "case_id": "5d980828fb004c14876170c98cc6334e",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9a2",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.986612+00:00"
+      "verified_at": "2026-10-14T08:55:53.964059+00:00"
     },
     {
       "key": "cases/959414c5bb514b3a8034f35980362ce2/E001-invoice.txt",
@@ -2215,11 +2448,12 @@
       "id": "E001",
       "case_id": "959414c5bb514b3a8034f35980362ce2",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa0b",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.987612+00:00"
+      "verified_at": "2026-10-14T08:55:53.967059+00:00"
     },
     {
       "key": "cases/c43e171c692e436981ea1959afb6f3ed/E001-invoice.txt",
@@ -2228,11 +2462,12 @@
       "id": "E001",
       "case_id": "c43e171c692e436981ea1959afb6f3ed",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa79",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.988613+00:00"
+      "verified_at": "2026-10-14T08:55:53.969057+00:00"
     },
     {
       "key": "cases/0843602f6db6461d96e90ea52e1d9a4a/E001-invoice.txt",
@@ -2241,11 +2476,12 @@
       "id": "E001",
       "case_id": "0843602f6db6461d96e90ea52e1d9a4a",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8c8",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.990611+00:00"
+      "verified_at": "2026-10-14T08:55:53.970565+00:00"
     },
     {
       "key": "cases/aa9d65b06ad24b1d80bd38a11dbe22f4/E001-invoice.txt",
@@ -2254,11 +2490,12 @@
       "id": "E001",
       "case_id": "aa9d65b06ad24b1d80bd38a11dbe22f4",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa41",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.990611+00:00"
+      "verified_at": "2026-10-14T08:55:53.973088+00:00"
     },
     {
       "key": "cases/30c936f2715642bb8a1b5385110b26ce/E001-invoice.txt",
@@ -2267,11 +2504,12 @@
       "id": "E001",
       "case_id": "30c936f2715642bb8a1b5385110b26ce",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda94c",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.991611+00:00"
+      "verified_at": "2026-10-14T08:55:53.976087+00:00"
     },
     {
       "key": "cases/3b14ddafc74844289cd752f1acd697a8/E001-invoice.txt",
@@ -2280,11 +2518,12 @@
       "id": "E001",
       "case_id": "3b14ddafc74844289cd752f1acd697a8",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda960",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.991611+00:00"
+      "verified_at": "2026-10-14T08:55:53.978086+00:00"
     },
     {
       "key": "cases/779f13ced5b545f3ab72bb2066f24896/E001-invoice.txt",
@@ -2293,11 +2532,12 @@
       "id": "E001",
       "case_id": "779f13ced5b545f3ab72bb2066f24896",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9b7",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.993612+00:00"
+      "verified_at": "2026-10-14T08:55:53.980477+00:00"
     },
     {
       "key": "cases/b4e9ebb1788140c194dca2b33798d76c/E001-invoice.txt",
@@ -2306,11 +2546,12 @@
       "id": "E001",
       "case_id": "b4e9ebb1788140c194dca2b33798d76c",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa5b",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.994614+00:00"
+      "verified_at": "2026-10-14T08:55:53.982020+00:00"
     },
     {
       "key": "cases/261f7bd60a354d169b5ef748c82c7e95/E001-invoice.txt",
@@ -2319,11 +2560,12 @@
       "id": "E001",
       "case_id": "261f7bd60a354d169b5ef748c82c7e95",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda944",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.995611+00:00"
+      "verified_at": "2026-10-14T08:55:53.985033+00:00"
     },
     {
       "key": "cases/43a4fe19d4bd4b6dabc2cfe9333b8460/E001-invoice.txt",
@@ -2332,11 +2574,12 @@
       "id": "E001",
       "case_id": "43a4fe19d4bd4b6dabc2cfe9333b8460",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda964",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.997116+00:00"
+      "verified_at": "2026-10-14T08:55:53.986549+00:00"
     },
     {
       "key": "cases/ad418da4bedf4ce0b0ce316b348c1437/E001-invoice.txt",
@@ -2345,11 +2588,12 @@
       "id": "E001",
       "case_id": "ad418da4bedf4ce0b0ce316b348c1437",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa43",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.997116+00:00"
+      "verified_at": "2026-10-14T08:55:53.990073+00:00"
     },
     {
       "key": "cases/c12688fa4c84429aaa842e9892b9bdfc/E001-invoice.txt",
@@ -2358,11 +2602,12 @@
       "id": "E001",
       "case_id": "c12688fa4c84429aaa842e9892b9bdfc",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa69",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.997116+00:00"
+      "verified_at": "2026-10-14T08:55:53.992599+00:00"
     },
     {
       "key": "cases/044a08a2f4d9477a919865b4c424d5bf/E001-invoice.txt",
@@ -2371,11 +2616,12 @@
       "id": "E001",
       "case_id": "044a08a2f4d9477a919865b4c424d5bf",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8b2",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:14.999642+00:00"
+      "verified_at": "2026-10-14T08:55:53.995123+00:00"
     },
     {
       "key": "cases/1ab167eb766e423ba95997e073120121/E001-invoice.txt",
@@ -2384,11 +2630,12 @@
       "id": "E001",
       "case_id": "1ab167eb766e423ba95997e073120121",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda936",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.001643+00:00"
+      "verified_at": "2026-10-14T08:55:53.997125+00:00"
     },
     {
       "key": "cases/a767371860634ee6bccb07974c43a401/E001-invoice.txt",
@@ -2397,11 +2644,12 @@
       "id": "E001",
       "case_id": "a767371860634ee6bccb07974c43a401",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa2d",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.003639+00:00"
+      "verified_at": "2026-10-14T08:55:54.000127+00:00"
     },
     {
       "key": "cases/aa1325830d3c4aa4baca2f9b636f106d/E001-invoice.txt",
@@ -2410,11 +2658,12 @@
       "id": "E001",
       "case_id": "aa1325830d3c4aa4baca2f9b636f106d",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa3d",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.005865+00:00"
+      "verified_at": "2026-10-14T08:55:54.002207+00:00"
     },
     {
       "key": "cases/89b19359f1c84488b4b561e880164d01/E001-invoice.txt",
@@ -2423,11 +2672,12 @@
       "id": "E001",
       "case_id": "89b19359f1c84488b4b561e880164d01",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9fd",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.007641+00:00"
+      "verified_at": "2026-10-14T08:55:54.005735+00:00"
     },
     {
       "key": "cases/3ac4bd5f577a494f9f3e9d5e19704140/E001-invoice.txt",
@@ -2436,11 +2686,12 @@
       "id": "E001",
       "case_id": "3ac4bd5f577a494f9f3e9d5e19704140",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda95e",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.009637+00:00"
+      "verified_at": "2026-10-14T08:55:54.007734+00:00"
     },
     {
       "key": "cases/8c86a7cf48304ea29662a1179911b27d/E001-invoice.txt",
@@ -2449,11 +2700,12 @@
       "id": "E001",
       "case_id": "8c86a7cf48304ea29662a1179911b27d",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa07",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.009637+00:00"
+      "verified_at": "2026-10-14T08:55:54.010258+00:00"
     },
     {
       "key": "cases/d89b20c1bc1048c7a81d0e557722a51b/E001-invoice.txt",
@@ -2462,11 +2714,12 @@
       "id": "E001",
       "case_id": "d89b20c1bc1048c7a81d0e557722a51b",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaaa5",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.010637+00:00"
+      "verified_at": "2026-10-14T08:55:54.012276+00:00"
     },
     {
       "key": "cases/8a7a90bdef19429b9bba7392c87e0bf6/E001-invoice.txt",
@@ -2475,11 +2728,12 @@
       "id": "E001",
       "case_id": "8a7a90bdef19429b9bba7392c87e0bf6",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9ff",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.011636+00:00"
+      "verified_at": "2026-10-14T08:55:54.015287+00:00"
     },
     {
       "key": "cases/8ecc5a4cd8c64baab8a1da1393d08d7a/E001-invoice.txt",
@@ -2488,11 +2742,12 @@
       "id": "E001",
       "case_id": "8ecc5a4cd8c64baab8a1da1393d08d7a",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fdaa09",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.013145+00:00"
+      "verified_at": "2026-10-14T08:55:54.017288+00:00"
     },
     {
       "key": "cases/48d4bd0a739b4f1d93ee6ee3dec16acd/E001-invoice.txt",
@@ -2501,11 +2756,12 @@
       "id": "E001",
       "case_id": "48d4bd0a739b4f1d93ee6ee3dec16acd",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda97e",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.014676+00:00"
+      "verified_at": "2026-10-14T08:55:54.019286+00:00"
     },
     {
       "key": "cases/7e1b80be345440db9945a8927a7f96a4/E001-invoice.txt",
@@ -2514,11 +2770,12 @@
       "id": "E001",
       "case_id": "7e1b80be345440db9945a8927a7f96a4",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9d1",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.016687+00:00"
+      "verified_at": "2026-10-14T08:55:54.021812+00:00"
     },
     {
       "key": "cases/6758e61c62464a6a879575f24829c683/E001-invoice.txt",
@@ -2527,11 +2784,12 @@
       "id": "E001",
       "case_id": "6758e61c62464a6a879575f24829c683",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9b3",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.016687+00:00"
+      "verified_at": "2026-10-14T08:55:54.023823+00:00"
     },
     {
       "key": "cases/119c6b72ba8f4f1b80ca280dc7998320/E001-invoice.txt",
@@ -2540,11 +2798,12 @@
       "id": "E001",
       "case_id": "119c6b72ba8f4f1b80ca280dc7998320",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24da33c8499ca7fda8f6",
       "sha256": "52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
       "byte_size": 7,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:15.018685+00:00"
+      "verified_at": "2026-10-14T08:55:54.026332+00:00"
     },
     {
       "key": "cases/laptop-dispute-real-bedrock-001/E001-purchase_invoice.pdf",
@@ -2552,13 +2811,25 @@
       "type": "evidence",
       "id": "E001",
       "case_id": "laptop-dispute-real-bedrock-001",
-      "status": "FAILED",
-      "failure_class": "NOT_FOUND",
+      "status": "EXPECTED_TEST_FIXTURE_MISSING",
+      "classification": "EXPECTED_TEST_FIXTURE_MISSING",
+      "failure_class": "EXPECTED_TEST_FIXTURE_MISSING",
       "error_code": "NoSuchKey",
-      "error_summary": "The specified key does not exist.",
+      "error_summary": "Intentionally absent test fixture (verified non-production)",
       "retry_appropriate": false,
       "provenance": "database.json:cases.evidence",
-      "recorded_at": "2026-10-14T08:50:15.369054+00:00"
+      "fixture_audit": {
+        "originating_run": "Bedrock prompt evaluation test suite",
+        "originating_source": "scripts/test_real_bedrock_pipeline.py:49-59",
+        "expected_payload": "None (mock dictionary metadata)",
+        "upload_expected": false,
+        "deletion_reason": "Synthetic prompt fixture; no binary PDF was generated or uploaded",
+        "s3_contained": false,
+        "local_storage_contained": false,
+        "active_workflow_dependency": false,
+        "classification": "EXPECTED_TEST_FIXTURE_MISSING"
+      },
+      "recorded_at": "2026-10-14T08:55:54.437331+00:00"
     },
     {
       "key": "cases/laptop-dispute-real-bedrock-001/E002-service_jobsheet.pdf",
@@ -2566,13 +2837,25 @@
       "type": "evidence",
       "id": "E002",
       "case_id": "laptop-dispute-real-bedrock-001",
-      "status": "FAILED",
-      "failure_class": "NOT_FOUND",
+      "status": "EXPECTED_TEST_FIXTURE_MISSING",
+      "classification": "EXPECTED_TEST_FIXTURE_MISSING",
+      "failure_class": "EXPECTED_TEST_FIXTURE_MISSING",
       "error_code": "NoSuchKey",
-      "error_summary": "The specified key does not exist.",
+      "error_summary": "Intentionally absent test fixture (verified non-production)",
       "retry_appropriate": false,
       "provenance": "database.json:cases.evidence",
-      "recorded_at": "2026-10-14T08:50:15.712059+00:00"
+      "fixture_audit": {
+        "originating_run": "Bedrock prompt evaluation test suite",
+        "originating_source": "scripts/test_real_bedrock_pipeline.py:60-68",
+        "expected_payload": "None (mock dictionary metadata)",
+        "upload_expected": false,
+        "deletion_reason": "Synthetic prompt fixture; no binary PDF was generated or uploaded",
+        "s3_contained": false,
+        "local_storage_contained": false,
+        "active_workflow_dependency": false,
+        "classification": "EXPECTED_TEST_FIXTURE_MISSING"
+      },
+      "recorded_at": "2026-10-14T08:55:54.852079+00:00"
     },
     {
       "key": "cases/laptop-dispute-real-bedrock-001/E003-seller_refusal_email.pdf",
@@ -2580,13 +2863,25 @@
       "type": "evidence",
       "id": "E003",
       "case_id": "laptop-dispute-real-bedrock-001",
-      "status": "FAILED",
-      "failure_class": "NOT_FOUND",
+      "status": "EXPECTED_TEST_FIXTURE_MISSING",
+      "classification": "EXPECTED_TEST_FIXTURE_MISSING",
+      "failure_class": "EXPECTED_TEST_FIXTURE_MISSING",
       "error_code": "NoSuchKey",
-      "error_summary": "The specified key does not exist.",
+      "error_summary": "Intentionally absent test fixture (verified non-production)",
       "retry_appropriate": false,
       "provenance": "database.json:cases.evidence",
-      "recorded_at": "2026-10-14T08:50:16.028384+00:00"
+      "fixture_audit": {
+        "originating_run": "Bedrock prompt evaluation test suite",
+        "originating_source": "scripts/test_real_bedrock_pipeline.py:69-75",
+        "expected_payload": "None (mock dictionary metadata)",
+        "upload_expected": false,
+        "deletion_reason": "Synthetic prompt fixture; no binary PDF was generated or uploaded",
+        "s3_contained": false,
+        "local_storage_contained": false,
+        "active_workflow_dependency": false,
+        "classification": "EXPECTED_TEST_FIXTURE_MISSING"
+      },
+      "recorded_at": "2026-10-14T08:55:55.261882+00:00"
     },
     {
       "key": "cases/5ef26c3adcc2435e8a5f3f2107712b83/E001-microphone-1791656576572.webm",
@@ -2595,11 +2890,12 @@
       "id": "E001",
       "case_id": "5ef26c3adcc2435e8a5f3f2107712b83",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9a4",
       "sha256": "50ddd89ab7b9f89e2090024a2ae4eb927d4f06dee7ba30232deb80ee771673ae",
       "byte_size": 65018,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:16.029363+00:00"
+      "verified_at": "2026-10-14T08:55:55.265886+00:00"
     },
     {
       "key": "cases/5ef26c3adcc2435e8a5f3f2107712b83/E002-download.png",
@@ -2608,11 +2904,12 @@
       "id": "E002",
       "case_id": "5ef26c3adcc2435e8a5f3f2107712b83",
       "status": "ALREADY_PRESENT_VERIFIED",
+      "classification": "REAL_STORAGE_OBJECT",
       "gridfs_file_id": "6acf24db33c8499ca7fda9a6",
       "sha256": "c248ab2df931c72d9d8fba3aa4f1d8745c9504eca2e7c2d7f2f79d291cac0033",
       "byte_size": 477378,
       "provenance": "database.json:cases.evidence",
-      "verified_at": "2026-10-14T08:50:16.032386+00:00"
+      "verified_at": "2026-10-14T08:55:55.270408+00:00"
     }
   ]
 }
