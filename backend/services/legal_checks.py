@@ -101,7 +101,12 @@ class LegalChecks:
         def run(claim):
             values = claim['inputs']
             verified = {d['source_id']: self.corpus.get(d['source_id'], d['version_id']) for d in values['citation_verification.' + issue_id]['decisions'] if d['status'] == 'VERIFIED'}
-            if not verified:
+            issue = values['legal_issues.' + issue_id]
+            overlapping = len({issue['domain'], *issue.get('domain_contexts', [])}) > 1
+            if overlapping:
+                output = {'issue_id': issue_id, 'status': 'PENDING_SOURCE', 'applications': [],
+                          'unknowns': ['MULTI_CONTEXT_AUTHORITY_REVIEW_REQUIRED']}
+            elif not verified:
                 output = {'issue_id': issue_id, 'status': 'PENDING_SOURCE', 'applications': [], 'unknowns': ['VERIFIED_APPLICABLE_AUTHORITY_REQUIRED']}
             else:
                 result = generate(self.adapters, 'APPLICATION_' + issue_id, ApplicationProposal, {**values, 'verified_sources': [compact(s) for s in verified.values()]},

@@ -2,10 +2,23 @@
 from typing import Literal
 from pydantic import Field, TypeAdapter
 from .understanding import Strict, Domain
-from .legal_foundation import IssueCandidate, Selection, LawApplication
+from .legal_foundation import IssueCandidate, Selection, LawApplication, Capability
+
+
+class Producer(Strict):
+    descriptor_id: str
+    capability: Capability
+    domain: Domain
+    registered_pack: bool
+    fact_ids: list[str]
+    evidence_ids: list[str]
+    processing_mode: str
+    test_double: bool
+    execution_id: str
 
 
 class StoredIssue(IssueCandidate):
+    producers: list[Producer] = Field(default_factory=list)
     legal_issue_id: str = Field(pattern=r'^L[0-9]{3,}$')
     status: Literal['PENDING_SOURCE']
     source_dependencies: list[str]
@@ -19,6 +32,9 @@ class StoredIssue(IssueCandidate):
 
 
 class StoredSelection(Selection):
+    issue_key: str | None = None
+    capability: Capability = 'ISSUE_ANALYSIS'
+    registered_pack: bool = True
     domain: Domain
     dependencies: list[str]
     status: Literal['SELECTED']
@@ -70,6 +86,9 @@ def validate_issues(value):
 
 def validate_team(value):
     team = Team.model_validate(value)
+    from ..services.specialist_packs import validate_descriptor
+    for name, selection in team.selected.items():
+        validate_descriptor(name, selection.model_dump())
     if not team.selected or any(k != v.agent for k, v in team.selected.items()):
         raise ValueError('Team identity mismatch')
     return value

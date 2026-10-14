@@ -5,7 +5,7 @@ from ..models.orchestration import AgentContract, AgentResult
 from ..models.legal_foundation import SpecialistProposal, IssueCandidate
 from ..models.legal_outputs import validate_issues, validate_team, Applications, Citations
 from .understanding_agents import core_registry
-from .specialist_packs import CATALOG
+from .specialist_packs import CATALOG, validate_descriptor
 from .legal_team import LegalTeamAgents
 from .legal_checks import LegalChecks
 from .case_blackboard import digest
@@ -80,7 +80,14 @@ def legal_registry(adapters, corpus, board=None):
         path = 'specialists.' + name
         register(name, team.specialist(name), base + ['agent_team'], [path], ['TEAM_BUILDER'], {path: validate_specialist}, model=True, pack=CATALOG[name]['domain'])
     data = (board or {}).get('data', {})
-    selected = sorted(data.get('agent_team', {}).get('selected', {}))
+    selections = data.get('agent_team', {}).get('selected', {})
+    for name, value in selections.items():
+        value = validate_descriptor(name, value)
+        if value['issue_key'] is not None:
+            path = 'specialists.' + name
+            register(name, team.specialist(name), base + ['agent_team'], [path], ['TEAM_BUILDER'],
+                     {path: validate_specialist}, model=True)
+    selected = sorted(selections)
     if not selected:
         return registry, {'team': 'TEAM_BUILDER'}
     signature = digest(selected)[:10].upper()

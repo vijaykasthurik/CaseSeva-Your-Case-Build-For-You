@@ -11,8 +11,20 @@ class Selection(Strict):
     reason: str = Field(min_length=1, max_length=500)
 
 
+Capability = Literal['ISSUE_ANALYSIS', 'EVIDENCE_GAPS', 'PROCEDURAL_CONTEXT', 'REQUESTED_RELIEF', 'SOURCE_QUERY_PLANNING']
+
+
+class AnalyticalNeed(Strict):
+    issue_key: str = Field(pattern=r'^[a-z][a-z0-9_]{0,79}$')
+    domain: Domain
+    capability: Capability = 'ISSUE_ANALYSIS'
+    fact_ids: list[str] = Field(min_length=1, max_length=30)
+    reason: str = Field(min_length=1, max_length=500)
+
+
 class TeamProposal(Strict):
-    selected: list[Selection] = Field(min_length=1, max_length=12)
+    selected: list[Selection] = Field(default_factory=list, max_length=12)
+    needs: list[AnalyticalNeed] = Field(default_factory=list, max_length=20)
     secondary_reason: str | None = None
     public_record_fact_ids: list[str] = Field(default_factory=list)
     unavailable_record_refs: list[int] = Field(default_factory=list)
@@ -26,6 +38,7 @@ class IssueCandidate(Strict):
     statement: str = Field(min_length=1, max_length=1000)
     category: str = Field(min_length=1, max_length=100)
     domain: Domain
+    domain_contexts: list[Domain] = Field(default_factory=list, max_length=8)
     fact_ids: list[str] = Field(min_length=1, max_length=30)
     contradicting_fact_ids: list[str] = Field(default_factory=list)
     party_ids: list[str] = Field(default_factory=list)

@@ -53,3 +53,35 @@ PACKS = {
 }
 CATALOG = {name: {'domain': domain, 'purpose': purpose} for domain, pack in PACKS.items() for name, purpose in pack.items()}
 CONDITIONAL = {'BOUNDARY_SURVEY', 'RENT_DEPOSIT', 'DIGITAL_EVIDENCE', 'MEDICAL_EVIDENCE', 'WITNESS'}
+
+# Closed executable capability set; domains are only validated data.
+CAPABILITIES = {
+    'ISSUE_ANALYSIS': 'Identify grounded factual legal questions and conflicting accounts.',
+    'EVIDENCE_GAPS': 'Identify missing factual support without inventing evidence.',
+    'PROCEDURAL_CONTEXT': 'Identify stated procedural history and unresolved context.',
+    'REQUESTED_RELIEF': 'Separate requested outcomes from any legal entitlement.',
+    'SOURCE_QUERY_PLANNING': 'Plan neutral source queries from facts, parties, relief and jurisdiction clues.',
+}
+
+
+def descriptor(need):
+    from ..models.legal_foundation import AnalyticalNeed
+    from .case_blackboard import digest
+    need = AnalyticalNeed.model_validate(need)
+    name = 'DYNAMIC_' + digest([need.issue_key, need.domain, need.capability])[:24].upper()
+    return {**need.model_dump(), 'agent': name,
+            'registered_pack': any(v['domain'] == need.domain for v in CATALOG.values()),
+            'dependencies': ['TEAM_BUILDER'], 'status': 'SELECTED'}
+
+
+def validate_descriptor(name, value):
+    from ..models.legal_outputs import StoredSelection
+    value = StoredSelection.model_validate(value).model_dump()
+    if value['issue_key'] is None:
+        if name not in CATALOG or value['agent'] != name or value['domain'] != CATALOG[name]['domain'] or not value['registered_pack']:
+            raise ValueError('Unregistered executable specialist')
+    else:
+        expected = descriptor({k: value[k] for k in ('issue_key', 'domain', 'capability', 'fact_ids', 'reason')})
+        if name != expected['agent'] or any(value[k] != v for k, v in expected.items()):
+            raise ValueError('Invalid backend specialist descriptor')
+    return value

@@ -4,13 +4,18 @@ from .case_blackboard import digest, overlaps, set_values, value_at
 
 
 def validate_specialist(value):
+    if 'producer' in value:
+        from ..models.legal_outputs import Producer
+        producer = Producer.model_validate(value['producer'])
+        if (producer.descriptor_id, producer.domain, producer.execution_id) != (value['agent'], value['domain'], value['execution_id']):
+            raise ValueError('Specialist producer identity mismatch')
     if 'artifact_id' in value:
-        if set(value) != {'agent', 'domain', 'legal_state', 'execution_id', 'artifact_id', 'content_hash', 'observation_count'}:
+        if set(value) - {'producer'} != {'agent', 'domain', 'legal_state', 'execution_id', 'artifact_id', 'content_hash', 'observation_count'}:
             raise ValueError('Invalid specialist reference contract')
         if value['legal_state'] != 'PENDING_SOURCE' or not isinstance(value['observation_count'], int):
             raise ValueError('Invalid specialist review state')
     else:
-        SpecialistProposal.model_validate({k: v for k, v in value.items() if k not in {'agent', 'domain', 'legal_state', 'execution_id'}})
+        SpecialistProposal.model_validate({k: v for k, v in value.items() if k not in {'agent', 'domain', 'legal_state', 'execution_id', 'producer'}})
     return value
 
 
@@ -25,7 +30,7 @@ def save_specialist(db, case_id, value):
             existing = db.get('legal_specialist_artifacts', artifact_id)
             if not existing or existing['value'] != value or existing['case_id'] != case_id:
                 raise
-    return {key: value[key] for key in ('agent', 'domain', 'legal_state', 'execution_id')} | {
+    return ({'producer': value['producer']} if 'producer' in value else {}) | {key: value[key] for key in ('agent', 'domain', 'legal_state', 'execution_id')} | {
         'artifact_id': artifact_id, 'content_hash': content_hash, 'observation_count': len(value['observations'])}
 
 
@@ -35,7 +40,8 @@ def load_specialist(db, case_id, reference):
         return reference
     record = db.get('legal_specialist_artifacts', reference['artifact_id'])
     if (not record or record['case_id'] != case_id or record['content_hash'] != reference['content_hash']
-        or digest(record['value']) != reference['content_hash'] or record['value']['agent'] != reference['agent']):
+        or digest(record['value']) != reference['content_hash']
+        or any(record['value'].get(k) != reference.get(k) for k in ('agent', 'domain', 'legal_state', 'execution_id', 'producer'))):
         raise ValueError('Specialist artifact identity or integrity mismatch')
     validate_specialist(record['value'])
     return record['value']
