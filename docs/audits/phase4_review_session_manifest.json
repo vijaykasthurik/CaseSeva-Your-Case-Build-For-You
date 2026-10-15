@@ -1,0 +1,269 @@
+{
+  "manifest_title": "CaseSeva Phase-4 Authenticated Human Legal Review Session Manifest",
+  "generated_at": "2026-10-15T09:27:07.492123+00:00",
+  "total_candidates": 12,
+  "session_order_description": "Grouped strictly by enactment (1. DSPE Act 1946, 2. IT Act 2000, 3. Code on Wages 2019) and sorted by section number.",
+  "mandatory_warnings": [
+    "Current-law coverage has not been established.",
+    "Do not infer that an official consolidated PDF is current through today.",
+    "Amendment, commencement, and repeal coverage remain unverified pending independent authenticated human review."
+  ],
+  "temporal_review_checklist": [
+    {
+      "id": "exact_official_source_identity",
+      "question": "Does the document come from the genuine official publisher with verified URL and raw GridFS hash?",
+      "instruction": "Inspect official owner, registry ID, official canonical URL, and raw SHA-256."
+    },
+    {
+      "id": "provision_text_matches_source",
+      "question": "Does the extracted operative excerpt match the authoritative official enactment text verbatim?",
+      "instruction": "Verify that no substantive statutory text has been invented, omitted, or corrupted."
+    },
+    {
+      "id": "commencement_status",
+      "question": "Has the provision officially commenced into force via gazetted notification?",
+      "instruction": "Assess whether Section 1(3) commencement notifications have been gazetted for this section."
+    },
+    {
+      "id": "amendments_coverage",
+      "question": "Are all post-enactment statutory amendments reflected in the provision body?",
+      "instruction": "Verify whether amending acts have inserted, substituted, or omitted text in this provision."
+    },
+    {
+      "id": "repeal_omission_substitution",
+      "question": "Has the provision been repealed, omitted, or superseded by later legislation?",
+      "instruction": "Confirm that no subsequent repealing statute affects the operative standing of this provision."
+    },
+    {
+      "id": "current_law_status",
+      "question": "Does this provision represent current binding law as of the review date?",
+      "instruction": "Assess whether any legal challenge or subsequent legislative act modifies its enforceability."
+    },
+    {
+      "id": "territorial_applicability",
+      "question": "What is the territorial extent and jurisdiction of this provision?",
+      "instruction": "Check whether the provision applies to the whole of India, excludes specific states, or requires state consent."
+    },
+    {
+      "id": "subordinate_legislation_relationships",
+      "question": "Are there subordinate rules, regulations, or scheme notifications that alter operative effect?",
+      "instruction": "Assess whether statutory rules have been framed under this section."
+    },
+    {
+      "id": "consolidated_source_currentness",
+      "question": "Is the official consolidated source (e.g., India Code) sufficiently current through today?",
+      "instruction": "Check the consolidation cutoff date and determine if subsequent gazette notifications exist."
+    },
+    {
+      "id": "additional_evidence_required",
+      "question": "Is additional authenticated official gazette evidence required before approval?",
+      "instruction": "If commencement or amendment lineage remains doubtful, request a new revision or mark stale."
+    }
+  ],
+  "candidates": [
+    {
+      "session_step": 1,
+      "source_id": "dspe_act_1946_s1",
+      "current_corrected_version_id": "6ce911ee42cb10d1e8c14897cf460bccad331cf2ec05729142bbf503cb6d8444",
+      "document": "The Delhi Special Police Establishment Act, 1946",
+      "section": "1",
+      "packet_reference": "docs/audits/review_packets/dspe_act_1946_s1.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "c5ac623e6d672cb7095f287b7e0fd7c953dc7360928f053a3aa6df1d8302a652",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51",
+      "gridfs_file_id": "6acfb5c95ad39bf2882e5fbb",
+      "gridfs_key": "raw_legal_sources/india_code_central/24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51.pdf",
+      "retrieved_at": "2026-10-14T17:03:05.101253+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/d21dc595-7daa-4e65-b739-0dd39973afc1/content"
+    },
+    {
+      "session_step": 2,
+      "source_id": "dspe_act_1946_s2",
+      "current_corrected_version_id": "51ea9447d8a08c5d2be91057dde5464aed5adae2c83787e9e8136c1c5d45311a",
+      "document": "The Delhi Special Police Establishment Act, 1946",
+      "section": "2",
+      "packet_reference": "docs/audits/review_packets/dspe_act_1946_s2.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "b0c600501429fa150e7e82481856792e3d722e0eab4930b55ecbf78a033eadc7",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51",
+      "gridfs_file_id": "6acfb5c95ad39bf2882e5fbb",
+      "gridfs_key": "raw_legal_sources/india_code_central/24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51.pdf",
+      "retrieved_at": "2026-10-14T17:03:05.101253+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/d21dc595-7daa-4e65-b739-0dd39973afc1/content"
+    },
+    {
+      "session_step": 3,
+      "source_id": "dspe_act_1946_s3",
+      "current_corrected_version_id": "e77602d00606e9d6c5f42cbeba42678d471ba6dc0f45fc19ee869055fa26e519",
+      "document": "The Delhi Special Police Establishment Act, 1946",
+      "section": "3",
+      "packet_reference": "docs/audits/review_packets/dspe_act_1946_s3.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "ecd7f08e9f4133fa88370880884b5533e0fbb2074e56ddff6e959fa798205f6d",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51",
+      "gridfs_file_id": "6acfb5c95ad39bf2882e5fbb",
+      "gridfs_key": "raw_legal_sources/india_code_central/24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51.pdf",
+      "retrieved_at": "2026-10-14T17:03:05.101253+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/d21dc595-7daa-4e65-b739-0dd39973afc1/content"
+    },
+    {
+      "session_step": 4,
+      "source_id": "dspe_act_1946_s6",
+      "current_corrected_version_id": "ae183de6033562207a9286155c3aa4d98530e8b5a7a0b35c9e14f2ccbd8227b5",
+      "document": "The Delhi Special Police Establishment Act, 1946",
+      "section": "6",
+      "packet_reference": "docs/audits/review_packets/dspe_act_1946_s6.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "f29e59ae6521efe700334dae416b9b2f16758114eb53169b98334ed03e6c26f9",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51",
+      "gridfs_file_id": "6acfb5c95ad39bf2882e5fbb",
+      "gridfs_key": "raw_legal_sources/india_code_central/24771b6ae6887b2ce29d676f2a2bcca7905b9c846f39d1ce746ddd5fe70d5f51.pdf",
+      "retrieved_at": "2026-10-14T17:03:05.101253+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/d21dc595-7daa-4e65-b739-0dd39973afc1/content"
+    },
+    {
+      "session_step": 5,
+      "source_id": "it_act_2000_s1",
+      "current_corrected_version_id": "e65109012b3e278ffd65d540fdfc308838148d99b4934cdddf468d85c02f9e86",
+      "document": "The Information Technology Act, 2000",
+      "section": "1",
+      "packet_reference": "docs/audits/review_packets/it_act_2000_s1.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "fcd99b3d951af7ed9ba338711db36aa55e22fccaec1aa5f4b0b658a8e2e96735",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529",
+      "gridfs_file_id": "6acfb5cc5ad39bf2882e5fbe",
+      "gridfs_key": "raw_legal_sources/india_code_central/003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529.pdf",
+      "retrieved_at": "2026-10-14T17:03:07.827061+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/770a7d02-48f2-4274-bab9-10d0f48ee264/content"
+    },
+    {
+      "session_step": 6,
+      "source_id": "it_act_2000_s3",
+      "current_corrected_version_id": "4e03209e67ddf60d327b780ec094fb937f77f3329ed0706087d6ba72c335dc94",
+      "document": "The Information Technology Act, 2000",
+      "section": "3",
+      "packet_reference": "docs/audits/review_packets/it_act_2000_s3.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "116fb6358a9d76cfe11de256e5c223868168348bf87b8b0051f51a040fdcdefd",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529",
+      "gridfs_file_id": "6acfb5cc5ad39bf2882e5fbe",
+      "gridfs_key": "raw_legal_sources/india_code_central/003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529.pdf",
+      "retrieved_at": "2026-10-14T17:03:07.827061+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/770a7d02-48f2-4274-bab9-10d0f48ee264/content"
+    },
+    {
+      "session_step": 7,
+      "source_id": "it_act_2000_s43",
+      "current_corrected_version_id": "a397a3f30964f9fa13c1e7376c8753bbd5f0af13a5dc70e62cf1ab4bcbe05cbd",
+      "document": "The Information Technology Act, 2000",
+      "section": "43",
+      "packet_reference": "docs/audits/review_packets/it_act_2000_s43.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "f75e20b0ba9930e8d2c7c0c7ec1ea97944325d4c3bf24fa7c4a0081f5ff60979",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529",
+      "gridfs_file_id": "6acfb5cc5ad39bf2882e5fbe",
+      "gridfs_key": "raw_legal_sources/india_code_central/003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529.pdf",
+      "retrieved_at": "2026-10-14T17:03:07.827061+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/770a7d02-48f2-4274-bab9-10d0f48ee264/content"
+    },
+    {
+      "session_step": 8,
+      "source_id": "it_act_2000_s66",
+      "current_corrected_version_id": "86ee3fc46769d470ace6206fd7beae0694f0460c12825e827a71c4847875285f",
+      "document": "The Information Technology Act, 2000",
+      "section": "66",
+      "packet_reference": "docs/audits/review_packets/it_act_2000_s66.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "a65b3d450b57bbca83f380b68d58d909872d3bd047e416ceeeff28754e551c7b",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529",
+      "gridfs_file_id": "6acfb5cc5ad39bf2882e5fbe",
+      "gridfs_key": "raw_legal_sources/india_code_central/003b3218fe399b293c73f6aef9ca52e5c1d080388c43fb0523572c1dc5f3d529.pdf",
+      "retrieved_at": "2026-10-14T17:03:07.827061+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/770a7d02-48f2-4274-bab9-10d0f48ee264/content"
+    },
+    {
+      "session_step": 9,
+      "source_id": "wages_code_2019_s1",
+      "current_corrected_version_id": "3bad2bf8abdaa3570f5ee5e8400087bb581f377e37f77202a2f14b4e46c0b1f9",
+      "document": "The Code on Wages, 2019",
+      "section": "1",
+      "packet_reference": "docs/audits/review_packets/wages_code_2019_s1.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "b0b96d527995d033972724dcbd0922b1937aafe36351a81d5328793ad5041dc7",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687",
+      "gridfs_file_id": "6acfb8968da4303adef98ab4",
+      "gridfs_key": "raw_legal_sources/india_code_central/23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687.pdf",
+      "retrieved_at": "2026-10-14T17:15:01.870635+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/7e3863af-0263-4c95-a42a-1bdd0a55a5fc/content"
+    },
+    {
+      "session_step": 10,
+      "source_id": "wages_code_2019_s3",
+      "current_corrected_version_id": "19dcf32cbdadfa7346c45107d5065939951e93df0e2a3bb7dec11e5935a8680e",
+      "document": "The Code on Wages, 2019",
+      "section": "3",
+      "packet_reference": "docs/audits/review_packets/wages_code_2019_s3.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "8a7f40302b82ea3d83d1562047edf9391b54bce9948d84fc7e84297710ff1e04",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687",
+      "gridfs_file_id": "6acfb8968da4303adef98ab4",
+      "gridfs_key": "raw_legal_sources/india_code_central/23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687.pdf",
+      "retrieved_at": "2026-10-14T17:15:01.870635+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/7e3863af-0263-4c95-a42a-1bdd0a55a5fc/content"
+    },
+    {
+      "session_step": 11,
+      "source_id": "wages_code_2019_s5",
+      "current_corrected_version_id": "7a0d97676d8ab5d7d1627cd2c933a6824a842d81d6c03d8f147a983215c61c2d",
+      "document": "The Code on Wages, 2019",
+      "section": "5",
+      "packet_reference": "docs/audits/review_packets/wages_code_2019_s5.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "0e3f6ce440f01ad97d168eaf3c3e3d86d02b4ab55ab0438623166ce3b6e324af",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687",
+      "gridfs_file_id": "6acfb8968da4303adef98ab4",
+      "gridfs_key": "raw_legal_sources/india_code_central/23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687.pdf",
+      "retrieved_at": "2026-10-14T17:15:01.870635+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/7e3863af-0263-4c95-a42a-1bdd0a55a5fc/content"
+    },
+    {
+      "session_step": 12,
+      "source_id": "wages_code_2019_s6",
+      "current_corrected_version_id": "487e98055c1eaf9add18fcdc5cf7fb4621699bad44b3c16441d058c37a04d42c",
+      "document": "The Code on Wages, 2019",
+      "section": "6",
+      "packet_reference": "docs/audits/review_packets/wages_code_2019_s6.json",
+      "status": "REVIEW_PENDING",
+      "predecessor_revision": "8ef5477b35db0fa30ef180f5f7291e8b5027af51828d1b015f5a235ba1d541ed",
+      "review_receipt_status": "NONE",
+      "temporal_review_status": "PENDING",
+      "raw_sha256": "23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687",
+      "gridfs_file_id": "6acfb8968da4303adef98ab4",
+      "gridfs_key": "raw_legal_sources/india_code_central/23b93fe0426b540ca833d3348f58c7564efcf33c30dfaac61ff1ec36cb2cb687.pdf",
+      "retrieved_at": "2026-10-14T17:15:01.870635+00:00",
+      "official_url": "https://indiacode.gov.in/server/api/core/bitstreams/7e3863af-0263-4c95-a42a-1bdd0a55a5fc/content"
+    }
+  ]
+}

@@ -117,6 +117,8 @@ class AuthorityReview:
             raise ValueError('Explicit decision and review rationale required')
         source = self.corpus.get(source_id)
         if not source or source['version_id'] != expected_version:
+            source = self.corpus.get(source_id, expected_version)
+        if not source or source['version_id'] != expected_version:
             raise ValueError('Authority revision changed; review the current revision')
         submission = self.db.get('legal_review_submissions', expected_version)
         if submission and submission['actor'] == reviewer['id']:

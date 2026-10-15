@@ -251,6 +251,8 @@ class ControlledCorpusPopulator:
                     "note": "Commencement and amendment notifications require independent human verification",
                 }
             ],
+            "prior_revision": source.get("parent_revision"),
+            "predecessor_revision": source.get("parent_revision"),
             "review_eligible": False,
             "current_review_state": source.get("review_state", "REVIEW_PENDING"),
             "temporal_reviewed": source.get("temporal_reviewed", False),

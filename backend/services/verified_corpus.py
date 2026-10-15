@@ -96,6 +96,10 @@ class VerifiedCorpus:
     def get(self, source_id, version_id=None):
         head = self.db.get('legal_authority_heads', source_id)
         if not head:
+            if version_id:
+                record = self.db.get('legal_authority_versions', version_id)
+                if record and record.get('source', {}).get('source_id') == source_id:
+                    return {**record['source'], 'version_id': record['id']}
             return None
         record = self.db.get('legal_authority_versions', version_id or head['version'])
         if not record or record['source']['source_id'] != source_id:

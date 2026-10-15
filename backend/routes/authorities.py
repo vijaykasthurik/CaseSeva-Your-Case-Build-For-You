@@ -1,4 +1,5 @@
-"""Administrative preparation and capability-gated advocate review. Reviewer identity and time never come from a form."""
+import json
+from pathlib import Path
 from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import Field
@@ -10,6 +11,21 @@ from ..services.verified_corpus import VerifiedCorpus
 from ..services.authority_review import AuthorityReview, is_authorized_authority_reviewer
 
 router = APIRouter(prefix='/api/admin/authorities')
+
+QUEUE_PATH = Path("docs/audits/phase4_review_queue.json")
+MANIFEST_PATH = Path("docs/audits/phase4_review_session_manifest.json")
+PACKET_DIR = Path("docs/audits/review_packets")
+
+
+def require_authority_reviewer(user: dict):
+    if not is_authorized_authority_reviewer(user):
+        if user.get("role") == "admin":
+            raise HTTPException(403, "Platform administrators are not legal reviewers; a verified advocate with LEGAL_AUTHORITY_REVIEW capability is required.")
+        if user.get("role") != "advocate":
+            raise HTTPException(403, "A verified advocate with LEGAL_AUTHORITY_REVIEW capability is required.")
+        if user.get("verification_status") != "VERIFIED":
+            raise HTTPException(403, "Advocate verification is required for legal authority review.")
+        raise HTTPException(403, "Explicit LEGAL_AUTHORITY_REVIEW capability required.")
 
 
 def require_admin_or_reviewer(request: Request, user: dict):
@@ -25,6 +41,40 @@ def workflow(request, user):
     require_admin_or_reviewer(request, user)
     return AuthorityReview(VerifiedCorpus(request.app.state.adapters.database),
         accounts_db=getattr(request.app.state, 'authority_identity_database', None))
+
+
+@router.get('/review-queue')
+def get_review_queue(request: Request, user=Depends(get_current_user)):
+    require_authority_reviewer(user)
+    if not QUEUE_PATH.exists():
+        raise HTTPException(404, "Review queue not found")
+    try:
+        return json.loads(QUEUE_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise HTTPException(500, f"Failed to load review queue: {exc}")
+
+
+@router.get('/session-manifest')
+def get_session_manifest(request: Request, user=Depends(get_current_user)):
+    require_authority_reviewer(user)
+    if not MANIFEST_PATH.exists():
+        raise HTTPException(404, "Session manifest not found")
+    try:
+        return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise HTTPException(500, f"Failed to load session manifest: {exc}")
+
+
+@router.get('/review-packets/{source_id}')
+def get_review_packet(source_id: str, request: Request, user=Depends(get_current_user)):
+    require_authority_reviewer(user)
+    packet_file = PACKET_DIR / f"{source_id}.json"
+    if not packet_file.exists():
+        raise HTTPException(404, f"Review packet for {source_id} not found")
+    try:
+        return json.loads(packet_file.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise HTTPException(500, f"Failed to load review packet: {exc}")
 
 
 class ReviewDecision(Strict):
