@@ -100,6 +100,21 @@ class AdapterSet:
                 "llm": self.llm_provider, "workflow": self.workflow_provider}
 
 
+def load_operator_database() -> DatabaseAdapter:
+    """Database-only operator access: no demo identities or unrelated providers."""
+    use_mock = _flag("USE_MOCK_AWS")
+    default = "mongodb" if _flag("USE_MONGODB") else (
+        "dynamodb" if _flag("USE_REAL_DATABASE") else ("mock" if use_mock else "mongodb"))
+    provider = _provider("DATABASE_PROVIDER", default,
+                         {"mongodb": "mongodb", "mongo": "mongodb", "community": "mongodb",
+                          "mock": "mock", "dynamodb": "dynamodb", "real": "dynamodb"})
+    if provider == "mongodb":
+        return MongoDatabaseAdapter()
+    if provider == "mock":
+        return MockDatabaseAdapter()
+    raise ProviderConfigurationError("Operator promotion requires the MongoDB or mock database adapter")
+
+
 def load_adapters() -> AdapterSet:
     # Resolve and validate ALL dimensions before any adapter has side effects.
     flags = {key: _flag(key) for key in ("USE_MOCK_AWS", "USE_REAL_DATABASE",

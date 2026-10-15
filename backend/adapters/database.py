@@ -9,6 +9,9 @@ class DatabaseAdapter(ABC):
             raise KeyError(record_id)
         return self.update(collection, record_id, transform(current))
 
+    def reserve_admin_role_intent(self, intent):
+        raise NotImplementedError("Administrator promotion is unsupported by this adapter")
+
     @abstractmethod
     def create(self, collection: str, record: dict[str, Any]) -> dict[str, Any]:
         raise NotImplementedError

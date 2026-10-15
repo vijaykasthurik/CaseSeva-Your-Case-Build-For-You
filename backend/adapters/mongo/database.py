@@ -20,7 +20,7 @@ class MongoDatabaseAdapter(DatabaseAdapter):
         "legal_authority_versions", "legal_authority_reviews", "legal_review_submissions",
         "legal_revision_requests", "audit_events", "review_admin_bootstrap",
         "review_admin_provisioning", "review_admin_password_rotations",
-        "authority_reviewer_grants",
+        "authority_reviewer_grants", "admin_role_audit",
     })
 
     def __init__(self, db_name: str | None = None, uri: str | None = None):
@@ -78,18 +78,25 @@ class MongoDatabaseAdapter(DatabaseAdapter):
                 raise KeyError(record_id)
 
             cleaned = self._clean_doc(current)
-            revision = current.get("_revision", 0)
+            revision = current.get("_revision")
+            if revision is not None and (not isinstance(revision, int) or isinstance(revision, bool) or revision < 0):
+                raise ValueError("Invalid mutation revision; refusing update")
 
             modifications = transform(copy.deepcopy(cleaned))
+            if not modifications:
+                return cleaned
             cleaned.update(modifications)
-            cleaned["_revision"] = revision + 1
-            cleaned["_id"] = target_id
+            cleaned["_revision"] = (revision or 0) + 1
+            cleaned["_id"] = current["_id"]
             if "id" not in cleaned:
                 cleaned["id"] = target_id
 
-            # Atomic CAS update using matching revision
+            # Compare the entire observed BSON document, including absent/null
+            # fields and the original _id. Repository writers may not increment
+            # _revision, so revision alone cannot protect their changes either.
+            # $literal prevents stored values from becoming query expressions.
             result = coll.replace_one(
-                {"_id": target_id, "_revision": revision},
+                {"_id": current["_id"], "$expr": {"$eq": ["$$ROOT", {"$literal": current}]}},
                 cleaned,
                 upsert=False
             )
@@ -112,6 +119,23 @@ class MongoDatabaseAdapter(DatabaseAdapter):
     def list(self, collection: str) -> list[dict[str, Any]]:
         coll = self._db[collection]
         return [self._clean_doc(doc) for doc in coll.find({})]
+
+    def reserve_admin_role_intent(self, intent):
+        claims = self._db.get_collection("admin_role_audit", write_concern=WriteConcern(w="majority", j=True))
+        # Includes legacy random-ID intents. Duplicate history fails closed;
+        # never repair or delete history to make this index succeed.
+        claims.create_index("user_id", unique=True, name="idx_admin_role_user_unique")
+        existing = claims.find_one({"user_id": intent["user_id"]})
+        if existing:
+            return self._clean_doc(existing)
+        try:
+            claims.insert_one({**intent, "_id": intent["id"], "_revision": 1})
+        except DuplicateKeyError:
+            existing = claims.find_one({"user_id": intent["user_id"]})
+            if not existing:
+                raise ValueError("Conflicting administrator audit identity")
+            return self._clean_doc(existing)
+        return intent
 
     def _provisioning_collections(self):
         # Provisioning must enforce constraints even when startup index setup was

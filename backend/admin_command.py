@@ -4,26 +4,27 @@ Run: python -m backend.admin_command --email operator@example.com
 Requires an existing account and the configured database credentials.
 """
 import argparse
-from uuid import uuid4
-from .adapters.factory import load_adapters
-from .models.case import utc_now
+from pymongo.errors import PyMongoError
+from .adapters.factory import load_operator_database
+from .services.admin_promotion import promote_existing_user_to_admin
 
 
 def main():
     parser = argparse.ArgumentParser(description="Grant administrator role to an existing account.")
-    parser.add_argument("--email", required=True)
+    identity = parser.add_mutually_exclusive_group(required=True)
+    identity.add_argument("--email")
+    identity.add_argument("--user-id", help="Existing account ID; also checks email uniqueness")
     args = parser.parse_args()
-    adapters = load_adapters()
-    db = adapters.database
-    matches = [user for user in db.list("users") if user.get("email", "").lower() == args.email.strip().lower()]
-    if len(matches) != 1:
-        parser.error("Exactly one existing account must match; no account was changed.")
-    user = matches[0]
-    if user.get("role") == "admin":
+    try:
+        db = load_operator_database()
+        result = promote_existing_user_to_admin(db, args.email, user_id=args.user_id)
+    except (ValueError, RuntimeError) as exc:
+        parser.error(str(exc))
+    except PyMongoError:
+        parser.error("Database operation failed; any saved audit intent is retained. Resolve database availability or conflicting audit history before rerunning this command.")
+    if result['status'] == 'already_admin':
         print("This account already has the administrator role.")
         return
-    db.create("admin_role_audit", {"id": uuid4().hex, "user_id": user["id"], "previous_role": user.get("role"), "new_role": "admin", "assigned_at": utc_now(), "method": "OPERATOR_CLI"})
-    db.update("users", user["id"], {"role": "admin"})
     print("Administrator role assigned. Sign in again before opening verification administration.")
 
 

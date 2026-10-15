@@ -55,14 +55,17 @@ class MockDatabaseAdapter(DatabaseAdapter):
         raise RuntimeError("Local database write failed.")
 
     def mutate(self, collection: str, record_id: str, transform) -> dict[str, Any]:
-        if collection in {"authority_reviewer_grants", "legal_authority_reviews"}:
+        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit"}:
             raise ValueError("Historical records are append-only")
         with self._lock:
             data = self._read()
             record = data.get(collection, {}).get(record_id)
             if record is None:
                 raise KeyError(record_id)
-            record.update(transform(dict(record)))
+            changes = transform(dict(record))
+            if not changes:
+                return dict(record)
+            record.update(changes)
             self._write(data)
             return dict(record)
 
@@ -76,6 +79,21 @@ class MockDatabaseAdapter(DatabaseAdapter):
             bucket[record_id] = dict(record)
             self._write(data)
         return dict(record)
+
+    def reserve_admin_role_intent(self, intent):
+        with self._lock:
+            data = self._read()
+            bucket = data.setdefault("admin_role_audit", {})
+            matches = [a for a in bucket.values() if a.get("user_id") == intent["user_id"]]
+            if len(matches) > 1:
+                raise ValueError("Ambiguous administrator audit history")
+            if matches:
+                return dict(matches[0])
+            if intent["id"] in bucket:
+                raise ValueError("Conflicting administrator audit identity")
+            bucket[intent["id"]] = dict(intent)
+            self._write(data)
+            return dict(intent)
 
     def create_local_review_admin(self, user: dict[str, Any]) -> None:
         """Atomically claim the one-time bootstrap and insert a new dedicated user."""
@@ -122,7 +140,7 @@ class MockDatabaseAdapter(DatabaseAdapter):
             self._write(data)
 
     def update(self, collection: str, record_id: str, changes: dict[str, Any]) -> dict[str, Any]:
-        if collection in {"authority_reviewer_grants", "legal_authority_reviews"}:
+        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit"}:
             raise ValueError("Historical records are append-only")
         with self._lock:
             data = self._read()
@@ -135,7 +153,7 @@ class MockDatabaseAdapter(DatabaseAdapter):
             return dict(record)
 
     def delete(self, collection: str, record_id: str) -> bool:
-        if collection in {"authority_reviewer_grants", "legal_authority_reviews"}:
+        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit"}:
             raise ValueError("Historical records are append-only")
         with self._lock:
             data = self._read()
