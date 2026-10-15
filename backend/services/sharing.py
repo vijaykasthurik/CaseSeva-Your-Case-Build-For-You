@@ -55,10 +55,86 @@ def grant_access(db, case, user, scopes, evidence_ids, hours):
         raise HTTPException(422, "Choose valid sharing scopes.")
     if evidence_ids and "evidence" not in scopes:
         raise HTTPException(422, "Evidence sharing scope is required.")
-    grant = {"id": uuid4().hex, "case_id": case["case_id"], "owner_user_id": user["id"], "advocate_id": case["assigned_advocate_id"], "scopes": scopes, "evidence_ids": evidence_ids, "created_at": utc_now(), "expires_at": (datetime.now(timezone.utc) + timedelta(hours=hours)).isoformat(), "revoked_at": None}
+    cf = case.get("canonical_case_file") or case.get("case_file") or {}
+    engine1_version = cf.get("version")
+    e2 = case.get("engine2_report") or case.get("engine2") or {}
+    engine2_version = e2.get("version") or e2.get("case_file_version")
+    grant = {
+        "id": uuid4().hex,
+        "case_id": case["case_id"],
+        "owner_user_id": user["id"],
+        "advocate_id": case["assigned_advocate_id"],
+        "scopes": scopes,
+        "evidence_ids": evidence_ids,
+        "engine1_case_file_version": engine1_version,
+        "engine2_version": engine2_version,
+        "created_at": utc_now(),
+        "expires_at": (datetime.now(timezone.utc) + timedelta(hours=hours)).isoformat(),
+        "revoked_at": None,
+    }
     db.create("case_grants", grant)
     db.create("consent_audit", {"id": uuid4().hex, "action": "GRANT", "actor_id": user["id"], **grant})
     return grant
+
+
+def build_handoff_contract(case: dict, grant: dict | None = None, db=None) -> dict:
+    canonical = case.get("canonical_case_file") or case.get("case_file") or {}
+    e1_version = canonical.get("version")
+    e2_report = case.get("engine2_report") or {}
+    e2_persisted = case.get("engine2") or {}
+    e2_ran = bool(e2_report) or bool(e2_persisted.get("overview_ready"))
+
+    scopes = grant.get("scopes", []) if grant else ["story", "raw_package", "case_file", "engine2", "evidence"]
+    allowed_evidence_ids = set(grant.get("evidence_ids", [])) if grant and "evidence" in scopes else {e["evidence_id"] for e in case.get("evidence", [])}
+
+    clarifications = []
+    for r in case.get("clarification_rounds", []):
+        if r.get("answers"):
+            clarifications.extend(r["answers"])
+
+    evidence_refs = []
+    for e in case.get("evidence", []):
+        if not grant or ("evidence" in scopes and e["evidence_id"] in allowed_evidence_ids):
+            evidence_refs.append({
+                "evidence_id": e.get("evidence_id"),
+                "filename": e.get("filename"),
+                "content_type": e.get("content_type"),
+                "content_hash": e.get("content_hash") or e.get("extraction", {}).get("content_hash"),
+                "verification_status": e.get("verification_status", "UNVERIFIED"),
+                "uploaded_at": e.get("uploaded_at"),
+            })
+
+    disclosure = (
+        "Case Challenge / Argument Analysis was not run." if not e2_ran else (
+            "Argument analysis was run on an earlier Case File version and is now stale. Rerun Strengthen My Case to update." if case.get("engine2_stale") else
+            "Argument analysis was run on the current Case File."
+        )
+    )
+
+    contract = {
+        "case_id": case.get("case_id"),
+        "engine1_case_file_version": e1_version,
+        "engine2_version": e2_report.get("version") or (e2_persisted.get("case_file_version") if e2_ran else None),
+        "engine2_run_id": e2_report.get("engine2_run_id") or e2_persisted.get("run_id"),
+        "engine2_skipped": not e2_ran,
+        "engine2_disclosure": disclosure,
+        "citizen_story": case.get("client_story") if (not grant or "story" in scopes) else None,
+        "evidence_references": evidence_refs,
+        "clarification_answers": clarifications,
+        "consent_id": grant.get("id") if grant else None,
+        "consent_scopes": scopes if grant else ["OWNER_PREVIEW"],
+        "consent_timestamp": grant.get("created_at") if grant else None,
+        "canonical_case_file": canonical if (not grant or "case_file" in scopes) else None,
+        "engine2_report": e2_report if (not grant or "engine2" in scopes) else None,
+        "created_at": utc_now(),
+        "provenance": {
+            "origin": case.get("origin", "CITIZEN_SELF_SERVICE"),
+            "pipeline_status": case.get("status"),
+            "legal_foundation_status": canonical.get("legal_foundation_status"),
+            "documents_outdated": case.get("documents_outdated", False),
+        },
+    }
+    return contract
 
 
 def shared_case(case, grant, db=None):

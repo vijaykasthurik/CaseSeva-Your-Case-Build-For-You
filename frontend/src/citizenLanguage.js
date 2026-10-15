@@ -37,5 +37,76 @@ export function citizenStatus(status) {
   const [label, explanation] = messages[status] || ["Your case has an update", "Check the latest update from your advocate for the next step."];
   return { label, explanation, source: "CaseSeva Internal Status" };
 }
-export const stageLabel = stage => ({ READING_INPUT: "Reading your information", INTAKE_CLEANING: "Reading your information", EVIDENCE_INDEXING: "Reading your documents", FACT_EXTRACTION: "Understanding what happened", TIMELINE_CONSTRUCTION: "Building your timeline", PARTY_IDENTIFICATION: "Identifying people involved", MISSING_INFORMATION: "Checking for missing information", RECONCILIATION: "Analysing your answers", DOMAIN_ROUTER: "Researching applicable law", LEGAL_ISSUE_IDENTIFICATION: "Understanding the legal questions", STATUTE_RETRIEVAL: "Researching applicable law", CITATION_VERIFICATION: "Verifying legal sources", TEMPORAL_LAW_CHECK: "Checking which law applies to the dates", JURISDICTION_FORUM: "Checking where the matter may be heard", LIMITATION_CHECK: "Checking time-limit information", EVIDENCE_ISSUE_MAPPING: "Checking your evidence", CASE_FILE_ASSEMBLY: "Completing your case explanation", CLAIMANT_COUNSEL: "Checking what supports your position", OPPONENT_COUNSEL: "Considering what may be questioned", EVIDENCE_CHALLENGER: "Checking where more proof may help", REBUTTAL: "Considering possible responses", NEUTRAL_EVALUATION: "Summarising matters for professional review", OVERVIEW_BUILDER: "Preparing your overview" })[stage] || "Preparing your case information";
-export const readiness = level => ({ "Well supported": "The issue has relevant supporting information and verified legal grounds.", "Partially supported": "Some parts are supported; other parts still need evidence or review.", Thin: "More relevant evidence is needed before this issue can be assessed reliably.", Unresolved: "Important information or verified legal grounds are still unknown." })[level] || "Professional review is needed.";
+export const stageLabel = stage => ({
+  READING_INPUT: "Reading your information",
+  INTAKE_CLEANING: "Reading your information",
+  EVIDENCE_INDEXING: "Reviewing your evidence",
+  FACT_EXTRACTION: "Understanding what happened",
+  TIMELINE_CONSTRUCTION: "Organizing events",
+  PARTY_IDENTIFICATION: "Identifying people and organizations",
+  FACT_TIMELINE: "Understanding what happened and organizing events",
+  MISSING_INFORMATION: "Checking for missing information",
+  RECONCILIATION: "Reviewing your details and answers",
+  DOMAIN_ROUTER: "Checking relevant legal areas",
+  LEGAL_ISSUE_IDENTIFICATION: "Finding important issues",
+  STATUTE_RETRIEVAL: "Checking relevant legal sources",
+  CITATION_VERIFICATION: "Verifying legal sources",
+  TEMPORAL_LAW_CHECK: "Checking which law applies to the dates",
+  JURISDICTION_FORUM: "Checking where the matter may be heard",
+  LIMITATION_CHECK: "Checking time-limit information",
+  EVIDENCE_ISSUE_MAPPING: "Checking your evidence against issues",
+  CASE_FILE_ASSEMBLY: "Preparing your case overview",
+  CLAIMANT_COUNSEL: "Checking what supports your position",
+  OPPONENT_COUNSEL: "Considering what may be questioned",
+  EVIDENCE_CHALLENGER: "Checking where more proof may help",
+  REBUTTAL: "Considering possible responses",
+  NEUTRAL_EVALUATION: "Summarising matters for professional review",
+  OVERVIEW_BUILDER: "Finalizing your case overview"
+})[stage] || "Preparing your case information";
+
+export const readiness = level => ({
+  "Well supported": "The issue has relevant supporting information and verified legal grounds.",
+  "Partially supported": "Some parts are supported; other parts still need evidence or review.",
+  Thin: "More relevant evidence is needed before this issue can be assessed reliably.",
+  Unresolved: "Important information or verified legal grounds are still unknown."
+})[level] || "Professional review is needed.";
+
+export function legalStatusExplanation(status) {
+  switch (status) {
+    case "VERIFIED_AUTHORITY":
+      return {
+        title: "Verified Legal Sources Available",
+        badge: "VERIFIED LAW",
+        cls: "gold",
+        text: "Reviewed official legal sources and provisions are available for your case."
+      };
+    case "PENDING_SOURCE":
+      return {
+        title: "Legal Sources Pending Review",
+        badge: "PENDING SOURCE",
+        cls: "grey",
+        text: "Your case understanding is ready, but applicable legal sources still require independent review by an enrolled advocate."
+      };
+    case "ABSTAINED":
+      return {
+        title: "Legal Authority Not Asserted",
+        badge: "ABSTAINED",
+        cls: "grey",
+        text: "CaseSeva did not assert statutory citations for this matter. Consult an enrolled advocate for legal research."
+      };
+    case "CONFLICTING_AUTHORITY":
+      return {
+        title: "Legal Source Picture Needs Review",
+        badge: "CONFLICTING",
+        cls: "crimson",
+        text: "The legal-source picture needs further professional review by an advocate."
+      };
+    default:
+      return {
+        title: "Legal Foundation Not Requested Yet",
+        badge: "NOT REQUESTED",
+        cls: "grey",
+        text: "Factual understanding is ready; legal source research has not been run or is pending."
+      };
+  }
+}

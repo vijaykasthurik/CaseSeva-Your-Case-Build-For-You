@@ -137,18 +137,38 @@ def create_case(request: Request, body: CreateBody | None = None, user: dict = D
 
 @router.get("")
 def list_cases(request: Request, user: dict = Depends(get_current_user)) -> dict[str, list[dict[str, Any]]]:
-    cases = [
-        {
+    cases = []
+    for case in request.app.state.adapters.database.list("cases"):
+        if case["owner_user_id"] != user["id"]:
+            continue
+        cf = case.get("canonical_case_file") or case.get("case_file") or {}
+        e2 = case.get("engine2") or case.get("engine2_report") or {}
+        ran_e2 = bool(e2.get("overview_ready")) or bool(case.get("engine2_report"))
+        e2_stale = case.get("engine2_stale", False) or (ran_e2 and bool(e2.get("engine1_case_file_version")) and e2.get("engine1_case_file_version") != cf.get("version"))
+        e2_state = "STALE" if e2_stale else ("RUN" if ran_e2 else "NOT_RUN")
+
+        clarification_needed = case.get("status") == "AWAITING_CLIENT_INFO" or any(r.get("status") == "WAITING" for r in case.get("clarification_rounds", []))
+
+        assigned_adv = case.get("assigned_advocate_id")
+        requested_adv = case.get("requested_advocate_id")
+        connection_status = "CONNECTED" if assigned_adv else ("REQUESTED" if requested_adv else "NONE")
+
+        cases.append({
             "case_id": case["case_id"],
             "status": case["status"],
             "created_at": case["created_at"],
+            "updated_at": case.get("story_updated_at") or case.get("updated_at") or case.get("created_at"),
             "stage": case.get("stage"),
             "title": (case.get("client_story", "").strip() or "Untitled case")[:80],
-            "preview": case.get("client_story", "").strip()[:140],
-        }
-        for case in request.app.state.adapters.database.list("cases")
-        if case["owner_user_id"] == user["id"]
-    ]
+            "preview": (case.get("client_story", "").strip() or "No narrative details recorded yet.")[:140],
+            "clarification_needed": clarification_needed,
+            "engine1_available": bool(cf),
+            "engine1_version": cf.get("version"),
+            "legal_foundation_status": cf.get("legal_foundation_status", "PENDING_SOURCE" if case.get("legal_foundation_requested") else "NOT_REQUESTED"),
+            "engine2_state": e2_state,
+            "advocate_connection_status": connection_status,
+            "assigned_advocate_id": assigned_adv,
+        })
     cases.sort(key=lambda item: item["created_at"], reverse=True)
     return {"cases": cases}
 

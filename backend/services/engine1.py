@@ -29,7 +29,7 @@ def run_engine1(app, case_id, start_stage=None):
     db = adapters.database
     case = db.get("cases", case_id)
     knowledge = LegalKnowledge()
-    stages = ENGINE1_STAGES[ENGINE1_STAGES.index(start_stage):] if start_stage else ENGINE1_STAGES
+    stages = ENGINE1_STAGES[ENGINE1_STAGES.index(start_stage):] if (start_stage and start_stage in ENGINE1_STAGES) else ENGINE1_STAGES
     statuses = {name: "WAITING" for name in stages}
     db.update("cases", case_id, {"status": "ENGINE1_RUNNING", "active_engine": "Engine 1 — Understand + Legal Foundation", "stage_statuses": statuses, "processing_error": None})
     engine_state(db, case_id, 1, "RUNNING", input_version=case.get("input_version", 1))

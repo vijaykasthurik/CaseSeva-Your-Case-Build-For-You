@@ -192,3 +192,4 @@ export const downloadCaseDocument = async (caseId, document, format) => {
 };
 
 export const retryInput = caseId => request(`/api/cases/${caseId}/input/retry`, { method: "POST" });
+export const getCaseHandoff = (caseId) => request(`/api/cases/${caseId}/handoff`);

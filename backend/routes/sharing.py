@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from ..models.case import utc_now
-from ..services.sharing import active_grant, grant_access, issue_token, require_access
+from ..services.sharing import active_grant, grant_access, issue_token, require_access, build_handoff_contract
 from .dependencies import get_current_user, get_case_or_error
 
 router = APIRouter(prefix="/api")
@@ -75,3 +75,27 @@ def evidence(case_id: str, evidence_id: str, request: Request, user=Depends(get_
     if not item:
         raise HTTPException(404, "Evidence not found.")
     return Response(request.app.state.adapters.storage.download(item["storage_key"]), media_type=item["content_type"])
+
+
+@router.get("/cases/{case_id}/handoff")
+def client_handoff(case_id: str, request: Request, user=Depends(get_current_user)):
+    case = get_case_or_error(request, case_id, user)
+    db = request.app.state.adapters.database
+    grant = active_grant(db, case_id, case.get("assigned_advocate_id", ""))
+    return {"handoff": build_handoff_contract(case, grant, db)}
+
+
+@router.get("/advocate/cases/{case_id}/handoff")
+def advocate_handoff(case_id: str, request: Request, user=Depends(get_current_user)):
+    if user.get("role") != "advocate" or user.get("verification_status") != "VERIFIED":
+        raise HTTPException(403, "Verified advocate access required.")
+    db = request.app.state.adapters.database
+    case = db.get("cases", case_id)
+    if not case:
+        raise HTTPException(404, "Case not found.")
+    if case.get("assigned_advocate_id") != user["id"]:
+        raise HTTPException(403, "This case is not assigned to you.")
+    grant = active_grant(db, case_id, user["id"])
+    if not grant:
+        raise HTTPException(403, "Explicit citizen consent required before accessing case handoff.")
+    return {"handoff": build_handoff_contract(case, grant, db)}

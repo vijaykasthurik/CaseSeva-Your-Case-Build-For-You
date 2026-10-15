@@ -64,7 +64,7 @@ def answer(case_id: str, body: Answers, request: Request, user=Depends(get_curre
         return {"status": "resuming"}
     batch.update({"answers": [item.model_dump() for item in body.answers], "status": "ANSWERED", "answered_at": utc_now(), "answered_by": user["id"]})
     write(request.app.state.adapters.database, case_id, {"clarification_rounds": rounds, "status": "ENGINE1_RUNNING", "input_version": case.get("input_version", 1) + 1, "engine2_stale": bool(case.get("engine2")), "documents_outdated": bool(case.get("document_version"))}, user["id"], "clarification_answered")
-    try: dispatch(request.app, 1, case_id, start_stage=batch["resume_stage"])
+    try: dispatch(request.app, 1, case_id, start_stage=batch.get("resume_stage", "READING_INPUT"))
     except Exception:
         write(request.app.state.adapters.database, case_id, {"status": "REVIEW_REQUIRED", "processing_error": {"engine": 1, "message": "Your answers are saved, but processing could not resume. Please retry."}}, action="resume_failed")
         raise HTTPException(503, "Your answers are saved. Processing needs to be resumed.")

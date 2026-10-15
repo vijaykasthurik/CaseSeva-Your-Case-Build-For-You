@@ -115,14 +115,19 @@ export default function CommonInputPage() {
   if (!ready) return <main className="main-container"><p>{message || "Loading draftâ€¦"}</p></main>;
   return <main className="main-container content-narrow" style={{ paddingBottom: "5rem" }}>
     <h1>Tell us what happened</h1>
-    <p>Use English, Tamil, or both. Type your story or provide an audio/video narration. You can add supporting files too.</p>
-    <p>AI-assisted legal information, not legal advice. An advocate reviews the case before filing.</p>
+    <div style={{ background: "#F9FAFB", border: "1px solid #E5E7EB", borderRadius: "8px", padding: "1rem 1.25rem", margin: "1rem 0 1.5rem" }}>
+      <p style={{ fontWeight: 600, color: "#111827", margin: "0 0 0.25rem 0" }}>You only need to explain what happened.</p>
+      <p style={{ fontSize: "0.9rem", color: "#4B5563", margin: 0 }}>
+        You do not need to choose a legal category or identify statutes and sections. Write in English, தமிழ் (Tamil), हिन्दी (Hindi), or mixed language. Include what you know; unknown dates or details can remain unknown.
+      </p>
+    </div>
+    <p style={{ fontSize: "0.85rem", color: "#6B7280" }}>AI-assisted case understanding, not legal advice. An advocate reviews the case before any formal step.</p>
     <form onSubmit={submit}>
       {walkin && <fieldset><legend>Walk-in client and consent</legend>{[["client_name", "Client name"], ["client_email", "Client email (optional)"], ["client_mobile", "Client mobile (optional)"], ["preferred_language", "Client preferred language"]].map(([key, label]) => <label key={key} style={{ display: "block" }}>{label}<input value={client[key]} onChange={event => setClient({ ...client, [key]: event.target.value })} /></label>)}<label><input type="checkbox" checked={client.consent} onChange={event => setClient({ ...client, consent: event.target.checked })} /> I have the client's consent to record and process this case. This declaration is recorded under my advocate account.</label></fieldset>}
       <label>What best describes your situation?<select aria-label="Case stage" value={stage} onChange={event => { changed.current = true; setStage(event.target.value); setDetails({}); }}>
         {stages.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
       </select></label>
-      <label htmlFor="case-story" style={{ display: "block", marginTop: "1.5rem" }}>Your story</label><textarea id="case-story" rows={9} value={story} onChange={event => { changed.current = true; setStory(event.target.value); }} placeholder="What happened? Include only what you know. Unknown dates or names can stay unknown." />
+      <label htmlFor="case-story" style={{ display: "block", marginTop: "1.5rem" }}>Your story</label><textarea id="case-story" rows={9} value={story} onChange={event => { changed.current = true; setStory(event.target.value); }} placeholder="What happened? In your own words, explain the events, payments, promises, or defects. Unknown dates or names can stay unknown." />
       <p aria-live="polite">{saved}</p>
       <button type="button" className="btn-pill-secondary" onClick={microphone} disabled={busy}>{recording ? "Stop recording and upload" : "Record with microphone"}</button>
       {recording && <p role="status">Recordingâ€¦ Stop when you are finished.</p>}

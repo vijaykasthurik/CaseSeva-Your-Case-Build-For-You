@@ -66,7 +66,7 @@ def client_overview(case: dict, db=None) -> dict:
         "argument_analysis_note": "Argument analysis was run on the current Case File." if ran else ("Argument analysis was run on an earlier Case File version and is now stale. Rerun Strengthen My Case to update." if e2_stale else "Adversarial case-strengthening analysis was not run on the current Case File."),
         "issue_readiness": evaluation.get("issue_readiness", []) if ran else [],
         "key_risks": evaluation.get("unresolved_risks", []), "missing_details": missing,
-        "key_challenges": [oa.get("summary") for oa in e2.get("opposing_arguments", [])] if ran else [],
+        "key_challenges": ([oa.get("summary") for oa in e2.get("opposing_arguments", [])] if e2.get("opposing_arguments") else [ai.get("description") for ai in e2.get("alternative_interpretations", [])]) if ran else [],
         "evidence_gaps": [eg.get("description") for eg in e2.get("evidence_gaps", [])] if ran else [],
         "unresolved_contradictions": [c.get("description") for c in e2.get("contradictions", [])] if ran else [],
         "preparation_actions": e2.get("preparation_actions", []) if ran else [],
@@ -79,23 +79,19 @@ def client_overview(case: dict, db=None) -> dict:
         "legal_foundation_status": file.get("legal_foundation_status", "PENDING_SOURCE" if case.get("legal_foundation_requested") else "NOT_REQUESTED"),
         "pipeline_status": case.get("status"),
     }
+    legal_status = output["legal_foundation_status"]
+    if legal_status == "VERIFIED_AUTHORITY":
+        output["next_step"] = "Verified source research is ready for advocate review."
+    elif legal_status == "PENDING_SOURCE":
+        output["next_step"] = "Legal foundation is pending independent legal review by an enrolled advocate. Your saved case understanding is preserved."
+    elif legal_status == "ABSTAINED":
+        output["next_step"] = "The system has abstained from asserting statutory citations. Consult a verified advocate for legal research."
+    elif legal_status == "CONFLICTING_AUTHORITY":
+        output["next_step"] = "The legal-source picture needs further professional review. Consult a verified advocate."
     if case.get("engine1_execution") == "ORCHESTRATED_CORE_V1":
         state = case.get("case_understanding_status")
         output.update(case_understanding_status=state if state in {"BUILDING", "READY", "REVIEW_REQUIRED", "NEEDS_INPUT"} else "PENDING",
-                      ready_to_find_advocate=False,
-                      next_step="Case understanding is being prepared or reviewed. Verified legal analysis is pending.")
-        if case.get('legal_foundation_requested'):
-            state = case.get('legal_foundation_status')
-            output['ready_to_find_advocate'] = bool(file) and bool(case.get('legal_case_file_current')) and file.get('legal_foundation_status') == 'VERIFIED_AUTHORITY' and not case.get('processing_error')
-            if output['ready_to_find_advocate']:
-                output['next_step'] = 'Verified source research is ready for advocate review.'
-            elif file.get("legal_foundation_status") == "PENDING_SOURCE":
-                output['next_step'] = 'Legal foundation is pending independent legal review by an enrolled advocate. Your saved case understanding is preserved.'
-            elif file.get("legal_foundation_status") == "ABSTAINED":
-                output['next_step'] = 'The system has abstained from asserting statutory citations. Consult a verified advocate for legal research.'
-            else:
-                output['next_step'] = ('Verified source research is ready for advocate review.' if output['ready_to_find_advocate']
-                                       else 'Legal verification is incomplete. Your saved information is preserved for review.')
+                      ready_to_find_advocate=bool(file) and not case.get("processing_error"))
     return output
 
 

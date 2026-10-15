@@ -127,7 +127,7 @@ def directory(request: Request, domain: str | None = None, state: str | None = N
             continue
         if language and language.lower() not in [item.lower() for item in advocate.get("languages", [])]:
             continue
-        result.append({key: advocate.get(key) for key in ("id", "full_name", "bar_council", "enrolment_year", "place_of_practice", "practice_domains", "languages", "state", "court_region")})
+        result.append({key: advocate.get(key) for key in ("id", "full_name", "bar_council", "enrolment_year", "place_of_practice", "practice_domains", "languages", "state", "court_region", "verification_status")})
     return {"advocates": result}
 
 
@@ -247,16 +247,21 @@ def request_advocate(case_id: str, request: Request, body: AdvocateRequestBody |
     if not advocate_id:
         raise HTTPException(status_code=422, detail="advocate_id is required")
     case = get_case_or_error(request, case_id, user)
-    if user.get("role") != "client" or case["status"] not in {"READY_FOR_ADVOCATE", "PREVIEW_2_APPROVED", "ENGINE1_DONE", "ENGINE2_DONE", "LEGAL_CORPUS_NOT_READY", "REVIEW_REQUIRED"} or (case.get("processing_error") and not case.get("raw_package")):
+    eligible_statuses = {
+        "READY_FOR_ADVOCATE", "PREVIEW_2_APPROVED", "ENGINE1_DONE", "ENGINE2_DONE",
+        "LEGAL_CORPUS_NOT_READY", "REVIEW_REQUIRED", "ENGINE1_CASE_FILE_READY",
+        "LEGAL_FOUNDATION_REVIEW_REQUIRED", "CASE_UNDERSTANDING_READY"
+    }
+    if user.get("role") != "client" or case["status"] not in eligible_statuses or (case.get("processing_error") and not case.get("raw_package")):
         raise HTTPException(status_code=409, detail="Only approved client cases can request an advocate")
     advocate = request.app.state.adapters.database.get("users", advocate_id)
     if not advocate or advocate.get("role") != "advocate" or advocate.get("verification_status") != "VERIFIED":
         raise HTTPException(status_code=400, detail="Selected advocate is not verified")
-    existing = next((item for item in request.app.state.adapters.database.list("advocate_requests") if item["case_id"] == case_id and item["status"] == "PENDING"), None)
+    existing = next((item for item in request.app.state.adapters.database.list("advocate_requests") if item["case_id"] == case_id and item.get("status") in {"PENDING", "REQUESTED"}), None)
     if existing:
         raise HTTPException(status_code=409, detail="A request is already pending")
-    request.app.state.adapters.database.create("advocate_requests", {"id": f"{case_id}-{advocate_id}", "case_id": case_id, "advocate_id": advocate_id, "client_id": user["id"], "status": "PENDING", "created_at": utc_now()})
-    updated = request.app.state.adapters.database.update("cases", case_id, {"status": "AWAITING_ADVOCATE", "requested_advocate_id": advocate_id, "version": case.get("version", 1) + 1})
+    request.app.state.adapters.database.create("advocate_requests", {"id": f"{case_id}-{advocate_id}", "case_id": case_id, "advocate_id": advocate_id, "client_id": user["id"], "status": "REQUESTED", "created_at": utc_now()})
+    updated = request.app.state.adapters.database.update("cases", case_id, {"status": "AWAITING_ADVOCATE", "requested_advocate_id": advocate_id, "advocate_connection_status": "REQUESTED", "version": case.get("version", 1) + 1})
     from ..services.overview import client_case
     return {"case": client_case(updated, request.app.state.adapters.database)}
 
@@ -264,12 +269,12 @@ def request_advocate(case_id: str, request: Request, body: AdvocateRequestBody |
 @router.post("/cases/{case_id}/cancel-advocate-request")
 def cancel_request(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     case = get_case_or_error(request, case_id, user)
-    pending = next((item for item in request.app.state.adapters.database.list("advocate_requests") if item["case_id"] == case_id and item["client_id"] == user["id"] and item["status"] == "PENDING"), None)
+    pending = next((item for item in request.app.state.adapters.database.list("advocate_requests") if item["case_id"] == case_id and item["client_id"] == user["id"] and item.get("status") in {"PENDING", "REQUESTED"}), None)
     if not pending:
         raise HTTPException(status_code=404, detail="Pending advocate request not found")
     request.app.state.adapters.database.update("advocate_requests", pending["id"], {"status": "CANCELLED"})
-    restored_status = "ENGINE2_DONE" if case.get("engine2") else "ENGINE1_DONE"
-    updated = request.app.state.adapters.database.update("cases", case_id, {"status": restored_status if case.get("workflow_version") == 2 else "PREVIEW_2_APPROVED", "requested_advocate_id": None, "version": case.get("version", 1) + 1})
+    restored_status = "ENGINE2_DONE" if case.get("engine2") else ("ENGINE1_CASE_FILE_READY" if case.get("canonical_case_file") else "ENGINE1_DONE")
+    updated = request.app.state.adapters.database.update("cases", case_id, {"status": restored_status if case.get("workflow_version") == 2 else "PREVIEW_2_APPROVED", "requested_advocate_id": None, "advocate_connection_status": "CANCELLED", "version": case.get("version", 1) + 1})
     from ..services.overview import client_case
     return {"case": client_case(updated, request.app.state.adapters.database)}
 
@@ -279,7 +284,7 @@ def advocate_requests(request: Request, user: dict = Depends(get_current_user)):
     require_advocate(user)
     result = []
     for item in request.app.state.adapters.database.list("advocate_requests"):
-        if item["advocate_id"] != user["id"] or item["status"] != "PENDING":
+        if item["advocate_id"] != user["id"] or item.get("status") not in {"PENDING", "REQUESTED"}:
             continue
         case = request.app.state.adapters.database.get("cases", item["case_id"])
         result.append({"case_id": item["case_id"], "status": item["status"], "domain": case.get("legal_domain", {}).get("domain"), "sub_domain": case.get("legal_domain", {}).get("sub_domain"), "forum_level": case.get("forum", {}).get("commission_level"), "evidence_count": len(case.get("evidence", [])), "unresolved_risks_count": len(case.get("neutral_evaluation", {}).get("unresolved_risks", []))})
@@ -289,11 +294,11 @@ def advocate_requests(request: Request, user: dict = Depends(get_current_user)):
 @router.post("/advocate/requests/{case_id}/accept")
 def accept_request(case_id: str, request: Request, user: dict = Depends(get_current_user)):
     require_advocate(user)
-    item = next((item for item in request.app.state.adapters.database.list("advocate_requests") if item["case_id"] == case_id and item["advocate_id"] == user["id"] and item["status"] == "PENDING"), None)
+    item = next((item for item in request.app.state.adapters.database.list("advocate_requests") if item["case_id"] == case_id and item["advocate_id"] == user["id"] and item.get("status") in {"PENDING", "REQUESTED"}), None)
     if not item:
         raise HTTPException(status_code=403, detail="No pending request for this advocate")
     request.app.state.adapters.database.update("advocate_requests", item["id"], {"status": "ACCEPTED"})
-    request.app.state.adapters.database.update("cases", case_id, {"status": "AWAITING_ADVOCATE", "assigned_advocate_id": user["id"]})
+    request.app.state.adapters.database.update("cases", case_id, {"status": "AWAITING_ADVOCATE", "assigned_advocate_id": user["id"], "advocate_connection_status": "ACCEPTED"})
     from ..services.notifications import notify
     case = request.app.state.adapters.database.get("cases", case_id)
     notify(request.app.state.adapters.database, case["owner_user_id"], "Your advocate accepted. Review what you want to share and allow access.", case_id, "ADVOCATE_ACCEPTED")
@@ -303,13 +308,13 @@ def accept_request(case_id: str, request: Request, user: dict = Depends(get_curr
 @router.post("/advocate/requests/{case_id}/decline")
 def decline_request(case_id: str, request: Request, reason: str | None = None, user: dict = Depends(get_current_user)):
     require_advocate(user)
-    item = next((item for item in request.app.state.adapters.database.list("advocate_requests") if item["case_id"] == case_id and item["advocate_id"] == user["id"] and item["status"] == "PENDING"), None)
+    item = next((item for item in request.app.state.adapters.database.list("advocate_requests") if item["case_id"] == case_id and item["advocate_id"] == user["id"] and item.get("status") in {"PENDING", "REQUESTED"}), None)
     if not item:
         raise HTTPException(status_code=403, detail="No pending request for this advocate")
     request.app.state.adapters.database.update("advocate_requests", item["id"], {"status": "DECLINED", "reason": reason or ""})
     case = request.app.state.adapters.database.get("cases", case_id)
-    restored_status = "ENGINE2_DONE" if case.get("engine2") else "ENGINE1_DONE"
-    updated = request.app.state.adapters.database.update("cases", case_id, {"status": restored_status if case.get("workflow_version") == 2 else "PREVIEW_2_APPROVED", "requested_advocate_id": None})
+    restored_status = "ENGINE2_DONE" if case.get("engine2") else ("ENGINE1_CASE_FILE_READY" if case.get("canonical_case_file") else "ENGINE1_DONE")
+    updated = request.app.state.adapters.database.update("cases", case_id, {"status": restored_status if case.get("workflow_version") == 2 else "PREVIEW_2_APPROVED", "requested_advocate_id": None, "advocate_connection_status": "DECLINED"})
     return {"status": updated["status"], "case_id": case_id}
 
 

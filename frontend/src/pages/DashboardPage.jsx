@@ -137,7 +137,41 @@ export default function DashboardPage() {
                       <StatusPill status={item.status} />
                     </div>
                     <p className="case-card__preview">{item.preview || "No narrative details recorded yet."}</p>
-                    {/* Raw status text hidden for automated test assertions */}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center", marginTop: "0.75rem", fontSize: "0.8rem" }}>
+                      <span style={{ color: "var(--text-muted)", marginRight: "0.5rem" }}>
+                        Updated: {item.updated_at ? new Date(item.updated_at).toLocaleDateString() : "Recently"}
+                      </span>
+                      {item.clarification_needed && (
+                        <span style={{ padding: "0.2rem 0.55rem", background: "#FEF2F2", color: "#991B1B", border: "1px solid #FCA5A5", borderRadius: "12px", fontWeight: 600 }}>
+                          Details requested
+                        </span>
+                      )}
+                      {item.engine1_available && (
+                        <span style={{ padding: "0.2rem 0.55rem", background: "#F0FDF4", color: "#166534", border: "1px solid #86EFAC", borderRadius: "12px", fontWeight: 600 }}>
+                          Case Understanding v{item.engine1_version || 1}
+                        </span>
+                      )}
+                      {item.engine2_state === "RUN" && (
+                        <span style={{ padding: "0.2rem 0.55rem", background: "#F5F3FF", color: "#5B21B6", border: "1px solid #DDD6FE", borderRadius: "12px", fontWeight: 600 }}>
+                          Strengthened
+                        </span>
+                      )}
+                      {item.engine2_state === "STALE" && (
+                        <span style={{ padding: "0.2rem 0.55rem", background: "#FFFBEB", color: "#92400E", border: "1px solid #FCD34D", borderRadius: "12px", fontWeight: 600 }}>
+                          Strengthen: Rerun available
+                        </span>
+                      )}
+                      {item.advocate_connection_status === "REQUESTED" && (
+                        <span style={{ padding: "0.2rem 0.55rem", background: "#EFF6FF", color: "#1E40AF", border: "1px solid #93C5FD", borderRadius: "12px", fontWeight: 600 }}>
+                          Advocate Requested
+                        </span>
+                      )}
+                      {item.advocate_connection_status === "CONNECTED" && (
+                        <span style={{ padding: "0.2rem 0.55rem", background: "#ECFDF5", color: "#065F46", border: "1px solid #6EE7B7", borderRadius: "12px", fontWeight: 600 }}>
+                          Advocate Connected
+                        </span>
+                      )}
+                    </div>
                   </article>
                 </Link>
               ))}
