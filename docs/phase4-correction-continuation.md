@@ -1,3 +1,5 @@
+> Historical Phase-4 procedure: administrator identities and receipts remain preserved, but administrator role no longer authorizes new legal reviews. New decisions require a verified advocate with `LEGAL_AUTHORITY_REVIEW`. See [current role and permission contract](role-boundary-authority-review.md). Bootstrap/password recovery does not grant this capability.
+
 # Record 1: submit an existing correction without replaying review
 
 The local client now accepts `--submit-correction-only`. It authenticates normally with an interactive email and hidden password, reads authority history, checks the exact requested head and receipt, and makes only one authority source POST. It never calls the review-decision endpoint in this mode. Do not run another client/admin operation concurrently: the preflight is a read followed by the existing server submission endpoint, not a transaction spanning both requests. Server-side head compare-and-swap and post-write verification remain in effect.

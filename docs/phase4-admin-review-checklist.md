@@ -1,3 +1,5 @@
+> Historical Phase-4 procedure: administrator identities and receipts remain preserved, but administrator role no longer authorizes new legal reviews. New decisions require a verified advocate with `LEGAL_AUTHORITY_REVIEW`. See [current role and permission contract](role-boundary-authority-review.md). Bootstrap/password recovery does not grant this capability.
+
 # Phase 4: independent admin-review checklist
 
 Prepared 13 October 2026 (Asia/Calcutta). All 14 current revisions remain REVIEW_PENDING. These are assistant recommendations, not admin decisions. No authority, user account or review receipt was modified.

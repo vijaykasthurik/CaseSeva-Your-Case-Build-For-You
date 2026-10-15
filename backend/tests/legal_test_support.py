@@ -58,8 +58,13 @@ def publish_reviewed(corpus, record):
     from backend.services.authority_review import AuthorityReview
     from backend.models.legal_foundation import LegalSource
     db = corpus.db
-    user = {'id': 'test-independent-admin', 'role': 'admin'}
-    if not db.get('users', user['id']):
+    # Verified advocate with LEGAL_AUTHORITY_REVIEW capability — correct product role.
+    reviewer_id = 'test-verified-reviewer-advocate'
+    user = {
+        'id': reviewer_id, 'role': 'advocate', 'verification_status': 'VERIFIED',
+        'capabilities': ['LEGAL_AUTHORITY_REVIEW'], 'permissions': ['LEGAL_AUTHORITY_REVIEW'],
+    }
+    if not db.get('users', reviewer_id):
         db.create('users', user)
     value = LegalSource.model_validate(record).model_dump()
     value['ingestion_id'] = uuid4().hex

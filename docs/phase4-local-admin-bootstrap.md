@@ -1,3 +1,5 @@
+> Historical Phase-4 procedure: administrator identities and receipts remain preserved, but administrator role no longer authorizes new legal reviews. New decisions require a verified advocate with `LEGAL_AUTHORITY_REVIEW`. See [current role and permission contract](role-boundary-authority-review.md). Bootstrap/password recovery does not grant this capability.
+
 # Phase 4: supported local administrator provisioning
 
 13 October 2026. This is the explicitly authorized development/review provisioning path for this checkout. It is not a production IAM/Cognito design. Implementation and tests do not create your account.

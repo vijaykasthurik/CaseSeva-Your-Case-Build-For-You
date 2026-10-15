@@ -3,7 +3,7 @@ import secrets
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..models.case import utc_now
 from ..services.advocate_review import DEPENDENCY_MAP, append_audit, audit, outstanding_items
@@ -170,6 +170,63 @@ def verify_advocate(advocate_id: str, body: VerificationBody, request: Request, 
 def admin_advocates(request: Request, user: dict = Depends(get_current_user)):
     require_admin(request, user)
     return {"advocates": [{key: value for key, value in item.items() if key != "password_hash"} for item in request.app.state.adapters.database.list("users") if item.get("role") == "advocate"]}
+
+
+class CapabilityGrantBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    confirmation: str = Field(max_length=80)
+    reason: str = Field(min_length=1, max_length=1000)
+
+
+@router.post("/admin/advocates/{advocate_id}/capabilities/legal-authority-review")
+def grant_legal_authority_review(advocate_id: str, body: CapabilityGrantBody, request: Request, user: dict = Depends(get_current_user)):
+    """Grant LEGAL_AUTHORITY_REVIEW capability to a verified advocate. Requires explicit confirmation phrase."""
+    require_admin(request, user)
+    from ..services.authority_review import AuthorityReview
+    from ..services.verified_corpus import VerifiedCorpus
+    service = AuthorityReview(
+        VerifiedCorpus(request.app.state.adapters.database),
+        accounts_db=request.app.state.adapters.database,
+    )
+    try:
+        updated = service.grant_review_capability(
+            advocate_id,
+            granter=user,
+            operator=user.get("email", user.get("id", "unknown")),
+            confirmation=body.confirmation,
+            reason=body.reason,
+        )
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc))
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    return {"user": updated, "capability_granted": "LEGAL_AUTHORITY_REVIEW"}
+
+
+@router.delete("/admin/advocates/{advocate_id}/capabilities/legal-authority-review")
+def revoke_legal_authority_review(advocate_id: str, body: CapabilityGrantBody, request: Request, user: dict = Depends(get_current_user)):
+    """Revoke LEGAL_AUTHORITY_REVIEW capability from an advocate. Requires explicit confirmation phrase."""
+    require_admin(request, user)
+    from ..services.authority_review import AuthorityReview
+    from ..services.verified_corpus import VerifiedCorpus
+    service = AuthorityReview(
+        VerifiedCorpus(request.app.state.adapters.database),
+        accounts_db=request.app.state.adapters.database,
+    )
+    try:
+        updated = service.revoke_review_capability(
+            advocate_id,
+            granter=user,
+            operator=user.get("email", user.get("id", "unknown")),
+            confirmation=body.confirmation,
+            reason=body.reason,
+        )
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc))
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    return {"user": updated, "capability_revoked": "LEGAL_AUTHORITY_REVIEW"}
+
 
 
 @router.get("/admin/advocates/{advocate_id}/documents/{index}")

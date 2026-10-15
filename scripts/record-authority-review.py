@@ -34,6 +34,7 @@ SAFE_VALIDATION = {
 SAFE_MESSAGES = {
     'Enter a valid email address.', 'Invalid email or password.', 'Please fix the highlighted fields.',
     'Administrator access required.', 'Additional administrator credential required.',
+    'Administrator or authorized legal authority reviewer access required.',
     'Authentication required', 'Invalid or expired session',
     'Authority revision changed; review the current revision', 'Authority changed during review',
     'Submit a new revision for independent review', 'The submitter cannot independently approve this authority',
@@ -42,6 +43,12 @@ SAFE_MESSAGES = {
     'Authority does not match its official download', 'A parsed official ingestion record is required',
     'A revision request requires corrected content or metadata',
     'Revision already attributed to another submitter; prepare a new revision',
+    'Platform administrators are not legal reviewers; a verified advocate with LEGAL_AUTHORITY_REVIEW capability is required.',
+    'A verified advocate with LEGAL_AUTHORITY_REVIEW capability is required.',
+    'Advocate verification is required for legal authority review.',
+    'Explicit LEGAL_AUTHORITY_REVIEW capability required.',
+    'Reviewer account not found',
+    'The submitter cannot independently review this authority',
 }
 
 
@@ -163,7 +170,7 @@ def main():
             raise ReviewHTTPFailure(json.dumps({'operation': operation,
                 'detail': 'Transport or response failure. Do not retry; inspect history for possible partial writes.'})) from None
     try:
-        email = args.email or input('Administrator email: ').strip()
+        email = args.email or input('Verified authority-review advocate email: ').strip()
         password = hidden_input('Application password (hidden): ')
         session = call('/api/auth/login', {'email': email, 'password': password}, operation='login')
         headers['Authorization'] = 'Bearer ' + session['session_token']

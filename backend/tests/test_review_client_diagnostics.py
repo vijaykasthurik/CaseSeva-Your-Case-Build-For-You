@@ -6,9 +6,6 @@ import os
 from pathlib import Path
 import runpy
 import tempfile
-import socket
-import threading
-import time
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
@@ -65,94 +62,63 @@ class ReviewClientDiagnosticTests(unittest.TestCase):
         for secret in ('fictional-session','fictional-password','DO-NOT-ECHO','unknown-private-error'):
             self.assertNotIn(secret,str(result.exception)+err.getvalue())
 
-    def test_real_pending_candidate_copy_accepts_intended_transition_and_check_only_does_not_post(self):
-        # Optional local reproduction: read only the public authority/ingestion records,
-        # never the real identity database, password hashes or administrator credentials.
-        source_path=Path('.localdev/phase4-authority-review/database.json')
-        if not source_path.exists(): self.skipTest('Local genuine authority bundle not available')
-        original=source_path.read_bytes()
-        real=json.loads(original)
-        sid='cpa2019_s2_7'
-        old='d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e'
-        record=real['legal_authority_versions'][old]
-        db=MockDatabaseAdapter(self.root/'authority.json')
-        db.create('legal_authority_versions',record)
-        db.create('legal_authority_heads',{'id':sid,'version':old})
-        db.create('legal_ingestion_requests',real['legal_ingestion_requests'][record['source']['ingestion_id']])
-        identity=MockDatabaseAdapter(self.root/'identity.json')
-        auth=MockAuthAdapter(identity,seed_demo=False)
-        admin=auth.provision_local_review_admin('fixture@example.test','FictionalTestPassword',allow_bootstrap=True,operator='test-only')
-        factory=runpy.run_path('scripts/serve-authority-review.py')['create_app']
-        client=TestClient(factory(identity.path,db.path))
-        requests=[]
-        def local_http(request,timeout):
-            requests.append((request.get_method(),request.full_url))
-            response=client.request(request.get_method(),request.full_url,content=request.data,headers=dict(request.header_items()))
-            if response.status_code>=400: raise self.error(response.json(),response.status_code)
+    def exercise_synthetic_review(self, correction=False):
+        from backend.services.verified_corpus import VerifiedCorpus
+        from backend.services.authority_review import AuthorityReview
+        from backend.tests.legal_test_support import authority, publish_reviewed, test_knowledge
+        db = MockDatabaseAdapter(self.root / 'authority.json')
+        corpus = VerifiedCorpus(db, test_knowledge())
+        published = publish_reviewed(corpus, authority())
+        value = {k: v for k, v in published.items() if k not in {'version_id', 'reason'}}
+        value['version_note'] = 'Synthetic diagnostic revision'
+        pending = AuthorityReview(corpus).submit(value, actor='synthetic-preparer')
+        sid, old = pending['source_id'], pending['version_id']
+        identity = MockDatabaseAdapter(self.root / 'identity.json')
+        auth = MockAuthAdapter(identity, seed_demo=False)
+        # Test-only identity fixture. No production user or review data is copied.
+        user = auth.provision_local_review_admin('fixture@example.test', 'FictionalTestPassword', allow_bootstrap=True, operator='test-only')
+        identity.update('users', user['id'], {'role': 'advocate', 'verification_status': 'VERIFIED', 'capabilities': ['LEGAL_AUTHORITY_REVIEW']})
+        factory = runpy.run_path('scripts/serve-authority-review.py')['create_app']
+        client = TestClient(factory(identity.path, db.path))
+        requests = []
+        def local_http(request, timeout):
+            requests.append((request.get_method(), request.full_url))
+            response = client.request(request.get_method(), request.full_url, content=request.data, headers=dict(request.header_items()))
+            if response.status_code >= 400:
+                raise self.error(response.json(), response.status_code)
             return io.BytesIO(response.content)
-        reason=Path('.localdev/phase4-authority-review/record-1/reason.txt')
-        args=['review','--email','fixture@example.test','--source-id',sid,'--revision',old,'--decision','NEEDS_NEW_REVISION','--reason-file',str(reason)]
-        main=self.script['main']
-        before=db.path.read_bytes()
-        with patch.dict(main.__globals__,{'urlopen':local_http}), patch('sys.argv',args+['--check-access-only']), patch('sys.stdin.isatty',return_value=True), patch('sys.stderr.isatty',return_value=True), patch('getpass.getpass',return_value='FictionalTestPassword'), patch.dict(os.environ,{'ADMIN_TOKEN':''}), contextlib.redirect_stdout(io.StringIO()):
-            main()
-        self.assertEqual(before,db.path.read_bytes())
-        self.assertFalse(any(method=='POST' and '/authorities' in path for method,path in requests))
-        self.assertEqual(identity.list('sessions'),[])
-        with patch.dict(main.__globals__,{'urlopen':local_http}), patch('sys.argv',args), patch('sys.stdin.isatty',return_value=True), patch('sys.stderr.isatty',return_value=True), patch('getpass.getpass',return_value='FictionalTestPassword'), patch.dict(os.environ,{'ADMIN_TOKEN':''}), contextlib.redirect_stdout(io.StringIO()):
-            main()
-        receipts=db.list('legal_authority_reviews')
-        self.assertEqual(len(receipts),1)
-        self.assertEqual(receipts[0]['reviewer_id'],admin['id'])
-        self.assertEqual(receipts[0]['decision'],'NEEDS_NEW_REVISION')
-        self.assertEqual(source_path.read_bytes(),original)
+        reason = self.root / 'reason.txt'
+        reason.write_text('Synthetic revision rationale')
+        args = ['review', '--email', 'fixture@example.test', '--source-id', sid, '--revision', old,
+                '--decision', 'NEEDS_NEW_REVISION', '--reason-file', str(reason)]
+        if correction:
+            value['version_note'] = 'Synthetic corrected metadata'
+            for key in ('reviewed_by', 'reviewed_at', 'review_id', 'revision_status', 'parent_revision', 'revision_request_id'):
+                value.pop(key, None)
+            corrected = self.root / 'corrected.json'
+            corrected.write_text(json.dumps(value))
+            args += ['--corrected-source-file', str(corrected)]
+        main = self.script['main']
+        before = db.path.read_bytes()
+        with patch.dict(main.__globals__, {'urlopen': local_http}), patch('sys.stdin.isatty', return_value=True), patch('sys.stderr.isatty', return_value=True), patch('getpass.getpass', return_value='FictionalTestPassword'), patch.dict(os.environ, {'ADMIN_TOKEN': ''}), patch('backend.routes.authorities.VerifiedCorpus', side_effect=lambda database: VerifiedCorpus(database, test_knowledge())), contextlib.redirect_stdout(io.StringIO()) as output:
+            with patch('sys.argv', args + ['--check-access-only']):
+                main()
+            self.assertEqual(before, db.path.read_bytes())
+            self.assertFalse(any(method == 'POST' and '/authorities' in path for method, path in requests))
+            with patch('sys.argv', args):
+                main()
+        self.assertNotIn('FictionalTestPassword', output.getvalue())
+        receipts = [r for r in db.list('legal_authority_reviews') if r['input_version'] == old]
+        self.assertEqual(len(receipts), 1)
+        self.assertEqual(receipts[0]['reviewer_id'], user['id'])
+        self.assertEqual(identity.list('sessions'), [])
+        if correction:
+            self.assertIn('"immutable_receipt_verified": true', output.getvalue())
+            self.assertIsNone(corpus.get(sid)['review_id'])
+            self.assertEqual(corpus.get(sid)['review_state'], 'REVIEW_PENDING')
 
-    def test_real_http_client_with_exact_official_candidate_and_corrected_payload(self):
-        """Exercise urllib + Uvicorn, not a mocked transport; only temporary DBs mutate."""
-        import uvicorn
-        folder=Path('.localdev/phase4-authority-review')
-        if not (folder/'database.json').exists(): self.skipTest('Local official review bundle not available')
-        real_bytes=(folder/'database.json').read_bytes()
-        # Compare the real identity file without parsing or copying credential fields.
-        identity_bytes=(folder/'identity.json').read_bytes() if (folder/'identity.json').exists() else None
-        real=json.loads(real_bytes)
-        sid='cpa2019_s2_7'
-        old='d9804b732b3d855c06cf5c0143b721a5e9d0ad775092810c2f236150a51a024e'
-        record=real['legal_authority_versions'][old]
-        db=MockDatabaseAdapter(self.root/'http-authorities.json')
-        db.create('legal_authority_versions',record)
-        db.create('legal_authority_heads',{'id':sid,'version':old})
-        db.create('legal_ingestion_requests',real['legal_ingestion_requests'][record['source']['ingestion_id']])
-        identity=MockDatabaseAdapter(self.root/'http-identity.json')
-        auth=MockAuthAdapter(identity,seed_demo=False)
-        auth.provision_local_review_admin('http-fixture@example.test','FictionalHttpPassword',allow_bootstrap=True,operator='test-only')
-        factory=runpy.run_path('scripts/serve-authority-review.py')['create_app']
-        app=factory(identity.path,db.path)
-        sock=socket.socket();sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
-        server=uvicorn.Server(uvicorn.Config(app,host='127.0.0.1',port=port,log_config=None,log_level='critical',access_log=False))
-        thread=threading.Thread(target=server.run,kwargs={'sockets':[sock]},daemon=True)
-        thread.start()
-        try:
-            deadline=time.monotonic()+10
-            while not server.started and time.monotonic()<deadline: time.sleep(.01)
-            self.assertTrue(server.started)
-            args=['review','--port',str(port),'--email','http-fixture@example.test','--source-id',sid,'--revision',old,
-                  '--decision','NEEDS_NEW_REVISION','--reason-file',str(folder/'record-1/reason.txt'),
-                  '--corrected-source-file',str(folder/'record-1/corrected-source-submission.json')]
-            with patch('sys.argv',args), patch('sys.stdin.isatty',return_value=True), patch('sys.stderr.isatty',return_value=True), patch('getpass.getpass',return_value='FictionalHttpPassword'), patch.dict(os.environ,{'ADMIN_TOKEN':''}), contextlib.redirect_stdout(io.StringIO()) as output:
-                self.script['main']()
-            self.assertIn('"immutable_receipt_verified": true',output.getvalue())
-            self.assertNotIn('FictionalHttpPassword',output.getvalue())
-            self.assertEqual(len(db.list('legal_authority_reviews')),1)
-            self.assertEqual(identity.list('sessions'),[])
-            current=db.get('legal_authority_heads',sid)['version']
-            source=db.get('legal_authority_versions',current)['source']
-            self.assertEqual(source['review_state'],'REVIEW_PENDING')
-            self.assertFalse(source['source_reviewed'])
-            self.assertIsNone(source['review_id'])
-        finally:
-            server.should_exit=True
-            thread.join(timeout=10)
-            sock.close()
-            self.assertEqual((folder/'database.json').read_bytes(),real_bytes)
-            if identity_bytes is not None: self.assertEqual((folder/'identity.json').read_bytes(),identity_bytes)
+    def test_synthetic_access_check_never_posts(self):
+        self.exercise_synthetic_review()
+
+    def test_synthetic_http_contract_corrected_payload(self):
+        self.exercise_synthetic_review(correction=True)

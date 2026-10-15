@@ -153,7 +153,27 @@ class ReviewAdminBootstrapTests(unittest.TestCase):
         from backend.services.verified_corpus import VerifiedCorpus
         from backend.services.authority_review import AuthorityReview
         from backend.tests.legal_test_support import authority, publish_reviewed, test_knowledge
+        # Bootstrap an admin in the identity DB (needed for serve-authority-review startup check).
         self.create()
+        # Also create a verified advocate with LEGAL_AUTHORITY_REVIEW capability as the reviewer.
+        advocate_password = 'AdvocateFixturePassword-Review123'
+        signup = self.auth.signup({
+            'email': 'advocate-reviewer@example.test', 'role': 'advocate',
+            'full_name': 'Test Advocate Reviewer', 'mobile_number': '9876543211',
+            'preferred_language': 'English', 'state': 'Tamil Nadu', 'district_city': 'Chennai',
+            'bar_council': 'Fixture Bar Council', 'enrolment_number': 'TN/TEST/2020',
+            'enrolment_year': 2020, 'place_of_practice': 'Chennai',
+            'court_region': 'Madras High Court', 'practice_domains': ['Consumer'],
+            'languages': ['English'],
+        }, advocate_password)
+        advocate = signup['user']
+        self.auth.logout(signup['session_token'])
+        # Grant LEGAL_AUTHORITY_REVIEW to the advocate in the identity DB.
+        self.auth.database.update('users', advocate['id'], {
+            'verification_status': 'VERIFIED',
+            'capabilities': ['LEGAL_AUTHORITY_REVIEW'],
+            'permissions': ['LEGAL_AUTHORITY_REVIEW'],
+        })
         db = MockDatabaseAdapter(self.root / 'authority.json')
         corpus = VerifiedCorpus(db, test_knowledge())
         old = publish_reviewed(corpus, authority())
@@ -176,9 +196,9 @@ class ReviewAdminBootstrapTests(unittest.TestCase):
             return io.BytesIO(response.content)
         command = runpy.run_path('scripts/record-authority-review.py')['main']
         capture = io.StringIO()
-        with patch.dict(command.__globals__, {'urlopen':local_http}), patch('sys.argv', ['review', '--email','reviewer@example.test', '--source-id','fixture_act', '--revision',pending['version_id'], '--decision','NEEDS_NEW_REVISION', '--reason-file',str(reason), '--corrected-source-file',str(source_file)]), patch('getpass.getpass', return_value=self.password), patch('sys.stdin.isatty', return_value=True), patch('sys.stderr.isatty', return_value=True), patch.dict(os.environ, {'ADMIN_TOKEN':''}), patch('backend.routes.authorities.VerifiedCorpus', side_effect=lambda database: VerifiedCorpus(database, test_knowledge())), contextlib.redirect_stdout(capture):
+        with patch.dict(command.__globals__, {'urlopen':local_http}), patch('sys.argv', ['review', '--email','advocate-reviewer@example.test', '--source-id','fixture_act', '--revision',pending['version_id'], '--decision','NEEDS_NEW_REVISION', '--reason-file',str(reason), '--corrected-source-file',str(source_file)]), patch('getpass.getpass', return_value=advocate_password), patch('sys.stdin.isatty', return_value=True), patch('sys.stderr.isatty', return_value=True), patch.dict(os.environ, {'ADMIN_TOKEN':''}), patch('backend.routes.authorities.VerifiedCorpus', side_effect=lambda database: VerifiedCorpus(database, test_knowledge())), contextlib.redirect_stdout(capture):
             command()
-        self.assertNotIn(self.password, capture.getvalue())
+        self.assertNotIn(advocate_password, capture.getvalue())
         self.assertIn('"immutable_receipt_verified": true', capture.getvalue())
         self.assertEqual(self.db.list('sessions'), [])
         current = corpus.get('fixture_act')
@@ -186,7 +206,8 @@ class ReviewAdminBootstrapTests(unittest.TestCase):
         self.assertIsNone(current['review_id'])
         receipt = db.get('legal_authority_reviews', current['revision_request_id'])
         self.assertEqual(receipt['decision'], 'NEEDS_NEW_REVISION')
-        admin = self.db.list('users')[0]
-        self.assertEqual(receipt['reviewer_id'], admin['id'])
+        self.assertEqual(receipt['reviewer_id'], advocate['id'])
+        # Admin cannot perform legal authority review (platform boundary).
+        admin = next((u for u in self.db.list('users') if u.get('role') == 'admin'), None)
         with self.assertRaises(PermissionError):
-            AuthorityReview(corpus, accounts_db=self.db).decide('fixture_act', current['version_id'], reviewer=admin, decision='REVIEWED_PRIMARY', note='Self review refused')
+            AuthorityReview(corpus, accounts_db=self.db).decide('fixture_act', current['version_id'], reviewer=admin, decision='REVIEWED_PRIMARY', note='Admin review refused - must use verified advocate')

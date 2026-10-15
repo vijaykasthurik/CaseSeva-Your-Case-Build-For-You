@@ -314,9 +314,9 @@ class CorpusPopulationTests(unittest.TestCase):
     # 5. Human Review Workflow Readiness & Separation of Duties
     # ---------------------------------------------------------
     def test_human_review_workflow_and_separation_of_duties(self):
-        # Set up an authenticated admin account and a separate submitter account
-        self.db["users"].insert_one({"_id": "admin_reviewer_1", "id": "admin_reviewer_1", "role": "admin"})
-        self.db["users"].insert_one({"_id": "ingestion_bot", "id": "ingestion_bot", "role": "admin"})
+        # Set up an authorized advocate account and a separate submitter account
+        self.db["users"].insert_one({"_id": "advocate_reviewer_1", "id": "advocate_reviewer_1", "role": "advocate", "verification_status": "VERIFIED", "capabilities": ["LEGAL_AUTHORITY_REVIEW"]})
+        self.db["users"].insert_one({"_id": "ingestion_bot", "id": "ingestion_bot", "role": "advocate", "verification_status": "VERIFIED", "capabilities": ["LEGAL_AUTHORITY_REVIEW"]})
         self.db["users"].insert_one({"_id": "citizen_user", "id": "citizen_user", "role": "citizen"})
 
         review_svc = AuthorityReview(self.corpus, accounts_db=self.adapter)
@@ -375,13 +375,13 @@ class CorpusPopulationTests(unittest.TestCase):
             review_svc.decide(
                 "police_code_s1",
                 version_id,
-                reviewer={"id": "ingestion_bot", "role": "admin"},
+                reviewer={"id": "ingestion_bot", "role": "advocate", "verification_status": "VERIFIED", "capabilities": ["LEGAL_AUTHORITY_REVIEW"]},
                 decision="REVIEWED_PRIMARY",
                 note="Self-approval attempt",
             )
-        self.assertIn("submitter cannot independently approve", str(ctx_self.exception))
+        self.assertIn("submitter cannot independently review", str(ctx_self.exception))
 
-        # Case B: Non-admin cannot review
+        # Case B: Citizen cannot review
         with self.assertRaises(PermissionError) as ctx_nonadmin:
             review_svc.decide(
                 "police_code_s1",
@@ -390,24 +390,24 @@ class CorpusPopulationTests(unittest.TestCase):
                 decision="REVIEWED_PRIMARY",
                 note="Unauthorized citizen attempt",
             )
-        self.assertIn("authenticated administrator is required", str(ctx_nonadmin.exception))
+        self.assertIn("verified advocate with LEGAL_AUTHORITY_REVIEW capability is required", str(ctx_nonadmin.exception))
 
         # Case C: Stale version check
         with self.assertRaises(ValueError) as ctx_stale:
             review_svc.decide(
                 "police_code_s1",
                 "wrong_stale_version_hash",
-                reviewer={"id": "admin_reviewer_1", "role": "admin"},
+                reviewer={"id": "advocate_reviewer_1", "role": "advocate", "verification_status": "VERIFIED", "capabilities": ["LEGAL_AUTHORITY_REVIEW"]},
                 decision="REVIEWED_PRIMARY",
                 note="Stale version decision",
             )
         self.assertIn("Authority revision changed", str(ctx_stale.exception))
 
-        # Case D: Independent admin reviewer can submit REJECTED decision
+        # Case D: Independent authorized advocate can submit REJECTED decision
         rejected_result = review_svc.decide(
             "police_code_s1",
             version_id,
-            reviewer={"id": "admin_reviewer_1", "role": "admin"},
+            reviewer={"id": "advocate_reviewer_1", "role": "advocate", "verification_status": "VERIFIED", "capabilities": ["LEGAL_AUTHORITY_REVIEW"]},
             decision="REJECTED",
             note="Formal administrative rejection due to pending territorial amendments.",
         )
@@ -417,7 +417,7 @@ class CorpusPopulationTests(unittest.TestCase):
         receipts = list(self.db["legal_authority_reviews"].find({"source_id": "police_code_s1"}))
         self.assertEqual(len(receipts), 1)
         self.assertEqual(receipts[0]["decision"], "REJECTED")
-        self.assertEqual(receipts[0]["reviewer_id"], "admin_reviewer_1")
+        self.assertEqual(receipts[0]["reviewer_id"], "advocate_reviewer_1")
 
     # ---------------------------------------------------------
     # 6. Review Queue Summary Excludes Test Fixtures & Non-Pure Entries

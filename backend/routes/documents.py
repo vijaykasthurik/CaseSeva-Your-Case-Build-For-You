@@ -34,7 +34,7 @@ def require_document(request, case, doc, user):
             raise HTTPException(403, "Professional Legal Draft and internal reports are advocate-only.")
     else:
         require_access(request, case["case_id"], user, "case_file")
-        if doc.get("type") != "client_case_overview" and case.get("engine2"):
+        if doc.get("type") != "client_case_overview" and case.get("engine2") and not case.get("engine2_stale"):
             require_access(request, case["case_id"], user, "engine2")
 
 
@@ -42,14 +42,13 @@ def start_engine3(case_id, request, user, regenerate=False):
     from .advocates import accepted_case
     from ..services.jobs import dispatch
     case = accepted_case(request, case_id, user)
-    if case.get("engines", {}).get("1", {}).get("status") == "STALE":
-        raise HTTPException(409, "Update and review the foundation after new client information first.")
+    from ..services.review_contracts import reviewed_engine1_current
+    if not reviewed_engine1_current(case, request.app.state.adapters.database):
+        raise HTTPException(409, "The current Engine 1 Case File must be reviewed by an advocate first.")
     allowed = {"ADVOCATE_APPROVED", "DOCUMENTS_READY", "DOCUMENTS_BLOCKED"} if regenerate else {"ADVOCATE_APPROVED"}
     if not case.get("case_file", {}).get("version") or case["status"] not in allowed or case.get("advocate_approved_case_file_version") != case.get("case_file", {}).get("version"):
         raise HTTPException(409, "The current Case File must be approved by an advocate first.")
-    if case.get("engine2") and case.get("engine2_stale"):
-        raise HTTPException(409, "Rerun stale argument analysis before generating documents.")
-    if case.get("engine2"):
+    if case.get("engine2") and not case.get("engine2_stale"):
         require_access(request, case_id, user, "engine2")
     grant = require_access(request, case_id, user, "evidence")
     approved_evidence = {item.split(":", 1)[1] for item in case.get("advocate_approved_items", []) if item.startswith("evidence:")}

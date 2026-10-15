@@ -6,6 +6,7 @@ from uuid import uuid4
 from ..models.case import utc_now
 from ..models.engines import DraftOutput
 from .overview import client_overview
+from .review_contracts import ENGINE2_NOT_RUN_DISCLOSURE
 from .legal_knowledge import LegalKnowledge, source_record
 
 FILING_CONFIRMATION = "Current filing requirement requires advocate confirmation."
@@ -40,7 +41,7 @@ def approved_content(case):
     if case.get("engine2", {}).get("overview_ready") and not case.get("engine2_stale"):
         result["argument_results"] = case["engine2"]
     else:
-        result["argument_analysis_note"] = "Case Challenge / Argument Analysis was not run."
+        result["argument_analysis_note"] = ENGINE2_NOT_RUN_DISCLOSURE
     return result
 
 

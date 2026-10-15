@@ -34,6 +34,11 @@ class PersistenceIntegrityTests(unittest.TestCase):
     def bootstrap(self):
         self.adapter.create_local_review_admin(self.user())
         self.adapter.create('sessions', {'id': 'session', 'user_id': 'founder'})
+        # Verified advocate reviewer for authority corpus review (not the admin founder).
+        self.adapter.create('users', {
+            'id': 'test-authority-reviewer', 'email': 'reviewer@synthetic.test', 'role': 'advocate', 'verification_status': 'VERIFIED',
+            'capabilities': ['LEGAL_AUTHORITY_REVIEW'], 'permissions': ['LEGAL_AUTHORITY_REVIEW'],
+        })
 
     def onboard(self, user):
         self.adapter.create_additional_review_admin(user, session_token='session')
@@ -296,8 +301,9 @@ class PersistenceIntegrityTests(unittest.TestCase):
             **{k: value[k] for k in ('registry_id', 'official_url', 'final_url', 'retrieved_at', 'raw_hash', 'content_hash', 'official_text')}})
         pending = workflow.submit(value, actor='synthetic-submitter')
         before = self.adapter.get('legal_authority_versions', pending['version_id'])
+        authority_reviewer = self.adapter.get('users', 'test-authority-reviewer')
         requested = workflow.decide('fixture_act', pending['version_id'],
-            reviewer=self.adapter.get('users', 'founder'), decision='NEEDS_NEW_REVISION', note='Synthetic correction')
+            reviewer=authority_reviewer, decision='NEEDS_NEW_REVISION', note='Synthetic correction')
         self.assertEqual(before, self.adapter.get('legal_authority_versions', pending['version_id']))
         repo = MongoReviewRepository(self.db)
         receipt = repo.get_review(requested['review_id'])
@@ -307,7 +313,7 @@ class PersistenceIntegrityTests(unittest.TestCase):
         repo.save_review(receipt)
         self.assertEqual(workflow.corpus.get('fixture_act')['version_id'], requested['version_id'])
         with self.assertRaises(ValueError):
-            workflow.decide('fixture_act', pending['version_id'], reviewer=self.adapter.get('users', 'founder'),
+            workflow.decide('fixture_act', pending['version_id'], reviewer=authority_reviewer,
                 decision='NEEDS_NEW_REVISION', note='Stale synthetic retry')
 
     def test_repository_reads_adapter_history(self):

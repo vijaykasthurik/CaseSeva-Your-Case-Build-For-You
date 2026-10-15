@@ -1,3 +1,5 @@
+> Historical Phase-4 procedure: administrator identities and receipts remain preserved, but administrator role no longer authorizes new legal reviews. New decisions require a verified advocate with `LEGAL_AUTHORITY_REVIEW`. See [current role and permission contract](role-boundary-authority-review.md). Bootstrap/password recovery does not grant this capability.
+
 # Phase 4: revision requests and authenticated review
 
 Prepared 13 October 2026. Phase 4 only. No Engine 2 work or formal review decision performed.

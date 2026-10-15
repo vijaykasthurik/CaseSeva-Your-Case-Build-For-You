@@ -17,8 +17,9 @@ class RevisionRequestTests(unittest.TestCase):
         return self.workflow.submit(value, actor='fixture-author')
 
     def request(self, pending):
+        reviewer = self.db.get('users', 'test-verified-reviewer-advocate')
         return self.workflow.decide(pending['source_id'], pending['version_id'],
-            reviewer=self.db.get('users', 'test-independent-admin'), decision='NEEDS_NEW_REVISION', note='Temporal metadata needs correction')
+            reviewer=reviewer, decision='NEEDS_NEW_REVISION', note='Temporal metadata needs correction')
 
     def test_revision_request_persists_without_approving_and_preserves_history(self):
         pending = self.pending()
@@ -31,14 +32,15 @@ class RevisionRequestTests(unittest.TestCase):
         self.assertFalse(requested['source_reviewed'])
         receipt = self.db.get('legal_authority_reviews', requested['review_id'])
         self.assertEqual(receipt['decision'], 'NEEDS_NEW_REVISION')
-        self.assertEqual(receipt['reviewer_id'], 'test-independent-admin')
+        self.assertEqual(receipt['reviewer_id'], 'test-verified-reviewer-advocate')
         self.assertEqual(receipt['reviewed_at'], '2026-10-13T01:02:03+00:00')
         self.assertEqual(receipt['input_version'], pending['version_id'])
         self.assertEqual(self.db.get('legal_authority_versions', pending['version_id']), old)
         with self.assertRaises(ValueError):
             self.db.create('legal_authority_reviews', {**receipt, 'note': 'overwrite'})
         with self.assertRaises(ValueError):
-            self.workflow.decide(requested['source_id'], requested['version_id'], reviewer=self.db.get('users', 'test-independent-admin'), decision='REVIEWED_PRIMARY', note='Cannot approve requested revision')
+            reviewer = self.db.get('users', 'test-verified-reviewer-advocate')
+            self.workflow.decide(requested['source_id'], requested['version_id'], reviewer=reviewer, decision='REVIEWED_PRIMARY', note='Cannot approve requested revision')
 
     def test_corrected_revision_requires_fresh_independent_review(self):
         pending = self.pending()
@@ -46,9 +48,9 @@ class RevisionRequestTests(unittest.TestCase):
         receipt = copy.deepcopy(self.db.get('legal_authority_reviews', requested['review_id']))
         value = {k: v for k, v in requested.items() if k not in {'version_id', 'reason'}}
         with self.assertRaises(ValueError):
-            self.workflow.submit(value, actor='test-independent-admin')
+            self.workflow.submit(value, actor='test-verified-reviewer-advocate')
         value['revision_metadata'] = {'correction': 'Fictional temporal support note'}
-        corrected = self.workflow.submit(value, actor='test-independent-admin')
+        corrected = self.workflow.submit(value, actor='test-verified-reviewer-advocate')
         self.assertNotEqual(corrected['version_id'], requested['version_id'])
         self.assertEqual(corrected['parent_revision'], requested['version_id'])
         self.assertEqual(corrected['revision_request_id'], receipt['id'])
@@ -59,10 +61,12 @@ class RevisionRequestTests(unittest.TestCase):
         self.assertEqual(corrected['revision_status'], 'NONE')
         for record in (pending, requested, corrected):
             self.assertFalse(self.corpus.validate_source({k: v for k, v in record.items() if k not in {'version_id', 'reason'}})[0])
-        reviewer = self.db.get('users', 'test-independent-admin')
+        reviewer = self.db.get('users', 'test-verified-reviewer-advocate')
         with self.assertRaises(PermissionError):
             self.workflow.decide(corrected['source_id'], corrected['version_id'], reviewer=reviewer, decision='REVIEWED_PRIMARY', note='Self review')
-        independent = self.db.create('users', {'id': 'second-test-admin', 'role': 'admin'})
+        independent = self.db.create('users', {'id': 'second-test-reviewer-advocate',
+            'role': 'advocate', 'verification_status': 'VERIFIED',
+            'capabilities': ['LEGAL_AUTHORITY_REVIEW'], 'permissions': ['LEGAL_AUTHORITY_REVIEW']})
         approved = self.workflow.decide(corrected['source_id'], corrected['version_id'], reviewer=independent, decision='REVIEWED_PRIMARY', note='Independent fictional fixture review')
         self.assertEqual(approved['verification'], 'VERIFIED')
         self.assertNotEqual(approved['review_id'], receipt['id'])
@@ -79,12 +83,13 @@ class RevisionRequestTests(unittest.TestCase):
         self.assertIsNotNone(self.db.get('legal_authority_versions', draft['version_id']))
         self.assertIsNone(self.db.get('legal_review_submissions', draft['version_id']))
         with self.assertRaises(ValueError):
-            self.workflow.decide(draft['source_id'], draft['version_id'], reviewer=self.db.get('users', 'test-independent-admin'), decision='REVIEWED_PRIMARY', note='Inactive')
-        activated = self.workflow.submit(value, actor='test-independent-admin')
+            reviewer = self.db.get('users', 'test-verified-reviewer-advocate')
+            self.workflow.decide(draft['source_id'], draft['version_id'], reviewer=reviewer, decision='REVIEWED_PRIMARY', note='Inactive')
+        activated = self.workflow.submit(value, actor='test-verified-reviewer-advocate')
         self.assertEqual(activated['version_id'], draft['version_id'])
-        self.assertEqual(self.db.get('legal_review_submissions', activated['version_id'])['actor'], 'test-independent-admin')
+        self.assertEqual(self.db.get('legal_review_submissions', activated['version_id'])['actor'], 'test-verified-reviewer-advocate')
         with self.assertRaises(PermissionError):
-            self.workflow.decide(activated['source_id'], activated['version_id'], reviewer=self.db.get('users', 'test-independent-admin'), decision='REVIEWED_PRIMARY', note='No preparer bypass')
+            self.workflow.decide(activated['source_id'], activated['version_id'], reviewer=self.db.get('users', 'test-verified-reviewer-advocate'), decision='REVIEWED_PRIMARY', note='No preparer bypass')
 
     def test_http_revision_request_uses_existing_authenticated_external_account(self):
         from backend.tests.helpers import test_app, client_account
@@ -93,7 +98,12 @@ class RevisionRequestTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         user, headers = client_account(identity_client, 'real-test-session')
         identity_db = identity_app.state.adapters.database
-        identity_db.update('users', user['id'], {'role': 'admin'})  # Isolated test fixture only.
+        identity_db.update('users', user['id'], {
+            'role': 'advocate',
+            'verification_status': 'VERIFIED',
+            'capabilities': ['LEGAL_AUTHORITY_REVIEW'],
+            'permissions': ['LEGAL_AUTHORITY_REVIEW'],
+        })  # Isolated test fixture only — grant authority review to this advocate.
         pending = self.pending()
         factory = runpy.run_path(str(Path('scripts/serve-authority-review.py')))['create_app']
         app = factory(identity_db.path, self.db.path)
@@ -124,7 +134,7 @@ class RevisionRequestTests(unittest.TestCase):
         draft = self.workflow.submit(value, actor='preparer', activate=False)
         self.db.create('legal_review_submissions', {'id': draft['version_id'], 'actor': 'preparer', 'source_id': draft['source_id']})
         with self.assertRaisesRegex(ValueError, 'another submitter'):
-            self.workflow.submit(value, actor='test-independent-admin')
+            self.workflow.submit(value, actor='test-verified-reviewer-advocate')
         self.assertEqual(self.corpus.get(pending['source_id'])['version_id'], pending['version_id'])
 
     def test_optional_defaults_preserve_existing_receipt_signatures(self):

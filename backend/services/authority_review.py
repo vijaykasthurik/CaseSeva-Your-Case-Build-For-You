@@ -1,7 +1,7 @@
 """Official ingestion and explicit, authenticated review of existing corpus records.
 
 No download, parser, model or submitter can grant its own primary authority status.
-The HTTP boundary authenticates the admin; this internal service additionally
+The HTTP boundary authenticates the reviewer; this internal service additionally
 checks the persisted account and binds decisions to immutable source content.
 """
 from uuid import uuid4
@@ -21,6 +21,23 @@ def authority_digest(value):
         if not fields.get(key):
             fields.pop(key, None)
     return digest(fields)
+
+
+AUTHORITY_REVIEW_CAPABILITY = 'LEGAL_AUTHORITY_REVIEW'
+
+
+def is_authorized_authority_reviewer(user: dict | None) -> bool:
+    if not user or not isinstance(user, dict):
+        return False
+    if user.get('role') != 'advocate':
+        return False
+    if user.get('verification_status') != 'VERIFIED':
+        return False
+    fields = [user.get(key, []) for key in ('capabilities', 'permissions')]
+    if any(not isinstance(v, list) or any(not isinstance(c, str) for c in v) for v in fields):
+        return False
+    caps = set(fields[0]) | set(fields[1])
+    return AUTHORITY_REVIEW_CAPABILITY in caps
 
 
 class AuthorityReview:
@@ -86,19 +103,27 @@ class AuthorityReview:
 
     def decide(self, source_id, expected_version, *, reviewer, decision, note):
         account = self.accounts_db.get('users', reviewer['id'])
-        if not account or account.get('role') != 'admin' or reviewer.get('role') != 'admin':
-            raise PermissionError('An authenticated administrator is required')
+        if not account:
+            raise PermissionError('Reviewer account not found')
+        if account.get('role') == 'admin' or reviewer.get('role') == 'admin':
+            raise PermissionError('Platform administrators are not legal reviewers; a verified advocate with LEGAL_AUTHORITY_REVIEW capability is required.')
+        if not is_authorized_authority_reviewer(account) or not is_authorized_authority_reviewer(reviewer):
+            if account.get('role') != 'advocate' or reviewer.get('role') != 'advocate':
+                raise PermissionError('A verified advocate with LEGAL_AUTHORITY_REVIEW capability is required.')
+            if account.get('verification_status') != 'VERIFIED' or reviewer.get('verification_status') != 'VERIFIED':
+                raise PermissionError('Advocate verification is required for legal authority review.')
+            raise PermissionError('Explicit LEGAL_AUTHORITY_REVIEW capability required.')
         if decision not in {'REVIEWED_PRIMARY', 'REJECTED', 'STALE', 'NEEDS_NEW_REVISION'} or not note.strip():
             raise ValueError('Explicit decision and review rationale required')
         source = self.corpus.get(source_id)
         if not source or source['version_id'] != expected_version:
             raise ValueError('Authority revision changed; review the current revision')
         submission = self.db.get('legal_review_submissions', expected_version)
+        if submission and submission['actor'] == reviewer['id']:
+            raise PermissionError('The submitter cannot independently review this authority')
         if decision == 'REVIEWED_PRIMARY':
             if source['review_state'] != 'REVIEW_PENDING' or source.get('revision_status') == 'REVISION_REQUESTED' or not submission:
                 raise ValueError('Submit a new revision for independent review')
-            if submission['actor'] == reviewer['id']:
-                raise PermissionError('The submitter cannot independently approve this authority')
             valid, reason = self.corpus.validate_identity({k: v for k, v in source.items() if k != 'version_id'})
             if not valid:
                 raise ValueError(reason)
@@ -113,3 +138,58 @@ class AuthorityReview:
                      revision_status='REVISION_REQUESTED' if decision == 'NEEDS_NEW_REVISION' else value.get('revision_status', 'NONE'),
                      source_reviewed=decision == 'REVIEWED_PRIMARY')
         return self.corpus.publish(value, expected_version=expected_version)
+
+    def grant_review_capability(self, target_user_id, *, granter, operator, confirmation, reason=''):
+        return self._change_capability(target_user_id, granter=granter, confirmation=confirmation,
+                                       reason=reason, action='GRANT')
+
+    def revoke_review_capability(self, target_user_id, *, granter, operator, confirmation, reason=''):
+        return self._change_capability(target_user_id, granter=granter, confirmation=confirmation,
+                                       reason=reason, action='REVOKE')
+
+    def _change_capability(self, target_user_id, *, granter, confirmation, reason, action):
+        # HTTP authenticates the session; never trust a caller-supplied role alone.
+        def administrator():
+            account = self.accounts_db.get('users', (granter or {}).get('id', ''))
+            if not account or account.get('role') != 'admin' or granter.get('role') != 'admin':
+                raise PermissionError('An authenticated platform administrator is required')
+            return account
+        admin = administrator()
+        if confirmation.strip() != action + ' LEGAL AUTHORITY REVIEW':
+            raise ValueError('Explicit capability-change confirmation required')
+        if not reason.strip() or len(reason) > 1000:
+            raise ValueError('A capability-change reason of 1 to 1000 characters is required')
+        target = self.accounts_db.get('users', target_user_id)
+        if not target or target.get('role') != 'advocate':
+            raise ValueError('Target must be an existing advocate; no role promotion is permitted')
+        if action == 'GRANT' and target.get('verification_status') != 'VERIFIED':
+            raise ValueError('Target advocate must be verified before receiving legal authority review capability')
+        # Revoke remains possible after verification is withdrawn.
+        fields = ('role', 'verification_status', 'capabilities', 'permissions', 'authority_capability_change_id')
+        before = {k: target.get(k) for k in fields}
+        changes = {}
+        for key in ('capabilities', 'permissions'):
+            current = target.get(key) or []
+            if not isinstance(current, list) or any(not isinstance(v, str) for v in current):
+                raise ValueError('Invalid account capability data')
+            changes[key] = sorted(set(current) | {AUTHORITY_REVIEW_CAPABILITY}) if action == 'GRANT' else [v for v in current if v != AUTHORITY_REVIEW_CAPABILITY]
+        def public(user):
+            return {k: user.get(k) for k in ('id', 'role', 'verification_status', 'capabilities', 'permissions')}
+        if all(changes[k] == (target.get(k) or []) for k in changes):
+            return public(target)
+        audit_id = uuid4().hex
+        # Standalone Mongo cannot transact across collections: reserve immutable
+        # audit BEFORE changing access. A failed CAS leaves an intent, never an
+        # unaudited grant. The account's change ID identifies the committed intent.
+        self.accounts_db.create('authority_reviewer_grants', {
+            'id': audit_id, 'target_user_id': target_user_id, 'granter_id': admin['id'],
+            'action': action, 'capability': AUTHORITY_REVIEW_CAPABILITY,
+            'reason': reason.strip(), 'timestamp': utc_now(), 'before': before,
+            'after': changes, 'protocol': 'AUDIT_BEFORE_CAPABILITY_CAS_V1',
+        })
+        administrator()
+        def apply(current):
+            if {k: current.get(k) for k in fields} != before:
+                raise ValueError('Account changed; inspect audit and retry with current state')
+            return {**changes, 'authority_capability_change_id': audit_id}
+        return public(self.accounts_db.mutate('users', target_user_id, apply))

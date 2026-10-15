@@ -1,4 +1,4 @@
-"""Admin-only source review. Reviewer identity and time never come from a form."""
+"""Administrative preparation and capability-gated advocate review. Reviewer identity and time never come from a form."""
 from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import Field
@@ -7,13 +7,22 @@ from .advocates import require_admin
 from ..models.understanding import Strict
 from ..models.legal_foundation import LegalSource
 from ..services.verified_corpus import VerifiedCorpus
-from ..services.authority_review import AuthorityReview
+from ..services.authority_review import AuthorityReview, is_authorized_authority_reviewer
 
 router = APIRouter(prefix='/api/admin/authorities')
 
 
+def require_admin_or_reviewer(request: Request, user: dict):
+    if user.get("role") == "admin":
+        require_admin(request, user)
+        return
+    if is_authorized_authority_reviewer(user):
+        return
+    raise HTTPException(403, "Administrator or authorized legal authority reviewer access required.")
+
+
 def workflow(request, user):
-    require_admin(request, user)
+    require_admin_or_reviewer(request, user)
     return AuthorityReview(VerifiedCorpus(request.app.state.adapters.database),
         accounts_db=getattr(request.app.state, 'authority_identity_database', None))
 

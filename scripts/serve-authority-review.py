@@ -18,8 +18,13 @@ def create_app(identity_path, authority_path):
         if not Path(path).is_file():
             raise ValueError('An existing local database file is required; no database is created')
     identity = MockDatabaseAdapter(identity_path)
-    if not any(u.get('role') == 'admin' and u.get('password_hash') for u in identity.list('users')):
-        raise ValueError('No existing password-authenticated administrator in the selected application database; provisioning is not supported by this command')
+    from backend.services.authority_review import is_authorized_authority_reviewer
+    def _is_valid_review_identity(u):
+        # Historical administrators may inspect/prepare; only capable verified
+        # advocates may make NEW decisions. No identities are provisioned here.
+        return bool(u.get('password_hash') and (u.get('role') == 'admin' or is_authorized_authority_reviewer(u)))
+    if not any(_is_valid_review_identity(u) for u in identity.list('users')):
+        raise ValueError('No existing password-authenticated administrator or authorized legal authority reviewer in the selected application database; provisioning is not supported by this command')
     app = FastAPI(title='CaseSeva isolated authority review')
     app.state.adapters = SimpleNamespace(database=MockDatabaseAdapter(authority_path), auth=MockAuthAdapter(identity, seed_demo=False))
     app.state.authority_identity_database = identity

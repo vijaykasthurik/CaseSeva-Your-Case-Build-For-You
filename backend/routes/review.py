@@ -62,6 +62,8 @@ def review(case_id: str, body: ReviewBody, request: Request, user=Depends(get_cu
             file.setdefault("pending_advocate_verification", []).append(target)
         else:
             raise HTTPException(404, "Review item not found.")
+    if body.kind == "evidence" and body.action == "edit" and set(body.value) - {"annotation", "comment"}:
+        raise HTTPException(422, "Original evidence is immutable; add annotations or comments instead.")
     previous = copy.deepcopy(target)
     if body.action == "verify":
         if body.kind not in {"pending", "forum", "limitation", "temporal_law"}:
@@ -171,9 +173,10 @@ def approve(case_id: str, request: Request, user=Depends(get_current_user)):
     case = accepted_case(request, case_id, user)
     if case["status"] != "ADVOCATE_REVIEW" or case.get("processing_error"):
         raise HTTPException(409, "Complete review and resolve processing errors first.")
-    if case.get("engine2") and case.get("engine2_stale"):
-        raise HTTPException(409, "Rerun Engine 2 after foundation changes before final approval.")
-    file = case.get("case_file", {})
+    from ..services.legal_visibility import current_case_file
+    file = current_case_file(case, request.app.state.adapters.database)
+    if file.get("input_version", case.get("input_version", 1)) != case.get("input_version", 1):
+        raise HTTPException(409, "Review a current Engine 1 Case File before approval.")
     if case.get("engines", {}).get("1", {}).get("status") == "STALE":
         raise HTTPException(409, "Update the case foundation after new client information before approval.")
     if not file.get("version"):

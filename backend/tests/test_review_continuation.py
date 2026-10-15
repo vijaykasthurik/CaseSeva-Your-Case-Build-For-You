@@ -21,7 +21,9 @@ class CorrectionContinuationTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         self.db = MockDatabaseAdapter(Path(temp.name) / 'synthetic.json')
         self.service = AuthorityReview(VerifiedCorpus(self.db, test_knowledge()))
-        reviewer = self.db.create('users', {'id': 'synthetic-reviewer', 'role': 'admin'})
+        reviewer = self.db.create('users', {'id': 'synthetic-reviewer', 'role': 'advocate',
+            'verification_status': 'VERIFIED', 'capabilities': ['LEGAL_AUTHORITY_REVIEW'],
+            'permissions': ['LEGAL_AUTHORITY_REVIEW']})
         value = LegalSource.model_validate(authority(ingestion_id='synthetic-ingestion')).model_dump()
         self.db.create('legal_ingestion_requests', {'id': value['ingestion_id'], 'state': 'PARSED',
             **{k: value[k] for k in ('registry_id', 'official_url', 'final_url', 'retrieved_at', 'raw_hash', 'content_hash', 'official_text')}})

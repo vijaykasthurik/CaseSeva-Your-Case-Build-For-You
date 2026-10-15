@@ -48,16 +48,22 @@ class AuthorityReviewTests(unittest.TestCase):
         source = publish_reviewed(self.corpus, authority())
         value = {k: v for k, v in source.items() if k not in {'version_id', 'reason'}}
         value['version_note'] = 'Self-submitted revision'
-        admin = self.db.get('users', 'test-independent-admin')
-        pending = self.workflow.submit(value, actor=admin['id'])
+        reviewer = self.db.get('users', 'test-verified-reviewer-advocate')
+        pending = self.workflow.submit(value, actor=reviewer['id'])
+        # Self-review: submitter cannot independently approve.
         with self.assertRaises(PermissionError):
-            self.workflow.decide(source['source_id'], pending['version_id'], reviewer=admin,
+            self.workflow.decide(source['source_id'], pending['version_id'], reviewer=reviewer,
                                  decision='REVIEWED_PRIMARY', note='Self review')
+        # Stale version: version mismatch.
         with self.assertRaises(ValueError):
-            self.workflow.decide(source['source_id'], source['version_id'], reviewer=admin,
+            self.workflow.decide(source['source_id'], source['version_id'], reviewer=reviewer,
                                  decision='STALE', note='Old version')
+        # Forged non-existent account — account not found.
         with self.assertRaises(PermissionError):
-            self.workflow.decide(source['source_id'], pending['version_id'], reviewer={'id': 'fake', 'role': 'admin'},
+            self.workflow.decide(source['source_id'], pending['version_id'],
+                                 reviewer={'id': 'fake-nonexistent', 'role': 'advocate',
+                                           'verification_status': 'VERIFIED',
+                                           'capabilities': ['LEGAL_AUTHORITY_REVIEW']},
                                  decision='REJECTED', note='Forged account')
 
     def test_download_binding_and_lifecycle(self):
@@ -89,7 +95,7 @@ class AuthorityReviewTests(unittest.TestCase):
                     'legal_foundation_status': 'READY', 'legal_case_file_current': True}
                 self.assertEqual(current_case_file(case, corpus=self.corpus), file)
                 if failure in {'REJECTED', 'STALE'}:
-                    self.workflow.decide('fixture_act', source['version_id'], reviewer=self.db.get('users', 'test-independent-admin'), decision=failure, note='Test revocation')
+                    self.workflow.decide('fixture_act', source['version_id'], reviewer=self.db.get('users', 'test-verified-reviewer-advocate'), decision=failure, note='Test revocation')
                 elif failure == 'revision':
                     publish_reviewed(self.corpus, authority(version_note='changed'))
                 elif failure == 'expired':
@@ -120,18 +126,25 @@ class AuthorityReviewTests(unittest.TestCase):
 
 class AuthorityRouteTests(unittest.TestCase):
     def test_authentication_admin_gate_and_server_owned_identity(self):
+        """Admin can access the authority queue (GET/POST); admin cannot POST a review decision."""
         temp, app, client = test_app()
         self.addCleanup(temp.cleanup)
         app.include_router(router)
         user, headers = client_account(client, 'review')
         url = '/api/admin/authorities'
+        # Unauthenticated.
         self.assertEqual(client.get(url).status_code, 401)
+        # Authenticated regular client: 403.
         self.assertEqual(client.get(url, headers=headers).status_code, 403)
         self.assertEqual(client.post(url, headers=headers, json=authority()).status_code, 403)
+        # Promote to admin.
         app.state.adapters.database.update('users', user['id'], {'role': 'admin'})
         with patch.dict('os.environ', {'ADMIN_TOKEN': ''}):
+            # Admin can list/queue.
             self.assertEqual(client.get(url, headers=headers).status_code, 200)
+            # Server-owned fields are forbidden.
             forged = {'expected_version': 'v', 'decision': 'REVIEWED_PRIMARY', 'note': 'review', 'reviewer_id': 'forged'}
             self.assertEqual(client.post(url+'/fixture_act/review', headers=headers, json=forged).status_code, 422)
         with patch.dict('os.environ', {'ADMIN_TOKEN': 'test-secret'}):
+            # Missing additional credential.
             self.assertEqual(client.get(url, headers=headers).status_code, 403)

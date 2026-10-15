@@ -218,7 +218,9 @@ class TestReviewAdminPasswordReset(unittest.TestCase):
         from backend.adapters.mongo.database import MongoDatabaseAdapter
         from backend.database.mongo_client import get_mongo_client
 
-        client = get_mongo_client()
+        import pymongo
+        # This test owns and closes its client; do not close the shared adapter cache.
+        client = pymongo.MongoClient("mongodb://127.0.0.1:27017")
         test_db_name = f"caseseva_test_pwd_reset_{uuid4().hex[:10]}"
         try:
             adapter = MongoDatabaseAdapter(db_name=test_db_name)
