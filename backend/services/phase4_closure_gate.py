@@ -22,6 +22,8 @@ from .verified_corpus import VerifiedCorpus
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_QUEUE_PATH = ROOT / "docs" / "audits" / "phase4_review_queue.json"
+DEFAULT_MANIFEST_PATH = ROOT / "docs" / "audits" / "phase4_review_session_manifest.json"
+DEFAULT_PACKET_DIR = ROOT / "docs" / "audits" / "review_packets"
 
 SYNTHETIC_INDICATORS = [
     "@example.com",
@@ -33,14 +35,24 @@ SYNTHETIC_INDICATORS = [
 ]
 
 
-def evaluate_phase4_closure(db: Any, queue_path: Path | None = None) -> dict[str, Any]:
-    """Evaluates whether all 10 Phase-4 closure criteria are satisfied."""
+def evaluate_phase4_closure(
+    db: Any,
+    queue_path: Path | None = None,
+    manifest_path: Path | None = None,
+    packet_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Evaluates whether all 10 Phase-4 closure criteria and lineage integrity are satisfied."""
     queue_file = queue_path or DEFAULT_QUEUE_PATH
+    manifest_file = manifest_path or DEFAULT_MANIFEST_PATH
+    packet_directory = packet_dir or DEFAULT_PACKET_DIR
+
     if not queue_file.exists():
         return {
             "can_close": False,
             "gate_status": "FAILED",
-            "blockers": ["Missing review queue file: docs/audits/phase4_review_queue.json"],
+            "lineage_integrity_passed": False,
+            "lineage_integrity_status": "FAILED_MISSING_QUEUE",
+            "blockers": [f"Missing review queue file: {queue_file}"],
         }
 
     queue_data = json.loads(queue_file.read_text(encoding="utf-8"))
@@ -48,15 +60,94 @@ def evaluate_phase4_closure(db: Any, queue_path: Path | None = None) -> dict[str
     total_candidates = len(candidates)
 
     blockers = []
+    lineage_blockers = []
     resolved_candidates = []
     pending_candidates = []
+
+    # Load manifest and packets if available for lineage integrity checks
+    manifest_candidates = {}
+    if manifest_file.exists():
+        try:
+            m_data = json.loads(manifest_file.read_text(encoding="utf-8"))
+            manifest_candidates = {c.get("source_id"): c for c in m_data.get("candidates", [])}
+        except Exception as exc:
+            lineage_blockers.append(f"Failed to load session manifest {manifest_file}: {exc}")
 
     corpus = VerifiedCorpus(db)
     verified_source_ids = {s.get("source_id") for s in corpus.sources()}
 
+    seen_source_ids = set()
+
     for cand in candidates:
         sid = cand.get("source_id")
         vid = cand.get("version_id")
+
+        # Lineage check 1: Active target uniqueness
+        if sid in seen_source_ids:
+            lineage_blockers.append(f"Duplicate candidate source_id '{sid}' in review queue.")
+        seen_source_ids.add(sid)
+
+        # Lineage check 2: Active version exists in DB
+        vdoc = db.get("legal_authority_versions", vid)
+        if not vdoc:
+            lineage_blockers.append(f"Candidate {sid} active version '{vid}' not found in legal_authority_versions.")
+            continue
+
+        src_record = vdoc.get("source", {})
+        if isinstance(src_record, str):
+            try:
+                import ast
+                src_record = ast.literal_eval(src_record)
+            except Exception:
+                pass
+        db_parent = src_record.get("parent_revision")
+
+        # Lineage check 3: Predecessor resolves in DB if declared
+        if db_parent:
+            parent_vdoc = db.get("legal_authority_versions", db_parent)
+            if not parent_vdoc:
+                lineage_blockers.append(f"Candidate {sid} parent revision '{db_parent}' not found in legal_authority_versions.")
+
+        # Lineage check 4: Manifest equality
+        if manifest_candidates:
+            m_cand = manifest_candidates.get(sid)
+            if not m_cand:
+                lineage_blockers.append(f"Candidate {sid} missing from session manifest.")
+            else:
+                m_vid = m_cand.get("current_corrected_version_id")
+                if m_vid != vid:
+                    lineage_blockers.append(
+                        f"Candidate {sid} version mismatch: queue={vid[:12]} vs manifest={str(m_vid)[:12]}."
+                    )
+                m_pred = m_cand.get("predecessor_revision")
+                if db_parent and m_pred != db_parent:
+                    lineage_blockers.append(
+                        f"Candidate {sid} predecessor mismatch: DB={str(db_parent)[:12]} vs manifest={str(m_pred)[:12]}."
+                    )
+
+        # Lineage check 5: Packet equality and substantive operative excerpt check
+        packet_path = packet_directory / f"{sid}.json"
+        if packet_directory.exists() and packet_path.exists():
+            try:
+                pkt_data = json.loads(packet_path.read_text(encoding="utf-8"))
+                p_vid = pkt_data.get("version_id")
+                if p_vid != vid:
+                    lineage_blockers.append(
+                        f"Candidate {sid} version mismatch: queue={vid[:12]} vs packet={str(p_vid)[:12]}."
+                    )
+                p_pred = pkt_data.get("predecessor_revision")
+                if db_parent and p_pred and p_pred != db_parent:
+                    lineage_blockers.append(
+                        f"Candidate {sid} predecessor mismatch: DB={str(db_parent)[:12]} vs packet={str(p_pred)[:12]}."
+                    )
+                # Ensure excerpt is substantive operative text, not TOC title
+                excerpt = pkt_data.get("exact_official_excerpt", "").strip()
+                if len(excerpt) < 50 or "Arrangement of sections" in excerpt:
+                    lineage_blockers.append(
+                        f"Candidate {sid} packet excerpt appears defective or TOC extraction: '{excerpt[:60]}'."
+                    )
+            except Exception as exc:
+                lineage_blockers.append(f"Candidate {sid} review packet failed to parse: {exc}")
 
         # Criterion 1 & 2: Check resolution state
         receipts = [
@@ -123,18 +214,23 @@ def evaluate_phase4_closure(db: Any, queue_path: Path | None = None) -> dict[str
                 f"Pending candidate {sid} improperly leaked into VerifiedCorpus heads before review."
             )
 
-    can_close = len(blockers) == 0 and len(pending_candidates) == 0 and total_candidates == 12
+    lineage_integrity_passed = len(lineage_blockers) == 0
+    all_blockers = lineage_blockers + blockers
+    can_close = len(all_blockers) == 0 and len(pending_candidates) == 0 and total_candidates == 12
 
     return {
         "gate_name": "CaseSeva Phase-4 Human Review Closure Gate",
         "can_close": can_close,
         "gate_status": "PASSED_CLOSED" if can_close else "FAILED_PENDING_HUMAN_REVIEW",
+        "lineage_integrity_passed": lineage_integrity_passed,
+        "lineage_integrity_status": "PASSED" if lineage_integrity_passed else "FAILED_LINEAGE_AMBIGUITY",
         "total_required_candidates": total_candidates,
         "pending_candidates_count": len(pending_candidates),
         "resolved_candidates_count": len(resolved_candidates),
         "pending_candidates": pending_candidates,
         "resolved_candidates": resolved_candidates,
-        "blockers": blockers,
+        "lineage_blockers": lineage_blockers,
+        "blockers": all_blockers,
         "message": (
             "Phase 4 is fully CLOSED: All 12 candidates have genuine authenticated human reviews."
             if can_close

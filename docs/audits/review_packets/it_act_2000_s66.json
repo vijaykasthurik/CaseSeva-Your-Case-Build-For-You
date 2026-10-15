@@ -61,5 +61,7 @@
     "NEEDS_NEW_REVISION"
   ],
   "recommendation": null,
-  "inspection_ready": true
+  "inspection_ready": true,
+  "predecessor_revision": "7996a9c4994c855020791af2699ffa6798535f478c437fc38847cc01b609455b",
+  "prior_revision": "7996a9c4994c855020791af2699ffa6798535f478c437fc38847cc01b609455b"
 }
