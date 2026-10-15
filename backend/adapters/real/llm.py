@@ -145,12 +145,17 @@ class RealLLMAdapter(LLMAdapter):
         self.total_input_tokens = 0
         self.total_output_tokens = 0
         self.stage_logs: list[dict[str, Any]] = []
-        self.default_max_tokens = 4000
         self.stage_max_tokens: dict[str, int] = {
             "rebuttal": 8000,
-            "claimant_counsel": 6000,
-            "opponent_counsel": 6000,
-            "neutral_evaluation": 6000,
+            "claimant_counsel": 8000,
+            "opponent_counsel": 8000,
+            "neutral_evaluation": 8000,
+            "evidence_challenger": 8000,
+            "engine2_claimant_counsel": 8000,
+            "engine2_opponent_counsel": 8000,
+            "engine2_evidence_challenger": 8000,
+            "engine2_rebuttal": 8000,
+            "engine2_neutral_evaluation": 8000,
             "draft_generation": 8000,
             "report_generation": 8000,
         }

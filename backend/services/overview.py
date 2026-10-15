@@ -39,15 +39,17 @@ def client_overview(case: dict, db=None) -> dict:
         file = {**case['canonical_case_file'], 'applicable_law': [], 'legal_findings': [],
                 'authority_versions': {}, 'authority_provenance': {}, 'foundation_complete': False,
                 'legal_foundation_status': 'PENDING_SOURCE', 'forum': {}, 'limitation': {}}
-    ran = bool(case.get("engine2", {}).get("overview_ready")) and case.get("engine2", {}).get("case_file_version") == file.get("version")
-    evaluation = case.get("engine2", {}).get("neutral_evaluation", {}) if ran else {}
+    e2 = case.get("engine2", {})
+    ran = bool(e2.get("overview_ready")) and e2.get("case_file_version") == file.get("version")
+    evaluation = e2.get("neutral_evaluation", {}) if ran else {}
     missing = list(file.get("missing_information", []))
     missing += [SAFE_INPUT_MESSAGE for item in file.get("input_pending", [])]
-    requests = case.get("engine2", {}).get("evidence_challenger", {}).get("document_requests", [])
+    requests = e2.get("evidence_challenger", {}).get("document_requests", []) if ran else []
     missing += [item["description"] for item in requests if not item.get("resolved")]
     verified = [item for item in file.get("applicable_law", []) if item.get("verification_status") == "VERIFIED" and not item.get("removed")]
     forum = file.get("forum", {})
     limitation = file.get("limitation", {})
+    e2_stale = bool(e2) and not ran
     output = {
         "title": "Client Case Overview", "case_id": case["case_id"], "case_file_version": file.get("version"),
         "summary": file.get("citizen_safe_summary") or file.get("intake", {}).get("narrative") or case.get("client_story", ""),
@@ -61,9 +63,15 @@ def client_overview(case: dict, db=None) -> dict:
         "forum": forum if forum.get("verification_status") == "VERIFIED" else None,
         "limitation": limitation if limitation.get("verification_status") == "VERIFIED" else None,
         "argument_analysis_run": ran,
-        "argument_analysis_note": "Argument analysis was run on the current Case File." if ran else "Adversarial case-strengthening analysis was not run on the current Case File.",
+        "argument_analysis_note": "Argument analysis was run on the current Case File." if ran else ("Argument analysis was run on an earlier Case File version and is now stale. Rerun Strengthen My Case to update." if e2_stale else "Adversarial case-strengthening analysis was not run on the current Case File."),
         "issue_readiness": evaluation.get("issue_readiness", []) if ran else [],
         "key_risks": evaluation.get("unresolved_risks", []), "missing_details": missing,
+        "key_challenges": [oa.get("summary") for oa in e2.get("opposing_arguments", [])] if ran else [],
+        "evidence_gaps": [eg.get("description") for eg in e2.get("evidence_gaps", [])] if ran else [],
+        "unresolved_contradictions": [c.get("description") for c in e2.get("contradictions", [])] if ran else [],
+        "preparation_actions": e2.get("preparation_actions", []) if ran else [],
+        "legal_authority_limitations": e2.get("legal_authority_limitations", []) if ran else [],
+        "engine2_stale": e2_stale,
         "ready_to_find_advocate": bool(file) and not case.get("processing_error"),
         "next_step": "Find an advocate for review." if missing or file.get("pending_advocate_verification") else "The case is ready to proceed to an advocate.",
         "processing_mode": file.get("processing_mode"), "documents_outdated": case.get("documents_outdated", False),

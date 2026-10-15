@@ -21,7 +21,9 @@ def authority_manifest(corpus, source_ids):
 
 
 def current_case_file(case, db=None, *, corpus=None):
-    file = case.get('case_file') or case.get('canonical_case_file') or {}
+    canonical = case.get('canonical_case_file') or {}
+    legacy = case.get('case_file') or {}
+    file = canonical if canonical.get('version', 0) >= legacy.get('version', 0) and canonical else (legacy or canonical)
     if file.get('kind') != 'SOURCE_VERIFIED_ENGINE1':
         return file
     if not case.get('legal_case_file_current') or file.get('input_version') != case.get('input_version', 1):

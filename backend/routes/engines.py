@@ -98,21 +98,36 @@ def overview(case_id: str, request: Request, user=Depends(get_current_user)):
 @router.post("/{case_id}/engine2")
 def choose_engine2(case_id: str, body: Engine2Choice, request: Request, user=Depends(get_current_user)):
     case = get_case_or_error(request, case_id, user)
-    if case.get('legal_foundation_requested'):
-        raise HTTPException(409, 'Deeper analysis is not yet available for this legal-foundation workflow.')
-    if not case.get("case_file") or case["status"] not in {"ENGINE1_DONE", "LEGAL_CORPUS_NOT_READY", "REVIEW_REQUIRED", "ENGINE2_DONE"} or case.get("processing_error"):
+    db = request.app.state.adapters.database
+
+    canonical_available = bool(case.get("canonical_case_file")) or bool(case.get("case_file"))
+    if not canonical_available:
+        snapshots = db.list("engine1_canonical_case_files")
+        canonical_available = any(s.get("case_id") == case_id and s.get("case_file") for s in snapshots)
+
+    if not canonical_available:
         raise HTTPException(409, "Complete the case explanation or resolve the processing problem first.")
+    if case.get("status") in {"ENGINE1_RUNNING", "ENGINE2_RUNNING"} or case.get("processing_error"):
+        raise HTTPException(409, "Complete the case explanation or resolve the processing problem first.")
+
     if body.run:
-        updated = request.app.state.adapters.database.update("cases", case_id, {"status": "ENGINE2_RUNNING", "engine2_choice": "RUN"})
+        updated = db.update("cases", case_id, {
+            "status": "ENGINE2_RUNNING",
+            "engine2_choice": "RUN",
+            "engine2_requested_by": user["id"],
+        })
         try:
-            dispatch(request.app, 2, case_id)
+            dispatch(request.app, 2, case_id, actor_id=user["id"], actor_role=user.get("role", "citizen"))
         except Exception:
-            request.app.state.adapters.database.update("cases", case_id, {"status": "REVIEW_REQUIRED", "processing_error": {"engine": 2, "stage": "DISPATCH", "message": "Could not start Engine 2."}})
+            db.update("cases", case_id, {
+                "status": "REVIEW_REQUIRED",
+                "processing_error": {"engine": 2, "stage": "DISPATCH", "message": "Could not start Engine 2."},
+            })
             raise HTTPException(503, "Engine 2 could not be started.")
     else:
         if case.get("engine2"):
             raise HTTPException(409, "Argument analysis already exists; it cannot be relabelled as not run.")
-        updated = request.app.state.adapters.database.update("cases", case_id, {"engine2_choice": "DECLINED"})
+        updated = db.update("cases", case_id, {"engine2_choice": "DECLINED"})
         from ..services.blackboard import engine_state
-        engine_state(request.app.state.adapters.database, case_id, 2, "SKIPPED")
+        engine_state(db, case_id, 2, "SKIPPED")
     return {"status": updated["status"], "engine2_choice": updated.get("engine2_choice")}

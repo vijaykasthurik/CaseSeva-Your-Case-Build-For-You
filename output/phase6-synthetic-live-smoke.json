@@ -1,0 +1,164 @@
+{
+  "database": "caseseva_test_phase6_live_68ba9a2b0ab24ddfab87515af970bcff",
+  "provider": "real configured LLM",
+  "test_double": false,
+  "case_id": "43970d3c97654c97a5678be9ce048c16",
+  "engine1_case_file_version": 2,
+  "bound_engine1_case_file_version": 2,
+  "engine2_run_id": "2e23939f0d624993b92c509c77a3ca4f",
+  "engine2_version": 1,
+  "legal_foundation_status": "PENDING_SOURCE",
+  "challenge_perspectives": [
+    "OPPOSING_PARTY",
+    "EVIDENCE_CHALLENGE",
+    "CHRONOLOGY_AND_DELAY",
+    "FACTUAL_CONTRADICTIONS",
+    "PROCEDURAL_RISK"
+  ],
+  "opposing_arguments_count": 15,
+  "factual_weaknesses_count": 23,
+  "evidence_gaps_count": 13,
+  "contradictions_count": 0,
+  "procedural_risks_count": 11,
+  "unresolved_assumptions_count": 2,
+  "legal_authority_limitations": [
+    "Legal foundation status is PENDING_SOURCE. Statutory authorities were not asserted or treated as verified law.",
+    "Factual disputes, evidence vulnerabilities, and procedural risks were evaluated without asserting statutory citations."
+  ],
+  "preparation_actions": [
+    "Gather all invoices, delivery notes, and communication logs in chronological order.",
+    "Identify whether any timeline dates are estimates and confirm exact calendar dates.",
+    "Draft a clear timeline summary highlighting when defects were first brought to notice."
+  ],
+  "engine2_provisions_added": 0,
+  "engine2_stale": false,
+  "argument_analysis_run": true,
+  "argument_analysis_note": "Argument analysis was run on the current Case File.",
+  "overview_key_challenges": [
+    "Opponent may argue that alleged delivery defects (cracked display and broken bezel) are not established by credible evidence. Customer claims delivery photographs were emailed to seller on 4 September 2026 but has not uploaded them and states retrieval status unknown. Without photographic documentation, the nature, extent, causation, and timing of defects cannot be independently verified, leaving the factual foundation of the claim unproven.",
+    "Opponent may contend that the broken bezel defect was never properly communicated to or acknowledged by the seller. Support email (E002) acknowledges only 'cracked display' as of 5 September 2026. Customer's narrative claims delivery with 'cracked display and broken bezel,' but no evidence shows bezel damage was separately reported, when it was reported, or that seller ever accepted responsibility for bezel defect. The scope of seller's actual acknowledgment is narrower than claimed.",
+    "Opponent may challenge sufficiency of payment proof. Invoice (E001) documents a transaction dated 1 September 2026 for Rs. 54,999, but customer explicitly states payment proof is not currently available. No bank statement, payment gateway confirmation, transaction receipt, or independent verification of fund transfer to seller is provided. Invoice alone does not confirm payment method, clearance status, or actual receipt by seller.",
+    "Opponent may argue that the replacement deadline is ambiguous and non-performance cannot be definitively established. Support email (E002) promises replacement 'within seven days' in response to damage reported 4 September 2026, but does not specify whether the seven-day period commences from 4 September (damage report) or 5 September (promise date), nor whether 'seven days' means calendar days or business days. Deadline could be 11 September or 12 September 2026. Without precise deadline determination, proof of non-performance by 20 September 2026 is unclear.",
+    "Opponent may contend that delivery itself is not proven by reliable evidence. Customer asserts delivery on 3 September 2026 with defects, but provides no delivery tracking number, courier receipt, signed proof of delivery, delivery notification, or logistics provider confirmation. Without delivery documentation, the timing of damage discovery (upon receipt or later), the condition of goods at point of transfer, and causation of defects (manufacturing or transit-related) remain unestablished.",
+    "Opponent may argue that the communication cessation and breach timeline cannot be established without documented contact record. Customer states seller 'stopped answering' after 20 September 2026 but provides no exact cessation date, frequency of contact attempts between 5 and 20 September 2026, communication medium (email/phone/platform), specific dates of inquiries, or seller's documented responses or silence. The 15-day period between promise (5 September) and claimed cessation (after 20 September) lacks any communication documentation.",
+    "Opponent may challenge the identification of the proper defendant and forum jurisdiction. Seller is identified only as 'Example Laptop Store' in invoice (E001) and support email (E002). No verification provided of legal entity type, business registration number, registered address, jurisdiction of operation, principal place of business, or authorized contact details. Without proper seller identification, service of process and determination of applicable consumer protection authority jurisdiction cannot proceed.",
+    "Opponent may dispute the validity of the claimant's party status based on incomplete identification. Customer identity is limited to location (Chennai) and narrative statement. No legal name, contact details, residential address, proof of identity, PAN, Aadhaar reference, or verification information is provided. Formal party identification required for complaint filing, service of notice, and relief proceedings is absent.",
+    "Opponent may deny relief on grounds that legal entitlement to replacement or refund is not established. Customer seeks 'replacement or refund' without providing purchase agreement terms, product warranty documentation, product guarantee certificate, or seller's general terms and conditions. Seller's promise (F004) is a unilateral email statement; its binding force and enforceability remain unspecified. No statutory consumer protection law has been verified as applicable. Entitlement to either remedy is undocumented.",
+    "Opponent may argue that the seller's replacement promise in support email (E002) does not constitute a binding contractual commitment. The email is a unilateral statement of intent made by a support representative without explicit conditions, performance specifications, or acceptance by customer. No formal contract terms, conditions precedent, or written acknowledgment of the promise exists. The statement may be interpreted as a goodwill gesture rather than a legally enforceable obligation.",
+    "Opponent may contend that causation of defects cannot be established. Customer claims delivery with defects on 3 September 2026 but provides no delivery condition documentation or evidence distinguishing between manufacturing defects and damage caused during transit or handling. Without delivery inspection records or photographic evidence at point of transfer, alternative causes (user damage, post-delivery incidents) cannot be excluded.",
+    "Opponent may argue that customer's failure to preserve critical evidence undermines the claim. Customer states that delivery photographs (claimed to be emailed to seller on 4 September 2026) are not currently available, and payment proof is not currently available. These items are fundamental to the claim but have not been retrieved or preserved. The absence of evidence storage or retrieval efforts suggests inadequate case preparation.",
+    "Opponent may move to dismiss for failure to establish applicable legal framework. The case file contains no VERIFIED applicable law entries. The applicable_law array is empty, and legal_foundation_status is 'PENDING_SOURCE.' No statutory consumer protection authority or remedy entitlement has been established. Without verified legal foundation, the claim lacks the necessary statutory or contractual basis for formal relief proceedings.",
+    "Opponent may argue that customer has not exhausted alternative remedies or dispute resolution mechanisms. Case file shows customer 'has not filed any complaint or court case' (F008). No evidence of formal notice to seller, demand letter, pre-litigation negotiation, or resort to seller's own dispute resolution mechanism (if any) is documented. Customer proceeded directly to case consultation without attempting informal or statutory pre-complaint resolution.",
+    "Opponent may contend that seller's communication cessation after 20 September 2026 does not constitute admission of breach or liability. Absence of seller's response to inquiries after deadline passage does not automatically prove non-performance; it may reflect administrative oversight, technical failure, contact address change, or business interruption unrelated to the replacement promise. Silence is not admission of non-delivery."
+  ],
+  "overview_evidence_gaps": [
+    "Delivery photographs with metadata: Original image files allegedly emailed to seller on 4 September 2026 showing cracked display and broken bezel damage. Must include file creation timestamps, device source, file size, and authentication chain. Retrieve from customer's email sent folder or seller's email records.",
+    "Payment proof and transaction verification: Bank statement, payment gateway confirmation, transaction receipt, or payment method confirmation (card/transfer/UPI) showing Rs. 54,999 paid to Example Laptop Store on or before 1 September 2026. Must include transaction reference number, payment method, date cleared, and payee confirmation.",
+    "Delivery proof and condition documentation: Delivery tracking number, courier receipt, signed proof of delivery (delivery challan), delivery notification (SMS/email), or logistics provider tracking record showing delivery on 3 September 2026. Must include recipient name, delivery address, delivery time, condition notes, and signature/acceptance confirmation.",
+    "Complete email thread between customer and seller from 4 September 2026 through 20 September 2026 and beyond. Must include: (a) customer's initial damage report email (4 September) with photographs or photograph descriptions; (b) seller's support response email acknowledging damage (E002, 5 September); (c) all subsequent customer inquiries and follow-up requests; (d) all seller responses or non-responses; (e) exact date and time of last seller communication and last customer contact attempt.",
+    "Seller entity verification: Legal entity name, business registration number (CIN/GST/License), registered business address, jurisdiction of incorporation, contact telephone and email, authorized representative name and designation, and any terms and conditions or dispute resolution clause applicable to transactions. Retrieve from business registration authority, seller's website, invoice header, or seller's portal terms.",
+    "Customer identity and contact verification: Customer's full legal name, residential address, contact telephone, email address, date of birth, government-issued identity proof (Aadhaar/PAN/Driving License), and proof of residence. Confirm customer's capacity as individual consumer and verify address used for delivery.",
+    "Purchase agreement and transaction terms: Original purchase order, invoice detail page (if separate from E001), product specification sheet, terms and conditions of sale, product warranty certificate, manufacturer's guarantee documentation, and seller's general return, replacement, and refund policy. If purchased through online platform, retrieve platform's standard terms and buyer protection policy.",
+    "Customer's post-20-September contact attempts and records: Documented evidence of all contact attempts made by customer to seller after 20 September 2026 to follow up on non-arrival of replacement. Include dates, times, communication method (email/phone/platform/visit), content of inquiries, and seller's responses or confirmed non-responses. Retrieve from customer's email sent folder, phone call logs, SMS records, or platform message history.",
+    "Replacement promise clarification and binding terms: Full support email (E002) with complete header information (from/to addresses, subject line, exact date/time sent), full body text without truncation, and any attachments or linked terms. If seller has standard terms referenced in email, retrieve those terms. Determine binding force, conditions precedent, and performance specifications (replacement model, delivery timeline, shipping responsibility, return of defective unit requirement).",
+    "Bezel defect reporting documentation: Specific evidence of when broken bezel damage was first communicated to seller (email, phone log, platform message, or support ticket). If reported separately from cracked display, retrieve (a) date and time of bezel damage report; (b) communication medium and content; (c) seller's acknowledgment, denial, or silence on bezel claim; (d) whether photographs sent on 4 September showed bezel or display damage or both. Clarify scope of seller's replacement promise relative to bezel defect.",
+    "Delivery defect (cracked display and broken bezel) is asserted but delivery photographs are unavailable and not yet retrieved; verification of damage nature and extent cannot be completed without photographic evidence.",
+    "Broken bezel damage is stated in customer account (F002) but acknowledged support email (E002) references only cracked display; unclear whether broken bezel was separately reported or acknowledged by seller.",
+    "Seven-day replacement deadline calculation is ambiguous: promised on 5 September 2026 but damage reported on 4 September 2026; deadline could be 11 or 12 September 2026, affecting non-performance assessment."
+  ],
+  "overview_preparation_actions": [
+    "Gather all invoices, delivery notes, and communication logs in chronological order.",
+    "Identify whether any timeline dates are estimates and confirm exact calendar dates.",
+    "Draft a clear timeline summary highlighting when defects were first brought to notice."
+  ],
+  "engine1_case_file_mutated": false,
+  "report_sample": {
+    "opposing_arguments": [
+      {
+        "argument_id": "OBJ_001_DEFECT_EVIDENCE_GAP",
+        "perspective": "OPPOSING_PARTY",
+        "title": "Opponent may argue that alleged delivery defects (cracked di",
+        "summary": "Opponent may argue that alleged delivery defects (cracked display and broken bezel) are not established by credible evidence. Customer claims delivery photographs were emailed to seller on 4 September 2026 but has not uploaded them and states retrieval status unknown. Without photographic documentation, the nature, extent, causation, and timing of defects cannot be independently verified, leaving the factual foundation of the claim unproven.",
+        "issue_id": null,
+        "target_facts": [],
+        "target_evidence": [],
+        "counter_propositions": [
+          "Opponent may argue that alleged delivery defects (cracked display and broken bezel) are not established by credible evidence. Customer claims delivery photographs were emailed to seller on 4 September 2026 but has not uploaded them and states retrieval status unknown. Without photographic documentation, the nature, extent, causation, and timing of defects cannot be independently verified, leaving the factual foundation of the claim unproven."
+        ],
+        "provision_ids": []
+      },
+      {
+        "argument_id": "OBJ_002_BEZEL_DEFECT_SCOPE",
+        "perspective": "OPPOSING_PARTY",
+        "title": "Opponent may contend that the broken bezel defect was never ",
+        "summary": "Opponent may contend that the broken bezel defect was never properly communicated to or acknowledged by the seller. Support email (E002) acknowledges only 'cracked display' as of 5 September 2026. Customer's narrative claims delivery with 'cracked display and broken bezel,' but no evidence shows bezel damage was separately reported, when it was reported, or that seller ever accepted responsibility for bezel defect. The scope of seller's actual acknowledgment is narrower than claimed.",
+        "issue_id": null,
+        "target_facts": [],
+        "target_evidence": [
+          "E002"
+        ],
+        "counter_propositions": [
+          "Opponent may contend that the broken bezel defect was never properly communicated to or acknowledged by the seller. Support email (E002) acknowledges only 'cracked display' as of 5 September 2026. Customer's narrative claims delivery with 'cracked display and broken bezel,' but no evidence shows bezel damage was separately reported, when it was reported, or that seller ever accepted responsibility for bezel defect. The scope of seller's actual acknowledgment is narrower than claimed."
+        ],
+        "provision_ids": []
+      }
+    ],
+    "factual_weaknesses": [
+      {
+        "weakness_id": "fw_F001",
+        "description": "Fact 'Customer paid Rs. 54,999 to Example Laptop Store for a laptop for personal use.' is unverified and stated only without documentation.",
+        "fact_ids": [
+          "F001"
+        ],
+        "severity": "MEDIUM",
+        "clarification_suggested": "Provide contemporaneous evidence or invoice."
+      },
+      {
+        "weakness_id": "fw_F002",
+        "description": "Fact 'Laptop was delivered with a cracked display and broken bezel.' is unverified and stated only without documentation.",
+        "fact_ids": [
+          "F002"
+        ],
+        "severity": "MEDIUM",
+        "clarification_suggested": "Provide contemporaneous evidence or invoice."
+      }
+    ],
+    "evidence_gaps": [
+      {
+        "gap_id": "DOC_REQ_001",
+        "description": "Delivery photographs with metadata: Original image files allegedly emailed to seller on 4 September 2026 showing cracked display and broken bezel damage. Must include file creation timestamps, device source, file size, and authentication chain. Retrieve from customer's email sent folder or seller's email records.",
+        "related_issue_id": null,
+        "affected_facts": [],
+        "suggested_evidence": [
+          "Delivery photographs with metadata: Original image files allegedly emailed to seller on 4 September 2026 showing cracked display and broken bezel damage. Must include file creation timestamps, device source, file size, and authentication chain. Retrieve from customer's email sent folder or seller's email records."
+        ]
+      },
+      {
+        "gap_id": "DOC_REQ_002",
+        "description": "Payment proof and transaction verification: Bank statement, payment gateway confirmation, transaction receipt, or payment method confirmation (card/transfer/UPI) showing Rs. 54,999 paid to Example Laptop Store on or before 1 September 2026. Must include transaction reference number, payment method, date cleared, and payee confirmation.",
+        "related_issue_id": null,
+        "affected_facts": [],
+        "suggested_evidence": [
+          "Payment proof and transaction verification: Bank statement, payment gateway confirmation, transaction receipt, or payment method confirmation (card/transfer/UPI) showing Rs. 54,999 paid to Example Laptop Store on or before 1 September 2026. Must include transaction reference number, payment method, date cleared, and payee confirmation."
+        ]
+      }
+    ],
+    "procedural_risks": [
+      {
+        "risk_id": "pr_03983b79",
+        "category": "GENERAL",
+        "description": "Delivery photographs (alleged to be emailed 4 September 2026) are not currently available and retrieval status unknown; without photographic evidence, defect nature, extent, and causation cannot be independently verified despite seller acknowledgment of damage report.",
+        "statutory_basis": null,
+        "mitigation": null
+      },
+      {
+        "risk_id": "pr_1ae53f1a",
+        "category": "GENERAL",
+        "description": "Broken bezel damage acknowledged by seller only as 'cracked display' in support email (E002); no evidence establishes whether bezel was separately reported to seller, when, or whether seller accepted liability for bezel-specific defect. Scope of replacement promise may not extend to bezel damage.",
+        "statutory_basis": null,
+        "mitigation": null
+      }
+    ]
+  },
+  "acceptance_passed": true
+}

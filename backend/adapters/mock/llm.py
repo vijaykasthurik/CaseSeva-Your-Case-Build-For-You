@@ -45,7 +45,8 @@ class MockLLMAdapter(LLMAdapter):
             if stage == "engine2_rebuttal":
                 return {"rebuttals": []}
             if stage == "engine2_neutral_evaluation":
-                return {"issue_readiness": [{"issue_id": item["issue_id"], "level": "Unresolved", "reasons": ["No live argument analysis was performed."], "improvements": ["Live processing and advocate review required."]} for item in case.get("legal_issues", [])], "unresolved_risks": ["Development mode: argument analysis is not a live assessment."], "advocate_review_points": [], "foundation_flags": []}
+                issues = case.get("issues") or case.get("legal_issues") or case.get("case_issues") or []
+                return {"issue_readiness": [{"issue_id": item.get("issue_id") or item.get("question_id"), "level": "Unresolved", "reasons": ["No live argument analysis was performed."], "improvements": ["Live processing and advocate review required."]} for item in issues], "unresolved_risks": ["Development mode: argument analysis is not a live assessment."], "advocate_review_points": [], "foundation_flags": []}
             raise ValueError(f"No explicit development implementation for stage {stage}; live output was not substituted.")
         if schema.get("fixture") == "uninformative":
             raise ValueError("Semantic sanity check failed: 'parties' returned all unknown roles.")
