@@ -12,7 +12,12 @@ class StatutorySectionizer:
     """Parses official enactment text into structured ProvisionRecord entries."""
 
     SECTION_PATTERN = re.compile(
-        r"^(?:\s*)(?:SECTION\s+)?(\d+[A-Z]?)\.\s+([^\n\r]+?)(?:\s*[-—–]\s*|\s*\n|\.\s+)(.*?)(?=(?:^(?:\s*)(?:SECTION\s+)?\d+[A-Z]?\.\s+[^\n\r]+?[-—–\n]|\Z))",
+        r"^(?:\s*)(?:(?:\d+\s*\[|\[)?)(?:SECTION\s+)?(\d+[A-Z]{0,4})\.\s+"
+        r"(?!(?:Subs\b|Ins\b|Omitted\b|The\s+words?\b|Certain\s+words?\b|Added\b|See\b|Vide\b|Renumbered\b|For\b|W\.e\.f\b|\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)))"
+        r"([^\n\r]+?)(?:\s*[-—–]\s*|\s*\n|\.\s+)(.*?)"
+        r"(?=(?:^(?:\s*)(?:(?:\d+\s*\[|\[)?)(?:SECTION\s+)?\d+[A-Z]{0,4}\.\s+"
+        r"(?!(?:Subs\b|Ins\b|Omitted\b|The\s+words?\b|Certain\s+words?\b|Added\b|See\b|Vide\b|Renumbered\b|For\b|W\.e\.f\b|\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)))"
+        r"[^\n\r]+?[-—–\n]|\Z))",
         re.DOTALL | re.MULTILINE
     )
 
@@ -35,6 +40,22 @@ class StatutorySectionizer:
         r"^(?:\s*)(PART\s+[IVXLCDM\d]+[A-Z]?)\s*\n\s*([^\n\r]+)",
         re.IGNORECASE | re.MULTILINE
     )
+
+    TOC_MARKERS = [
+        "ARRANGEMENT OF SECTIONS",
+        "ARRANGEMENT OF CLAUSES",
+        "CONTENTS",
+        "TABLE OF PROVISIONS",
+        "INDEX OF SECTIONS",
+    ]
+
+    ENACTING_MARKERS = [
+        re.compile(r"\bBE\s+it\s+enacted\b", re.IGNORECASE),
+        re.compile(r"\bIt\s+is\s+hereby\s+enacted\b", re.IGNORECASE),
+        re.compile(r"\bAn\s+Act\s+to\b", re.IGNORECASE),
+        re.compile(r"CHAPTER\s+I\s*\n\s*PRELIMINARY", re.IGNORECASE),
+        re.compile(r"PART\s+I\s*\n\s*PRELIMINARY", re.IGNORECASE),
+    ]
 
     def extract_provisions(
         self,
@@ -67,8 +88,58 @@ class StatutorySectionizer:
             matching = [c[1] for c in chapters if c[0] <= pos]
             return matching[-1] if matching else None
 
+        # Detect TOC boundary if present
+        toc_pos = -1
+        for tm in self.TOC_MARKERS:
+            p = text.find(tm)
+            if p != -1 and (toc_pos == -1 or p < toc_pos):
+                toc_pos = p
+
+        enacting_pos = -1
+        if toc_pos != -1:
+            for em in self.ENACTING_MARKERS:
+                m = em.search(text, toc_pos)
+                if m:
+                    if enacting_pos == -1 or m.start() < enacting_pos:
+                        enacting_pos = m.start()
+
+        def score_candidate(m: re.Match) -> tuple[int, bool]:
+            start = m.start()
+            sec_body = m.group(3).strip()
+
+            is_toc = False
+            if toc_pos != -1 and enacting_pos != -1 and toc_pos <= start < enacting_pos:
+                is_toc = True
+            elif len(sec_body) == 0:
+                is_toc = True
+
+            score = 0
+            if is_toc:
+                score -= 1000
+            else:
+                score += 500
+
+            score += min(len(sec_body), 500)
+            if re.search(r"(?:\n|^)\s*\(\d+\)", sec_body):
+                score += 300
+            if re.search(r"\b(?:shall|may|whoever|penalty|offence|means|proviso)\b", sec_body, re.IGNORECASE):
+                score += 100
+
+            return score, is_toc
+
+        # Group matches by section number and select best substantive candidate
+        best_by_sec: dict[str, tuple[int, bool, re.Match]] = {}
+        for m in self.SECTION_PATTERN.finditer(text):
+            sec_norm = m.group(1).upper()
+            score, is_toc = score_candidate(m)
+            if sec_norm not in best_by_sec or score > best_by_sec[sec_norm][0]:
+                best_by_sec[sec_norm] = (score, is_toc, m)
+
+        # Sort chosen substantive sections by start offset in document
+        chosen_matches = sorted([val[2] for val in best_by_sec.values()], key=lambda m: m.start())
+
         # Iterate over sections
-        for match in self.SECTION_PATTERN.finditer(text):
+        for match in chosen_matches:
             sec_num = match.group(1)
             heading = match.group(2).strip()
             sec_body = match.group(3).strip()

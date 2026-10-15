@@ -89,7 +89,7 @@ class ControlledCorpusPopulator:
 
         for prov in all_provisions:
             sec_norm = prov.section.strip().upper()
-            if sec_norm in target.target_sections and sec_norm not in seen_sections:
+            if sec_norm in target.target_sections and sec_norm not in seen_sections and prov.subsection is None:
                 # Top-level section preferred
                 matched.append(prov)
                 seen_sections.add(sec_norm)
