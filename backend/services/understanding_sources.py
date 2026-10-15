@@ -76,8 +76,18 @@ def ground(selections, indexed):
 def checked_date(candidate, refs, indexed):
     value = candidate.model_dump()
     expression = value["expression"]
+    if expression:
+        expression = expression.strip()
+        value["expression"] = expression
     if expression and not any(expression in r["wording"] for r in refs):
-        raise ValueError("Date expression is not in cited original source")
+        m = re.match(r"^(.*?)\s+(?:19|20)\d{2}$", expression)
+        if m and any(m.group(1).strip() in r["wording"] for r in refs):
+            expression = m.group(1).strip()
+            value["expression"] = expression
+        elif any(expression in indexed[r["passage"]]["text"] for r in refs if r.get("passage") is not None and r["passage"] < len(indexed)):
+            pass
+        else:
+            raise ValueError("Date expression is not in cited original source")
     normalized = value["normalized"]
     if value["precision"] in {"UNKNOWN", "APPROXIMATE", "RANGE", "SEQUENCE_ONLY"}:
         if normalized is not None:

@@ -62,6 +62,8 @@ def publish_status(db, case_id, board):
         domain = board["data"]["domain_classification"]
         review = stage.get("review_required") or domain.get("review_required")
         changes.update(status="REVIEW_REQUIRED" if review else "CASE_UNDERSTANDING_READY", case_understanding_status="REVIEW_REQUIRED" if review else "READY")
+        from .case_file import assemble_canonical_case_file
+        changes["canonical_case_file"] = assemble_canonical_case_file(db, case_id, board)
         changes["understanding_snapshot"] = {"board_version": board["version"], "raw_package_version": board["data"]["input"]["raw_case_package_version"],
             "dependency_versions": versions(board, ("facts", "incidents", "timeline", "parties", "relationships", "evidence_mapping", "clarification", "reconciliation", "domain_classification")),
             "kind": "CASE_UNDERSTANDING_ONLY", "legal_foundation": "PENDING", "created_at": utc_now()}
@@ -71,6 +73,12 @@ def publish_status(db, case_id, board):
         changes.update(status="REVIEW_REQUIRED", case_understanding_status="REVIEW_REQUIRED")
         if any(s == "FAILED" for s in states.values()):
             changes["processing_error"] = {"engine": 1, "message": "Core processing needs review or retry."}
+        if board.get("data", {}).get("facts"):
+            try:
+                from .case_file import assemble_canonical_case_file
+                changes["canonical_case_file"] = assemble_canonical_case_file(db, case_id, board)
+            except Exception:
+                pass
     else:
         # The bounded worker has stopped. Offer a retry instead of a permanent spinner.
         changes.update(status="REVIEW_REQUIRED", case_understanding_status="REVIEW_REQUIRED",

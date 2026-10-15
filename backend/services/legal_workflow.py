@@ -54,21 +54,71 @@ def assemble_case_file(db, case_id, board, corpus):
             if not source or source['version_id'] != app['source_version'] or not corpus.validate_source({k: v for k, v in source.items() if k != 'version_id'})[0]:
                 raise ValueError('Authority changed before Case File assembly')
             laws[app['source_id']] = {'provision_id': app['source_id'], 'title': source['title'], 'section': source['section'],
-                'source_url': source['official_url'], 'retrieved_at': source['retrieved_at'], 'verification_status': 'VERIFIED',
+                'citation': source.get('citation'), 'source_url': source['official_url'], 'retrieved_at': source['retrieved_at'],
+                'verification_status': 'VERIFIED', 'authority_status': 'VERIFIED_AUTHORITY',
                 'source_version': source['version_id'], 'explanation': 'Official source checked. Its application to your case requires advocate review.'}
     authority_versions = authority_manifest(corpus, laws)
     if current.get('dependency_versions') == dependencies and current.get('authority_versions') == authority_versions:
         return current
-    result = {'version': current.get('version', 0) + 1, 'kind': 'SOURCE_VERIFIED_ENGINE1', 'created_at': utc_now(),
+    from .case_file import (
+        compact_timeline, compact_parties, compact_relationships,
+        compact_evidence_mappings, compact_clarification, compact_issues,
+        build_citizen_summary, build_safe_next_actions
+    )
+    raw = case.get('raw_package') or {}
+    evidence_inventory = [
+        {'evidence_id': item.get('evidence_id'), 'filename': item.get('filename'),
+         'content_type': item.get('content_type'), 'size': item.get('size'),
+         'description': item.get('description', ''), 'readable': item.get('extraction', {}).get('status') == 'COMPLETED'}
+        for item in case.get('evidence', [])
+    ]
+    missing_evidence = list(raw.get('unavailable_evidence', [])) + [f"Item: {u}" for u in raw.get('unknown_evidence', [])]
+    specialist_outputs = [
+        {'specialist': sname, 'agent': sdata.get('agent', sname), 'domain': sdata.get('domain', ''),
+         'observations': sdata.get('observations', []), 'issue_families': sdata.get('issue_families', [])}
+        for sname, sdata in data.get('specialists', {}).items() if isinstance(sdata, dict)
+    ]
+    facts_list = [{'fact_id': k, 'text': v['proposition'], 'proposition': v['proposition'], 'source_status': 'UNVERIFIED', 'certainty': v.get('certainty', 'STATED'), 'category': v.get('category', 'GENERAL'), 'date': v.get('date'), 'exact_values': v.get('exact_values', []), 'evidence_ids': v.get('evidence_ids', [])} for k, v in data['facts'].items() if not v.get('superseded')]
+    domain_info = data.get('domain_classification', {})
+    summary = build_citizen_summary(case.get('client_story', ''), facts_list, domain_info)
+    next_actions = build_safe_next_actions('VERIFIED_AUTHORITY', missing_evidence)
+
+    result = {'version': current.get('version', 0) + 1, 'case_file_version': current.get('version', 0) + 1,
+        'kind': 'SOURCE_VERIFIED_ENGINE1', 'created_at': utc_now(),
+        'case_id': case_id,
+        'original_narrative': case.get('client_story', ''),
+        'normalized_narrative': data.get('input', {}).get('canonical_narrative') or case.get('client_story', ''),
         'authority_versions': authority_versions,
+        'authority_provenance': authority_versions,
         'input_version': case.get('input_version', 1), 'board_version': board['version'],
         'understanding_reference': data['understanding_reference'], 'dependency_versions': dependencies,
         'foundation_complete': True, 'review_state': 'ADVOCATE_REVIEW_REQUIRED',
         'intake': {'narrative': case.get('client_story', '')},
-        'facts': [{'fact_id': k, 'text': v['proposition'], 'source_status': 'UNVERIFIED'} for k, v in data['facts'].items() if not v.get('superseded')],
-        'applicable_law': list(laws.values()), 'legal_foundation_reference': {'board_version': board['version'], 'path': 'legal_foundation'},
+        'facts': facts_list,
+        'disputed_facts': [f for f in facts_list if f.get('certainty') in {'CONFLICTED', 'UNKNOWN'}],
+        'timeline': compact_timeline(data.get('timeline', {}), data.get('incidents', {})),
+        'parties': compact_parties(data.get('parties', {})),
+        'relationships': compact_relationships(data.get('relationships', {})),
+        'evidence_inventory': evidence_inventory,
+        'evidence_mappings': compact_evidence_mappings(data.get('evidence_mapping', {})),
+        'missing_evidence': missing_evidence,
+        'missing_information': missing_evidence,
+        'clarification_questions': compact_clarification(case.get('clarification_rounds', [])),
+        'issues': compact_issues(data.get('legal_issues', {})),
+        'domains': domain_info,
+        'specialist_outputs': specialist_outputs,
+        'applicable_law': list(laws.values()),
+        'legal_findings': list(laws.values()),
+        'legal_foundation_status': 'VERIFIED_AUTHORITY',
+        'unresolved_legal_requirements': [],
+        'reconciliation': {'conflicts': list(board.get('conflicts', {}).values()), 'contested_claims': []},
+        'citizen_safe_summary': summary,
+        'next_actions': next_actions,
+        'pipeline_status': 'ENGINE1_CASE_FILE_READY',
+        'stage_provenance': {'board_version': board['version'], 'input_version': case.get('input_version', 1), 'dependency_versions': dependencies, 'created_at': utc_now()},
+        'legal_foundation_reference': {'board_version': board['version'], 'path': 'legal_foundation'},
         'pending_advocate_verification': [{'type': 'legal_verification'}],
-        'processing_mode': case.get('raw_package', {}).get('processing_mode'), 'missing_information': []}
+        'processing_mode': case.get('raw_package', {}).get('processing_mode')}
     snapshot_id = case_id + ':' + str(result['version'])
     existing = db.get('engine1_legal_case_files', snapshot_id)
     if existing:
@@ -147,10 +197,17 @@ def run_legal_foundation(app, case_id):
         board = run_plan(db, adapters, corpus, case_id, [plan['foundation']], board, deadline)
         node = board['nodes'][plan['foundation']]
         foundation = board['data'].get('legal_foundation', {}) if node['status'] == 'COMPLETED' else {}
-        case_file = assemble_case_file(db, case_id, board, corpus) if foundation.get('status') == 'SOURCE_VERIFIED' else None
+        if foundation.get('status') == 'SOURCE_VERIFIED':
+            case_file = assemble_case_file(db, case_id, board, corpus)
+            canonical = case_file
+        else:
+            case_file = None
+            from .case_file import assemble_canonical_case_file
+            canonical = assemble_canonical_case_file(db, case_id, board, corpus)
         status = 'ENGINE1_CASE_FILE_READY' if case_file else 'LEGAL_CORPUS_NOT_READY' if not corpus.sources() else 'LEGAL_FOUNDATION_REVIEW_REQUIRED'
-        update = {'status': status, 'legal_foundation_status': 'READY' if case_file else 'REVIEW_REQUIRED',
+        update = {'status': status, 'legal_foundation_status': 'READY' if case_file else canonical.get('legal_foundation_status', 'REVIEW_REQUIRED'),
                   'legal_foundation_snapshot': {'board_version': board['version'], 'status': foundation.get('status', 'REVIEW_REQUIRED')},
+                  'canonical_case_file': canonical,
                   'current_stage': None, 'stage_statuses': {}}
         if case_file:
             store.record_case_file(case_id, {'case_file_version': case_file['version'], 'board_version': board['version'],

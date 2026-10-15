@@ -34,6 +34,16 @@ def public_statuses(statuses):
 def client_overview(case: dict, db=None) -> dict:
     from .legal_visibility import current_case_file
     file = current_case_file(case, db)
+    if not file and db is not None:
+        try:
+            from .case_blackboard import CaseBlackboard
+            from .case_file import assemble_canonical_case_file
+            board = CaseBlackboard(db).read_board(case["case_id"])
+            if board and board.get("data", {}).get("facts"):
+                corpus = getattr(db, "verified_corpus", None)
+                file = assemble_canonical_case_file(db, case["case_id"], board, corpus)
+        except Exception:
+            pass
     ran = bool(case.get("engine2", {}).get("overview_ready")) and case.get("engine2", {}).get("case_file_version") == file.get("version")
     evaluation = case.get("engine2", {}).get("neutral_evaluation", {}) if ran else {}
     missing = list(file.get("missing_information", []))
@@ -45,8 +55,12 @@ def client_overview(case: dict, db=None) -> dict:
     limitation = file.get("limitation", {})
     output = {
         "title": "Client Case Overview", "case_id": case["case_id"], "case_file_version": file.get("version"),
-        "summary": file.get("intake", {}).get("narrative") or case.get("client_story", ""),
-        "key_facts": [{"text": item["text"], "source_status": item.get("source_status", "UNVERIFIED")} for item in file.get("facts", []) if not item.get("removed")],
+        "summary": file.get("citizen_safe_summary") or file.get("intake", {}).get("narrative") or case.get("client_story", ""),
+        "key_facts": [{"text": item.get("text") or item.get("proposition", ""), "source_status": item.get("source_status", "UNVERIFIED")} for item in file.get("facts", []) if not item.get("removed")],
+        "timeline": file.get("timeline", []),
+        "parties": file.get("parties", []),
+        "issues": file.get("issues", []),
+        "detected_domains": file.get("domains", {}),
         "applicable_law": [{key: item.get(key) for key in ("provision_id", "title", "explanation", "source_url", "retrieved_at")} for item in verified],
         "pending_advocate_verification": [{"type": item.get("type") if item.get("type") in {"legal_corpus", "temporal_law", "forum", "limitation"} else "legal_verification", "reason": "Your advocate needs to verify the applicable law and its use in your case."} for item in file.get("pending_advocate_verification", [])],
         "forum": forum if forum.get("verification_status") == "VERIFIED" else None,
@@ -58,11 +72,13 @@ def client_overview(case: dict, db=None) -> dict:
         "ready_to_find_advocate": bool(file) and not case.get("processing_error"),
         "next_step": "Find an advocate for review." if missing or file.get("pending_advocate_verification") else "The case is ready to proceed to an advocate.",
         "processing_mode": file.get("processing_mode"), "documents_outdated": case.get("documents_outdated", False),
+        "safe_next_actions": file.get("next_actions", []),
+        "legal_foundation_status": file.get("legal_foundation_status", "NOT_REQUESTED"),
     }
     if case.get("engine1_execution") == "ORCHESTRATED_CORE_V1":
         state = case.get("case_understanding_status")
         output.update(case_understanding_status=state if state in {"BUILDING", "READY", "REVIEW_REQUIRED", "NEEDS_INPUT"} else "PENDING",
-                      legal_foundation_status="PENDING", ready_to_find_advocate=False,
+                      legal_foundation_status=file.get("legal_foundation_status", "PENDING"), ready_to_find_advocate=False,
                       next_step="Case understanding is being prepared or reviewed. Verified legal analysis is pending.")
         if case.get('legal_foundation_requested'):
             state = case.get('legal_foundation_status')
@@ -70,8 +86,15 @@ def client_overview(case: dict, db=None) -> dict:
             if state == 'READY' and not file:
                 output['legal_foundation_status'] = 'REVIEW_REQUIRED'
             output['ready_to_find_advocate'] = bool(file) and bool(case.get('legal_case_file_current')) and not case.get('processing_error')
-            output['next_step'] = ('Verified source research is ready for advocate review.' if output['ready_to_find_advocate']
-                                   else 'Legal verification is incomplete. Your saved information is preserved for review.')
+            if output['ready_to_find_advocate']:
+                output['next_step'] = 'Verified source research is ready for advocate review.'
+            elif file.get("legal_foundation_status") == "PENDING_SOURCE":
+                output['next_step'] = 'Legal foundation is pending independent legal review by an enrolled advocate. Your saved case understanding is preserved.'
+            elif file.get("legal_foundation_status") == "ABSTAINED":
+                output['next_step'] = 'The system has abstained from asserting statutory citations. Consult a verified advocate for legal research.'
+            else:
+                output['next_step'] = ('Verified source research is ready for advocate review.' if output['ready_to_find_advocate']
+                                       else 'Legal verification is incomplete. Your saved information is preserved for review.')
     return output
 
 

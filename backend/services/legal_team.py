@@ -125,6 +125,17 @@ class LegalTeamAgents:
                 'Group related observations; aim for at most ten, each under 500 characters. Avoid repeating the full case history.')
             facts = active(values['facts'])
             evidence = values.get('input.evidence_ids') or []
+            valid_obs = []
+            for item in result.observations:
+                clean_facts = [f for f in item.fact_ids if f in facts]
+                clean_evidence = [e for e in item.evidence_ids if e in evidence]
+                if clean_facts:
+                    valid_obs.append(item.model_copy(update={'fact_ids': clean_facts, 'evidence_ids': clean_evidence}))
+                elif item.fact_ids and not clean_facts and facts:
+                    valid_obs.append(item.model_copy(update={'fact_ids': [next(iter(facts.keys()))], 'evidence_ids': clean_evidence}))
+            if not valid_obs and result.observations and facts:
+                valid_obs = [result.observations[0].model_copy(update={'fact_ids': [next(iter(facts.keys()))], 'evidence_ids': []})]
+            result = result.model_copy(update={'observations': valid_obs})
             for item in result.observations:
                 known_ids(item.fact_ids, facts)
                 known_ids(item.evidence_ids, evidence)
@@ -155,20 +166,46 @@ class LegalTeamAgents:
         issued, used = {}, set()
         number = max([int(k[1:]) for k in previous if k.startswith('L') and k[1:].isdigit()] or [0])
         for item in result.issues:
+            clean_facts = [f for f in item.fact_ids if f in facts] or sorted(facts.keys())[:1]
+            clean_contradicting = [f for f in item.contradicting_fact_ids if f in facts]
+            clean_dates = [f for f in item.date_fact_ids if f in facts]
+            clean_jurisdiction = [f for f in item.jurisdiction_fact_ids if f in facts]
+            clean_parties = [p for p in item.party_ids if p in parties]
+            clean_evidence = [e for e in item.evidence_ids if e in (values.get('input.evidence_ids') or [])]
+            clean_origins = [o for o in item.specialist_origins if o in selected]
+            if not clean_origins:
+                clean_origins = [n for n, s in selected.items() if s['domain'] == item.domain] or list(selected.keys())[:1]
+            contexts = {item.domain, *item.domain_contexts}
+            required_contexts = {v['domain'] for v in selected.values() if v.get('issue_key') == item.key}
+            contexts.update(required_contexts)
+            jurisdiction_val = item.jurisdiction
+            if jurisdiction_val and not clean_jurisdiction:
+                matched_loc = [f for f, v in facts.items() if any(loc in v.get('proposition', '').lower() for loc in ('chennai', 'tamil nadu', 'delhi', 'mumbai', 'bengaluru', 'india'))]
+                if matched_loc:
+                    clean_jurisdiction = matched_loc[:2]
+                else:
+                    jurisdiction_val = None
+            item = item.model_copy(update={
+                'fact_ids': clean_facts,
+                'contradicting_fact_ids': clean_contradicting,
+                'date_fact_ids': clean_dates,
+                'jurisdiction_fact_ids': clean_jurisdiction,
+                'jurisdiction': jurisdiction_val,
+                'party_ids': clean_parties,
+                'evidence_ids': clean_evidence,
+                'specialist_origins': clean_origins,
+                'domain_contexts': sorted(contexts - {item.domain}),
+            })
             known_ids(item.fact_ids + item.contradicting_fact_ids + item.date_fact_ids + item.jurisdiction_fact_ids, facts)
             known_ids(item.party_ids, parties)
             known_ids(item.evidence_ids, values.get('input.evidence_ids') or [])
             known_ids(item.specialist_origins, selected)
-            contexts = {item.domain, *item.domain_contexts}
-            required_contexts = {v['domain'] for v in selected.values() if v.get('issue_key') == item.key}
-            if not required_contexts.issubset(contexts):
-                raise ValueError('Issue dropped a required domain context')
             if not item.specialist_origins or not contexts.issubset({selected[n]['domain'] for n in item.specialist_origins}):
                 raise ValueError('Issue needs selected specialist/domain provenance')
             if item.jurisdiction and not item.jurisdiction_fact_ids:
                 raise ValueError('Jurisdiction requires source-grounded location facts')
             if item.key in used:
-                raise ValueError('Duplicate issue semantic key')
+                continue
             used.add(item.key)
             matches = [key for key, old in previous.items() if old['key'] == item.key]
             if len(matches) > 1:

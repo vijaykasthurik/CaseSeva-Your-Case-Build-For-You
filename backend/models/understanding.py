@@ -1,6 +1,6 @@
 """Strict language-neutral candidate schemas. Persistent IDs belong to the server."""
 from typing import Annotated, Literal
-from pydantic import BaseModel, ConfigDict, Field, AfterValidator
+from pydantic import BaseModel, ConfigDict, Field, AfterValidator, field_validator
 from ..services.intelligence_config import CONFIG
 
 
@@ -50,6 +50,16 @@ class FactCandidate(Strict):
     date: Dated = Field(default_factory=Dated)
     exact_values: list[str] = Field(default_factory=list, max_length=20)
 
+    @field_validator("date", mode="before")
+    @classmethod
+    def _parse_date(cls, v):
+        return Dated() if v is None else v
+
+    @field_validator("exact_values", mode="before")
+    @classmethod
+    def _parse_exact_values(cls, v):
+        return [] if v is None else v
+
 
 class IncidentCandidate(Strict):
     key: str
@@ -57,6 +67,16 @@ class IncidentCandidate(Strict):
     fact_keys: list[str] = Field(min_length=1, max_length=20)
     date: Dated = Field(default_factory=Dated)
     unknown_fields: list[str] = Field(default_factory=list, max_length=15)
+
+    @field_validator("date", mode="before")
+    @classmethod
+    def _parse_date(cls, v):
+        return Dated() if v is None else v
+
+    @field_validator("unknown_fields", mode="before")
+    @classmethod
+    def _parse_unknown_fields(cls, v):
+        return [] if v is None else v
 
 
 class FactCandidates(Strict):
