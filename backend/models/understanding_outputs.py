@@ -155,3 +155,7 @@ VALIDATORS = {
     'reconciliation': Reconciliation.model_validate,
     'domain_classification': Domain.model_validate,
 }
+
+
+from .understanding import CaseQuestion
+VALIDATORS['case_issues'] = TypeAdapter(dict[str, CaseQuestion]).validate_python

@@ -172,3 +172,15 @@ class DomainCandidates(Strict):
     review_required: bool
     ambiguity: list[str] = Field(default_factory=list, max_length=12)
     reasons: list[str] = Field(max_length=10)
+
+
+class CaseQuestion(Strict):
+    key: str = Field(pattern=r"^[a-z][a-z0-9_]{0,79}$")
+    statement: str = Field(min_length=1, max_length=1000)
+    category: str = "CASE_QUESTION"
+    fact_ids: list[str] = Field(min_length=1, max_length=30)
+
+
+class CaseQuestions(Strict):
+    language: LanguageAssessment
+    issues: list[CaseQuestion] = Field(min_length=1, max_length=20)

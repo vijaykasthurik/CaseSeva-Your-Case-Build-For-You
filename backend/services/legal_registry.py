@@ -72,7 +72,7 @@ def legal_registry(adapters, corpus, board=None):
             required_inputs=tuple(reads), optional_inputs=(), pack=pack, can_run_concurrently=True, timeout_seconds=240,
             max_retries=1, required_capabilities=('legal_reasoning',) if model else (), visibility='ADVOCATE_INTERNAL'),
             handler, validators, available=reasoning_available if model else True, granular_writes=granular)
-    base = ['facts', 'parties', 'relationships', 'evidence_mapping', 'case_understanding.stage', 'domain_classification', 'input.evidence_ids']
+    base = ['case_issues', 'facts', 'parties', 'relationships', 'evidence_mapping', 'case_understanding.stage', 'domain_classification', 'input.evidence_ids']
     register('TEAM_BUILDER', team.team, base + ['legal_capabilities'], ['agent_team'], ['DOMAIN_ROUTER'],
              {'agent_team': validate_team}, model=True)
     # Every specialist is genuinely registered. Only selected names enter a plan.

@@ -63,9 +63,9 @@ def publish_status(db, case_id, board):
         review = stage.get("review_required") or domain.get("review_required")
         changes.update(status="REVIEW_REQUIRED" if review else "CASE_UNDERSTANDING_READY", case_understanding_status="REVIEW_REQUIRED" if review else "READY")
         from .case_file import assemble_canonical_case_file
-        changes["canonical_case_file"] = assemble_canonical_case_file(db, case_id, board)
+        changes["canonical_case_file"] = assemble_canonical_case_file(db, case_id, board, pipeline_status=changes["status"])
         changes["understanding_snapshot"] = {"board_version": board["version"], "raw_package_version": board["data"]["input"]["raw_case_package_version"],
-            "dependency_versions": versions(board, ("facts", "incidents", "timeline", "parties", "relationships", "evidence_mapping", "clarification", "reconciliation", "domain_classification")),
+            "dependency_versions": versions(board, ("facts", "incidents", "timeline", "parties", "relationships", "evidence_mapping", "clarification", "reconciliation", "case_issues", "domain_classification")),
             "kind": "CASE_UNDERSTANDING_ONLY", "legal_foundation": "PENDING", "created_at": utc_now()}
         if case.get("understanding_snapshot", {}).get("board_version") == board["version"]:
             changes["understanding_snapshot"] = case["understanding_snapshot"]
@@ -76,7 +76,7 @@ def publish_status(db, case_id, board):
         if board.get("data", {}).get("facts"):
             try:
                 from .case_file import assemble_canonical_case_file
-                changes["canonical_case_file"] = assemble_canonical_case_file(db, case_id, board)
+                changes["canonical_case_file"] = assemble_canonical_case_file(db, case_id, board, pipeline_status=changes["status"])
             except Exception:
                 pass
     else:

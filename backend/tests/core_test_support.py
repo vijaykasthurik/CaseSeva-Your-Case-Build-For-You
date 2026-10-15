@@ -23,6 +23,7 @@ class CoreTestModel:
         refs = [{"passage": 0, "excerpt": text}]
         facts = list(context.get("facts") or {})
         defaults = {
+            "CASE_ISSUES": {"issues": [{"key": "performance", "statement": "Whether the supplied goods performed as promised and what evidence supports the reported failure", "category": "PERFORMANCE", "fact_ids": facts}]},
             "CASE_STAGE": {"stage": "NEW_CONSULTATION", "sources": refs, "review_required": False},
             "FACT_TIMELINE": {"facts": [{"key": "purchase", "proposition": text, "category": "PURCHASE", "sources": refs,
                 "date": {"expression": "3 September 2026", "precision": "EXACT_DATE", "normalized": "2026-09-03"}, "exact_values": ["24,500"]}],

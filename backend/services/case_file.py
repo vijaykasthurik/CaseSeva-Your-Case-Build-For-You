@@ -9,18 +9,15 @@ Case Understanding -> Facts / Timeline / Parties / Evidence
 
 "The case determines the AI team — not a fixed workflow."
 """
-from typing import Any, Literal
+from typing import Any
 from ..models.case import utc_now
-from .case_blackboard import versions, digest
+from .case_blackboard import versions
 from .legal_visibility import authority_manifest
 
-LEGAL_STATUS = Literal[
-    "VERIFIED_AUTHORITY",
-    "PENDING_SOURCE",
-    "ABSTAINED",
-    "CONFLICTING_AUTHORITY",
-    "NOT_REQUESTED",
-]
+from ..models.case_file import CanonicalCaseFile, LegalFoundationStatus
+from .legal_artifacts import load_specialist
+
+LEGAL_STATUS = LegalFoundationStatus
 
 def compact_facts(facts_dict: dict[str, Any]) -> list[dict[str, Any]]:
     items = []
@@ -175,7 +172,7 @@ def build_safe_next_actions(legal_status: str, missing: list[str]) -> list[str]:
     return actions
 
 
-def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus=None) -> dict[str, Any]:
+def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus=None, *, pipeline_status=None) -> dict[str, Any]:
     """Assembles a canonical Engine-1 Case File from blackboard state.
 
     Preserves completed factual reasoning, domain routing, specialist outputs,
@@ -218,18 +215,28 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
     ]
 
     # Missing information / evidence
-    missing_evidence = list(raw.get("unavailable_evidence", []))
+    missing_evidence = [v.get("description", str(v)) if isinstance(v, dict) else str(v) for v in raw.get("unavailable_evidence", [])]
     missing_evidence += [f"Item: {u}" for u in raw.get("unknown_evidence", [])]
     if domain_info.get("ambiguity"):
         missing_evidence += domain_info["ambiguity"][:3]
 
     clarification_questions = compact_clarification(case.get("clarification_rounds", []))
     issues = compact_issues(legal_issues_dict)
+    # Core questions precede routing/specialists and survive a failed legal refinement.
+    if not issues:
+        issues = [dict(legal_issue_id=f'L{index:03d}', key=key,
+                       statement=value['statement'], category=value['category'],
+                       domain=domain_info.get('primary_domain', 'OTHER_OR_UNCERTAIN'),
+                       domain_contexts=domain_info.get('secondary_domains', []),
+                       fact_ids=value['fact_ids'], specialist_origins=[], query=value['statement'],
+                       jurisdiction=None, limitation_relevant=False, precedent_useful=False, unknowns=[])
+                  for index, (key, value) in enumerate(sorted(data.get('case_issues', {}).items()), 1)]
 
     # Specialist outputs
     specialist_outputs = []
     for sname, sdata in specialists_dict.items():
         if isinstance(sdata, dict):
+            sdata = load_specialist(db, case_id, sdata)
             specialist_outputs.append({
                 "specialist": sname,
                 "agent": sdata.get("agent", sname),
@@ -240,19 +247,27 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
 
     # Legal authority findings & status resolution
     applicable_law = []
+    pending_findings = []
     authority_versions = {}
     unresolved_requirements = []
     legal_status = "NOT_REQUESTED"
 
     if foundation:
-        if foundation.get("status") == "SOURCE_VERIFIED" and corpus is not None:
+        if (foundation.get("status") == "SOURCE_VERIFIED" and corpus is not None
+                and foundation.get('findings') and not foundation.get('unresolved_issue_ids')
+                and not foundation.get('further_issues_require_review')
+                and all(f.get('status') == 'SOURCE_VERIFIED' for f in foundation['findings'].values())
+                and not any(not c.get('resolution') for c in board.get('conflicts', {}).values())):
             # Genuine verified authority path
             laws = {}
+            coverage_complete = True
             for iid in foundation.get("findings", {}):
                 for app in data.get("legal_applications", {}).get(iid, {}).get("applications", []):
                     source = corpus.get(app["source_id"])
                     if source and source.get("version_id") == app.get("source_version"):
                         is_valid, _ = corpus.validate_source({k: v for k, v in source.items() if k != "version_id"})
+                        if not is_valid:
+                            coverage_complete = False
                         if is_valid:
                             laws[app["source_id"]] = {
                                 "provision_id": app["source_id"],
@@ -266,13 +281,16 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
                                 "source_version": source["version_id"],
                                 "explanation": "Official source checked and verified. Application requires advocate review.",
                             }
-            if laws:
+                    else:
+                        coverage_complete = False
+            if laws and coverage_complete:
                 applicable_law = list(laws.values())
                 try:
                     authority_versions = authority_manifest(corpus, laws)
                     legal_status = "VERIFIED_AUTHORITY"
                 except Exception:
                     legal_status = "PENDING_SOURCE"
+                    applicable_law = []
                     unresolved_requirements.append("AUTHORITY_MANIFEST_REVALIDATION_REQUIRED")
             else:
                 legal_status = "PENDING_SOURCE"
@@ -282,7 +300,7 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
             # Inspect candidate retrieval decisions
             candidate_sources = []
             for iid in legal_issues_dict:
-                citations = data.get("citation_verification." + iid, {}).get("decisions", [])
+                citations = data.get("citation_verification", {}).get(iid, {}).get("decisions", [])
                 for d in citations:
                     candidate_sources.append(d)
 
@@ -293,8 +311,8 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
                 # Expose candidate provisions with fail-closed PENDING status
                 for d in candidate_sources:
                     sid = d.get("source_id")
-                    if sid and sid not in {l.get("provision_id") for l in applicable_law}:
-                        applicable_law.append({
+                    if sid and sid not in {l.get("provision_id") for l in pending_findings}:
+                        pending_findings.append({
                             "provision_id": sid,
                             "title": sid.replace("_", " ").title(),
                             "section": None,
@@ -343,7 +361,7 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
     next_actions = build_safe_next_actions(legal_status, missing_evidence)
 
     # Versioning
-    prior_file = case.get("case_file") or {}
+    prior_file = case.get("canonical_case_file") or case.get("case_file") or {}
     file_version = prior_file.get("version", 0) + 1
     input_version = case.get("input_version", 1)
 
@@ -352,8 +370,9 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
         (
             "facts", "incidents", "timeline", "parties", "relationships",
             "evidence_mapping", "clarification", "reconciliation",
-            "domain_classification", "agent_team", "legal_issues",
-            "legal_foundation",
+            "case_issues", "domain_classification", "agent_team", "legal_issues",
+            "legal_foundation", "legal_sources", "citation_verification", "temporal_findings",
+            "jurisdiction_remedy", "limitation", "specialists", "input",
         ),
     )
 
@@ -380,7 +399,7 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
         "domains": domain_info,
         "specialist_outputs": specialist_outputs,
         "applicable_law": applicable_law,
-        "legal_findings": applicable_law,
+        "legal_findings": applicable_law + pending_findings,
         "authority_provenance": authority_versions,
         "authority_versions": authority_versions,
         "legal_foundation_status": legal_status,
@@ -388,7 +407,9 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
         "reconciliation": reconciliation_data,
         "citizen_safe_summary": summary,
         "next_actions": next_actions,
-        "pipeline_status": case.get("status", "CASE_UNDERSTANDING_READY"),
+        "pipeline_status": pipeline_status or case.get("status", "CASE_UNDERSTANDING_READY"),
+        "input_version": input_version,
+        "board_version": board.get("version", 1),
         "stage_provenance": {
             "board_version": board.get("version", 1),
             "input_version": input_version,
@@ -406,18 +427,23 @@ def assemble_canonical_case_file(db, case_id: str, board: dict[str, Any], corpus
         "processing_mode": case.get("raw_package", {}).get("processing_mode") or "mock",
     }
 
-    # Persist immutable snapshot to database
+    if (prior_file.get('dependency_versions') == dependencies
+            and prior_file.get('legal_foundation_status') == legal_status
+            and prior_file.get('authority_versions') == authority_versions
+            and prior_file.get('pipeline_status') == case_file['pipeline_status']
+            and prior_file.get('input_version') == input_version):
+        return prior_file
+
+    case_file = CanonicalCaseFile.model_validate(case_file).model_dump()
+    # Never report a persisted version after a failed write or silently reuse :1.
     snapshot_id = f"{case_id}:{file_version}"
-    try:
-        if not db.get("engine1_canonical_case_files", snapshot_id):
-            db.create("engine1_canonical_case_files", {"id": snapshot_id, "case_id": case_id, "case_file": case_file})
-    except Exception:
-        pass
+    db.create("engine1_canonical_case_files", {"id": snapshot_id, "case_id": case_id, "case_file": case_file})
 
     # Update case record
     case_update = {
         "legal_case_file_current": legal_status == "VERIFIED_AUTHORITY",
         "canonical_case_file": case_file,
+        "legal_foundation_status": legal_status,
         "facts": facts,
         "timeline": timeline,
         "parties": parties,

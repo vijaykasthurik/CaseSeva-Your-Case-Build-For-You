@@ -55,7 +55,7 @@ class MockDatabaseAdapter(DatabaseAdapter):
         raise RuntimeError("Local database write failed.")
 
     def mutate(self, collection: str, record_id: str, transform) -> dict[str, Any]:
-        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit"}:
+        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit", "engine1_canonical_case_files"}:
             raise ValueError("Historical records are append-only")
         with self._lock:
             data = self._read()
@@ -140,7 +140,7 @@ class MockDatabaseAdapter(DatabaseAdapter):
             self._write(data)
 
     def update(self, collection: str, record_id: str, changes: dict[str, Any]) -> dict[str, Any]:
-        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit"}:
+        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit", "engine1_canonical_case_files"}:
             raise ValueError("Historical records are append-only")
         with self._lock:
             data = self._read()
@@ -153,7 +153,7 @@ class MockDatabaseAdapter(DatabaseAdapter):
             return dict(record)
 
     def delete(self, collection: str, record_id: str) -> bool:
-        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit"}:
+        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit", "engine1_canonical_case_files"}:
             raise ValueError("Historical records are append-only")
         with self._lock:
             data = self._read()

@@ -34,16 +34,11 @@ def public_statuses(statuses):
 def client_overview(case: dict, db=None) -> dict:
     from .legal_visibility import current_case_file
     file = current_case_file(case, db)
-    if not file and db is not None:
-        try:
-            from .case_blackboard import CaseBlackboard
-            from .case_file import assemble_canonical_case_file
-            board = CaseBlackboard(db).read_board(case["case_id"])
-            if board and board.get("data", {}).get("facts"):
-                corpus = getattr(db, "verified_corpus", None)
-                file = assemble_canonical_case_file(db, case["case_id"], board, corpus)
-        except Exception:
-            pass
+    if not file and case.get('canonical_case_file'):
+        # Authority revalidation may hide law, but never erase completed facts.
+        file = {**case['canonical_case_file'], 'applicable_law': [], 'legal_findings': [],
+                'authority_versions': {}, 'authority_provenance': {}, 'foundation_complete': False,
+                'legal_foundation_status': 'PENDING_SOURCE', 'forum': {}, 'limitation': {}}
     ran = bool(case.get("engine2", {}).get("overview_ready")) and case.get("engine2", {}).get("case_file_version") == file.get("version")
     evaluation = case.get("engine2", {}).get("neutral_evaluation", {}) if ran else {}
     missing = list(file.get("missing_information", []))
@@ -73,19 +68,17 @@ def client_overview(case: dict, db=None) -> dict:
         "next_step": "Find an advocate for review." if missing or file.get("pending_advocate_verification") else "The case is ready to proceed to an advocate.",
         "processing_mode": file.get("processing_mode"), "documents_outdated": case.get("documents_outdated", False),
         "safe_next_actions": file.get("next_actions", []),
-        "legal_foundation_status": file.get("legal_foundation_status", "NOT_REQUESTED"),
+        "legal_foundation_status": file.get("legal_foundation_status", "PENDING_SOURCE" if case.get("legal_foundation_requested") else "NOT_REQUESTED"),
+        "pipeline_status": case.get("status"),
     }
     if case.get("engine1_execution") == "ORCHESTRATED_CORE_V1":
         state = case.get("case_understanding_status")
         output.update(case_understanding_status=state if state in {"BUILDING", "READY", "REVIEW_REQUIRED", "NEEDS_INPUT"} else "PENDING",
-                      legal_foundation_status=file.get("legal_foundation_status", "PENDING"), ready_to_find_advocate=False,
+                      ready_to_find_advocate=False,
                       next_step="Case understanding is being prepared or reviewed. Verified legal analysis is pending.")
         if case.get('legal_foundation_requested'):
             state = case.get('legal_foundation_status')
-            output['legal_foundation_status'] = state if state in {'IN_PROGRESS', 'REVIEW_REQUIRED', 'READY'} else 'PENDING'
-            if state == 'READY' and not file:
-                output['legal_foundation_status'] = 'REVIEW_REQUIRED'
-            output['ready_to_find_advocate'] = bool(file) and bool(case.get('legal_case_file_current')) and not case.get('processing_error')
+            output['ready_to_find_advocate'] = bool(file) and bool(case.get('legal_case_file_current')) and file.get('legal_foundation_status') == 'VERIFIED_AUTHORITY' and not case.get('processing_error')
             if output['ready_to_find_advocate']:
                 output['next_step'] = 'Verified source research is ready for advocate review.'
             elif file.get("legal_foundation_status") == "PENDING_SOURCE":

@@ -52,7 +52,7 @@ class LegalFoundationTests(unittest.TestCase):
         calls = list(self.model.calls)
         self.run_foundation()
         self.assertEqual(self.model.calls, calls)
-        self.assertEqual(self.db.get('cases', 'c')['case_file']['version'], 1)
+        self.assertEqual(self.db.get('cases', 'c')['case_file']['version'], case['case_file']['version'])
 
     def test_fake_application_citation_fails_closed(self):
         publish_reviewed(self.corpus, authority())
@@ -94,12 +94,13 @@ class LegalFoundationTests(unittest.TestCase):
     def test_source_change_reruns_legal_work_but_not_core_or_specialists(self):
         publish_reviewed(self.corpus, authority())
         self.run_foundation()
+        first_version = self.db.get('cases', 'c')['case_file']['version']
         calls = list(self.model.calls)
         publish_reviewed(self.corpus, authority(version_note='amended fixture'))
         self.run_foundation()
         extra = self.model.calls[len(calls):]
         self.assertEqual(extra, ['APPLICATION_L001'])
-        self.assertEqual(self.db.get('cases', 'c')['case_file']['version'], 2)
+        self.assertEqual(self.db.get('cases', 'c')['case_file']['version'], first_version + 1)
 
     def test_mock_without_explicit_test_flag_never_reasons(self):
         run_core(self.app, 'c')

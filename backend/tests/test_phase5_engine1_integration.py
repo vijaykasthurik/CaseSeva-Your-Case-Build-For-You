@@ -25,6 +25,9 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
+from unittest.mock import patch
+from typing import get_args
+from backend.models.case_file import LegalFoundationStatus
 
 from backend.adapters.mock.database import MockDatabaseAdapter
 from backend.models.case_file import CanonicalCaseFile
@@ -65,15 +68,12 @@ class Phase5TestModel(LegalTestModel):
                 output["secondary_domains"] = self.secondary_domains
                 output["review_required"] = self.is_unknown
             elif name == "RECONCILIATION" and self.contradictory:
-                output["conflicts"] = [
-                    {
-                        "conflict_id": "C001",
-                        "field": "purchase_date",
-                        "values": ["2026-09-03", "2026-09-10"],
-                        "sources": [{"passage": 0, "excerpt": "3 September 2026"}],
-                        "resolution": None,
-                    }
-                ]
+                output["conflicts"] = [{"fact_ids": ["F001", "F002"],
+                    "field": "purchase_date", "explanation": "Conflicting supplied dates"}]
+            elif name == 'FACT_TIMELINE' and self.contradictory:
+                other = copy.deepcopy(output['facts'][0])
+                other.update(key='alternative_date', proposition='A different purchase date is reported')
+                output['facts'].append(other)
             return output
 
         name = stage.removeprefix("foundation_").upper()
@@ -185,6 +185,7 @@ class Phase5Engine1IntegrationTests(unittest.TestCase):
         validated = CanonicalCaseFile.model_validate(canonical)
         self.assertEqual(validated.case_id, "c_single")
         self.assertEqual(validated.domains["primary_domain"], "CONSUMER")
+        self.assertGreater(len(validated.issues), 0)
         self.assertGreater(len(validated.facts), 0)
         self.assertGreater(len(validated.timeline), 0)
         self.assertGreater(len(validated.parties), 0)
@@ -228,7 +229,8 @@ class Phase5Engine1IntegrationTests(unittest.TestCase):
 
         canonical = case.get("canonical_case_file")
         self.assertIsNotNone(canonical)
-        self.assertIn("reconciliation", canonical)
+        self.assertTrue(canonical["reconciliation"]["conflicts"])
+        self.assertTrue(canonical["issues"])
 
     def test_05_missing_evidence(self):
         """5. Missing evidence: missing items are surfaced and safe next actions generated."""
@@ -292,6 +294,7 @@ class Phase5Engine1IntegrationTests(unittest.TestCase):
         case = self.db.get("cases", "c_pending_gate")
 
         self.assertNotIn("case_file", case)
+        self.assertEqual(case["canonical_case_file"]["applicable_law"], [])
         canonical = case.get("canonical_case_file")
         self.assertIsNotNone(canonical)
         self.assertNotEqual(canonical["legal_foundation_status"], "VERIFIED_AUTHORITY")
@@ -318,6 +321,11 @@ class Phase5Engine1IntegrationTests(unittest.TestCase):
         reconstructed = CanonicalCaseFile.model_validate(snapshot["case_file"])
         self.assertEqual(reconstructed.case_id, "c_persist")
         self.assertEqual(reconstructed.version, 1)
+        latest = self.db.get('cases', 'c_persist')['canonical_case_file']
+        self.assertGreater(latest['version'], 1)
+        self.assertEqual(self.db.get('engine1_canonical_case_files', f"c_persist:{latest['version']}")['case_file'], latest)
+        with self.assertRaises(ValueError):
+            self.db.update('engine1_canonical_case_files', 'c_persist:1', {'case_file': {}})
 
     def test_12_citizen_case_overview_generation(self):
         """12. Citizen Case Overview generation: understandable language and fail-closed warnings."""
@@ -369,6 +377,74 @@ class Phase5Engine1IntegrationTests(unittest.TestCase):
         self.assertIn("input_version", provenance)
         self.assertIn("dependency_versions", provenance)
         self.assertIn("created_at", provenance)
+
+
+    def test_core_questions_precede_routing_without_law(self):
+        self._setup_case('questions', domain='SPACE_COMMERCIAL_SATELLITE_LAUNCH_LIABILITY', is_unknown=True)
+        run_core(self.app, 'questions')
+        board = CaseBlackboard(self.db).read_board('questions')
+        self.assertTrue(board['data']['case_issues'])
+        self.assertLess(self.model.calls.index('CASE_ISSUES'), self.model.calls.index('DOMAIN_ROUTER'))
+        self.assertNotIn('TEAM_BUILDER', self.model.calls)
+        file = self.db.get('cases', 'questions')['canonical_case_file']
+        self.assertTrue(file['issues'])
+        self.assertEqual(file['applicable_law'], [])
+        self.assertNotEqual(file['domains']['primary_domain'], 'CONSUMER')
+        for issue in file['issues']:
+            self.assertNotRegex(issue['statement'], r'(?i)\b(?:act|section|article)\b')
+
+    def test_failed_refinement_preserves_core_issues_and_specialist_outputs(self):
+        self._setup_case('refinement_failure')
+        from backend.services.legal_team import LegalTeamAgents
+        with patch.object(LegalTeamAgents, 'issues', side_effect=ValueError('synthetic refinement validation failure')):
+            run_legal_foundation(self.app, 'refinement_failure')
+        case = self.db.get('cases', 'refinement_failure')
+        canonical = CanonicalCaseFile.model_validate(case['canonical_case_file'])
+        self.assertTrue(canonical.issues)
+        self.assertTrue(canonical.specialist_outputs[0].observations)
+        self.assertEqual(canonical.applicable_law, [])
+        overview = client_overview(case, self.db)
+        self.assertIn(overview['legal_foundation_status'], get_args(LegalFoundationStatus))
+        self.assertEqual(overview['pipeline_status'], 'LEGAL_FOUNDATION_REVIEW_REQUIRED')
+        self.assertTrue(overview['issues'])
+
+    def test_retrieval_failure_keeps_completed_questions(self):
+        self._setup_case('retrieval_failure')
+        with patch.object(self.corpus, 'search', side_effect=RuntimeError('synthetic retrieval outage')):
+            run_legal_foundation(self.app, 'retrieval_failure')
+        case = self.db.get('cases', 'retrieval_failure')
+        self.assertTrue(case['canonical_case_file']['issues'])
+        self.assertTrue(case['canonical_case_file']['facts'])
+        self.assertEqual(case['canonical_case_file']['applicable_law'], [])
+        self.assertIn(client_overview(case, self.db)['legal_foundation_status'], get_args(LegalFoundationStatus))
+
+    def test_status_enum_rejects_pipeline_status_and_pending_findings_are_separate(self):
+        self._setup_case('statuses')
+        run_core(self.app, 'statuses')
+        board = CaseBlackboard(self.db).read_board('statuses')
+        board['data']['legal_issues'] = {'L001': {'key': 'performance', 'statement': 'Whether performance occurred',
+            'category': 'PERFORMANCE', 'domain': 'CONSUMER', 'query': 'performance', 'fact_ids': ['F001']}}
+        board['data']['legal_foundation'] = {'status': 'REVIEW_REQUIRED'}
+        board['data']['citation_verification'] = {'L001': {'decisions': [{'source_id': 'pending_fixture', 'status': 'PENDING', 'version_id': 'v1'}]}}
+        file = assemble_canonical_case_file(self.db, 'statuses', board, self.corpus, pipeline_status='LEGAL_FOUNDATION_REVIEW_REQUIRED')
+        self.assertEqual(file['legal_foundation_status'], 'PENDING_SOURCE')
+        self.assertEqual(file['applicable_law'], [])
+        self.assertEqual(file['legal_findings'][0]['verification_status'], 'PENDING_HUMAN_REVIEW')
+        with self.assertRaises(ValueError):
+            CanonicalCaseFile.model_validate({**file, 'legal_foundation_status': 'REVIEW_REQUIRED'})
+        self.assertEqual(client_overview(self.db.get('cases', 'statuses'), self.db)['legal_foundation_status'], 'PENDING_SOURCE')
+
+    def test_snapshot_failure_is_not_silently_swallowed_and_overview_is_read_only(self):
+        self._setup_case('snapshots')
+        run_core(self.app, 'snapshots')
+        before = self.db.list('engine1_canonical_case_files')
+        case = self.db.get('cases', 'snapshots')
+        client_overview(case, self.db)
+        self.assertEqual(self.db.list('engine1_canonical_case_files'), before)
+        board = CaseBlackboard(self.db).read_board('snapshots')
+        with patch.object(self.db, 'create', side_effect=RuntimeError('synthetic storage failure')):
+            with self.assertRaises(RuntimeError):
+                assemble_canonical_case_file(self.db, 'snapshots', board, pipeline_status='NEW_SNAPSHOT')
 
 
 if __name__ == "__main__":

@@ -1,7 +1,10 @@
 """Pydantic schema for canonical Engine-1 Case File contract."""
 from typing import Any, Literal
-from pydantic import BaseModel, ConfigDict, Field
-from .understanding import Strict, Domain
+from pydantic import Field
+from .understanding import Strict
+
+
+LegalFoundationStatus = Literal["VERIFIED_AUTHORITY", "PENDING_SOURCE", "ABSTAINED", "CONFLICTING_AUTHORITY", "NOT_REQUESTED"]
 
 
 class CaseFact(Strict):
@@ -105,7 +108,7 @@ class CaseLegalFinding(Strict):
     source_url: str | None = None
     retrieved_at: str | None = None
     verification_status: Literal["VERIFIED", "PENDING_HUMAN_REVIEW", "PENDING", "REJECTED", "OUTDATED"] = "PENDING"
-    authority_status: Literal["VERIFIED_AUTHORITY", "PENDING_SOURCE", "ABSTAINED", "CONFLICTING_AUTHORITY"] = "PENDING_SOURCE"
+    authority_status: LegalFoundationStatus = "PENDING_SOURCE"
     source_version: str | None = None
     explanation: str
 
@@ -136,7 +139,7 @@ class CanonicalCaseFile(Strict):
     legal_findings: list[CaseLegalFinding] = Field(default_factory=list)
     authority_provenance: dict[str, str] = Field(default_factory=dict)
     authority_versions: dict[str, str] = Field(default_factory=dict)
-    legal_foundation_status: Literal["VERIFIED_AUTHORITY", "PENDING_SOURCE", "ABSTAINED", "CONFLICTING_AUTHORITY", "NOT_REQUESTED"]
+    legal_foundation_status: LegalFoundationStatus
     unresolved_legal_requirements: list[str] = Field(default_factory=list)
     reconciliation: dict[str, Any] = Field(default_factory=dict)
     citizen_safe_summary: str
@@ -144,6 +147,8 @@ class CanonicalCaseFile(Strict):
     pipeline_status: str
     stage_provenance: dict[str, Any]
     dependency_versions: dict[str, int]
+    input_version: int = 1
+    board_version: int = 1
     foundation_complete: bool = False
     pending_advocate_verification: list[dict[str, Any]] = Field(default_factory=list)
     processing_mode: str = "mock"

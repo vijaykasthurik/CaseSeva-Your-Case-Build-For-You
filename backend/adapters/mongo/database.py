@@ -20,7 +20,7 @@ class MongoDatabaseAdapter(DatabaseAdapter):
         "legal_authority_versions", "legal_authority_reviews", "legal_review_submissions",
         "legal_revision_requests", "audit_events", "review_admin_bootstrap",
         "review_admin_provisioning", "review_admin_password_rotations",
-        "authority_reviewer_grants", "admin_role_audit",
+        "authority_reviewer_grants", "admin_role_audit", "engine1_canonical_case_files",
     })
 
     def __init__(self, db_name: str | None = None, uri: str | None = None):

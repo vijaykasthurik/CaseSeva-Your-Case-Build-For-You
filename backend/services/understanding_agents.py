@@ -6,7 +6,7 @@ import json
 import re
 from ..models.understanding_outputs import VALIDATORS
 from ..models.understanding import (FactCandidates, StageCandidates, PartyCandidates, EvidenceCandidates,
-                                    ClarificationCandidates, ReconciliationCandidates, DomainCandidates)
+                                    ClarificationCandidates, ReconciliationCandidates, DomainCandidates, CaseQuestions)
 from ..models.orchestration import AgentContract, AgentResult
 from .agent_registry import AgentRegistry
 from .case_blackboard import digest, VersionConflict
@@ -32,10 +32,12 @@ INSTRUCTIONS = {
     "EVIDENCE_MAPPING": "Map only actual uploaded, readable Evidence IDs to existing Fact IDs. Cite spans from that exact uploaded source for SUPPORTS/CONTRADICTS. A merely declared receipt is not proof. OCR is not verification. If there are no actual readable uploads, return links=[] and retain uncertainties; never manufacture evidence.",
     "CLARIFICATION": "Assess only materially useful missing information for CORE UNDERSTANDING, not future legal eligibility, statutory protections or remedies. Check original sources, structured facts, unknowns, prior questions/answers and protected resolutions before asking. Do not repeat an answered topic using different wording. Explicitly unknown/unavailable answers are answers, not invitations to interrogate. Mark already_answered=true if any source answers it. Ask simple citizen questions in their preferred language; never ask for laws/sections/courts. At most 3 HIGH priority essential questions justify pausing, ONLY if the central event, central relationship, procedural stage, or critical contradiction cannot be understood. Set need=OPTIONAL_DETAIL for exact visit dates, defect causes, service details or proof requests when a readable purchase/defect/seller story already establishes the matter. These must be nonblocking. DOCUMENT requests must reference an index in declared_evidence, never unavailable/unknown items. affected names select the smallest necessary agent subset.",
     "RECONCILIATION": "Compare the supplied source-linked facts and evidence links. Identify genuine incompatible assertions about the same event/attribute. Keep both source claims, never pick a winner. Distinguish separate incidents from contradictory dates. Compare existing previous records when supplied. Return conflicting Fact IDs with an explanation; do not invent new facts. Respect recorded human conflict decisions.",
-    "DOMAIN_ROUTER": "Classify grounded facts and relationships independently of corpus readiness. Domain hints: " + ', '.join(CONFIG['domain_hints']) + ". Use stable uppercase domain identifiers. Secondary domains require concrete supporting facts. Cite supplied Fact IDs and relationship IDs. Ambiguous information must remain OTHER_OR_UNCERTAIN with review_required=true. No law/section/citation/forum output. Classification does not establish readiness or create a specialist team.",
+    "DOMAIN_ROUTER": "Classify the identified case_issues, grounded facts and relationships independently of corpus readiness. Domain hints: " + ', '.join(CONFIG['domain_hints']) + ". Use stable uppercase domain identifiers. Secondary domains require concrete supporting facts. Cite supplied Fact IDs and relationship IDs. Ambiguous information must remain OTHER_OR_UNCERTAIN with review_required=true. No law/section/citation/forum output. Classification does not establish readiness or create a specialist team.",
 }
 
-SCHEMAS = {"CASE_STAGE": StageCandidates, "FACT_TIMELINE": FactCandidates, "PARTY_RELATIONSHIP": PartyCandidates,
+INSTRUCTIONS['CASE_ISSUES'] = "Identify distinct factual disputes and evidence questions from the supplied facts, parties, evidence and clarifications BEFORE domain routing or legal retrieval. Questions must remain useful without any verified law. Ask whether an alleged event, promise, performance, harm or evidence gap is established. Do not state entitlement, name statutes, sections or citations. Reference only supplied Fact IDs; retain contradictory assertions as questions rather than resolving them. Use stable semantic keys."
+
+SCHEMAS = {"CASE_ISSUES": CaseQuestions, "CASE_STAGE": StageCandidates, "FACT_TIMELINE": FactCandidates, "PARTY_RELATIONSHIP": PartyCandidates,
            "EVIDENCE_MAPPING": EvidenceCandidates, "CLARIFICATION": ClarificationCandidates,
            "RECONCILIATION": ReconciliationCandidates, "DOMAIN_ROUTER": DomainCandidates}
 
@@ -71,6 +73,7 @@ class CoreAgents:
             facts = active(claim["inputs"].get("facts"))
             context = {"passages": indexed, "preferred_language": raw.get("preferred_language"),
                        "source_language_metadata": raw.get("language", {}),
+                       "case_issues": claim["inputs"].get("case_issues"), "clarification": claim["inputs"].get("clarification"),
                        "facts": facts, "parties": claim["inputs"].get("parties"),
                        "relationships": claim["inputs"].get("relationships"),
                        "stage": claim["inputs"].get("case_understanding.stage"),
@@ -259,6 +262,18 @@ class CoreAgents:
         return AgentResult(status="COMPLETED", outputs={"reconciliation": {"status": "RECONCILED_WITH_UNKNOWNS", "unresolved": result.unresolved,
                           "fact_ids": list(facts), "human_resolutions": [c["conflict_id"] for c in claim["human_decisions"]]}})
 
+    def case_issues(self, claim, result, indexed, raw):
+        facts = active(claim['inputs'].get('facts'))
+        issues = {}
+        for item in result.issues:
+            known_ids(item.fact_ids, facts)
+            if item.key in issues:
+                raise ValueError('Duplicate case issue key')
+            if re.search(r'\b(?:section\s+\d|article\s+\d|[A-Z][A-Za-z ]+ Act(?:,? \d{4})?)\b', item.statement):
+                raise ValueError('Case questions must not assert statutory citations')
+            issues[item.key] = item.model_dump()
+        return AgentResult(status='COMPLETED', outputs={'case_issues': issues})
+
     def domain_router(self, claim, result, indexed, raw):
         facts = active(claim["inputs"].get("facts"))
         known_ids(result.fact_ids, facts)
@@ -281,7 +296,8 @@ def core_registry(adapters=None):
         "EVIDENCE_MAPPING": (("FACT_TIMELINE",), ("facts",), ("evidence_mapping",)),
         "CLARIFICATION": (("CASE_STAGE", "PARTY_RELATIONSHIP", "EVIDENCE_MAPPING"), ("facts", "parties", "relationships", "case_understanding.stage", "evidence_mapping"), ("clarification",)),
         "RECONCILIATION": (("FACT_TIMELINE", "EVIDENCE_MAPPING"), ("facts", "evidence_mapping"), ("reconciliation",)),
-        "DOMAIN_ROUTER": (("PARTY_RELATIONSHIP", "CLARIFICATION", "RECONCILIATION"), ("facts", "parties", "relationships", "clarification", "reconciliation"), ("domain_classification",)),
+        "CASE_ISSUES": (("PARTY_RELATIONSHIP", "CLARIFICATION", "EVIDENCE_MAPPING"), ("facts", "parties", "relationships", "clarification", "evidence_mapping"), ("case_issues",)),
+        "DOMAIN_ROUTER": (("CASE_ISSUES", "RECONCILIATION"), ("facts", "parties", "relationships", "clarification", "reconciliation", "case_issues"), ("domain_classification",)),
     }
     for name, (dependencies, reads, writes) in definitions.items():
         contract = AgentContract(agent_type=name, version="1.0.0", engine=1, purpose="Source-grounded core understanding: " + name,
