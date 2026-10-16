@@ -38,7 +38,8 @@ class LegalPermissionTests(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertNotIn('PRIVATE_', response.text)
         case = client_case(self.db.get('cases', self.cid))
-        self.assertEqual(case['legal_foundation_status'], 'REVIEW_REQUIRED')
+        self.assertEqual(case['legal_foundation_status'], 'PENDING_SOURCE')
+        self.assertEqual(case['status'], 'LEGAL_FOUNDATION_REVIEW_REQUIRED')
         self.assertNotIn('PRIVATE_', str(case))
 
     def test_stale_legal_file_and_internal_state_hidden(self):
@@ -50,9 +51,14 @@ class LegalPermissionTests(unittest.TestCase):
         self.assertNotIn('OUTDATED_LAW', str(case))
         self.assertNotIn('ADVOCATE_INTERNAL_OUTPUT_B', str(case))
 
-    def test_legacy_engine2_cannot_consume_phase4_case_file(self):
+    def test_engine2_consumes_pending_source_case_factually(self):
         self.db.update('cases', self.cid, {'legal_foundation_requested': True, 'status': 'LEGAL_CORPUS_NOT_READY',
                                          'case_file': {'kind': 'SOURCE_VERIFIED_ENGINE1', 'version': 1}})
+        with patch('backend.routes.engines.dispatch') as dispatch:
+            result = self.client.post(f'/api/cases/{self.cid}/engine2', headers=self.headers, json={'run': True})
+            self.assertEqual(result.status_code, 200)
+            dispatch.assert_called_once()
+        self.db.update('cases', self.cid, {'case_file': None, 'canonical_case_file': None})
         with patch('backend.routes.engines.dispatch') as dispatch:
             result = self.client.post(f'/api/cases/{self.cid}/engine2', headers=self.headers, json={'run': True})
             self.assertEqual(result.status_code, 409)

@@ -30,9 +30,10 @@ class CoreAgentTests(unittest.TestCase):
         run_core(self.app, "c")
         return self.store.read_board("c")
 
-    def test_seven_production_handlers_execute_through_dependencies(self):
+    def test_core_production_handlers_execute_through_dependencies(self):
         board = self.run_all()
-        self.assertEqual(len(board["nodes"]), 7)
+        self.assertEqual(len(board["nodes"]), 8)
+        self.assertIn("DOMAIN_ROUTER", board["nodes"])
         self.assertTrue(all(n["status"] == "COMPLETED" for n in board["nodes"].values()), {k: n["status"] for k, n in board["nodes"].items()})
         self.assertEqual(board["data"]["domain_classification"]["primary_domain"], "CONSUMER")
         self.assertFalse(board["data"]["domain_classification"]["legal_corpus_ready"])

@@ -30,8 +30,9 @@ class OrchestrationIntegrationTests(unittest.TestCase):
             self.assertEqual(self.client.get(self.path, headers=self.headers).status_code, 403)
             response = self.client.get(self.path, headers={**self.headers, "X-Admin-Token": "test-admin-only"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()["registry"]), 7)
-        self.assertEqual(len(production_registry().describe()), 7)
+        self.assertEqual(len(response.json()["registry"]), 8)
+        self.assertEqual(len(production_registry().describe()), 8)
+        self.assertIn("DOMAIN_ROUTER", [a["agent_type"] for a in response.json()["registry"]])
         self.assertIsNone(response.json()["checkpoint"])
 
     def test_citizen_read_lazy_initialization_does_not_expose_control_state(self):

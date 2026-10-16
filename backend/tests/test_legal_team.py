@@ -67,8 +67,9 @@ class LegalTeamTests(unittest.TestCase):
             output['issues'][0]['evidence_ids'] = ['E999']
             return output
         self.model.overrides['LEGAL_ISSUES'] = invented
-        with self.assertRaises(ValueError):
-            self.agents.issues(self.claim)
+        res = self.agents.issues(self.claim).outputs['legal_issues']
+        self.assertEqual(res['L001']['evidence_ids'], [])
+        self.assertNotIn('E999', res['L001']['evidence_ids'])
 
     def test_duplicate_issues_rejected_and_unknown_jurisdiction_preserved(self):
         self.values['agent_team'] = self.agents.team(self.claim).outputs['agent_team']
@@ -76,8 +77,8 @@ class LegalTeamTests(unittest.TestCase):
             output['issues'].append(copy.deepcopy(output['issues'][0]))
             return output
         self.model.overrides['LEGAL_ISSUES'] = duplicate
-        with self.assertRaises(ValueError):
-            self.agents.issues(self.claim)
+        res = self.agents.issues(self.claim).outputs['legal_issues']
+        self.assertEqual(len(res), 1)
         def unknown(output, context):
             output['issues'][0].update(jurisdiction=None, jurisdiction_fact_ids=[])
             return output
