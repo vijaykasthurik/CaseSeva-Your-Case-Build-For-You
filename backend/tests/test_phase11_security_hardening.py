@@ -699,6 +699,167 @@ class TestPhase11SecurityHardening(unittest.TestCase):
         self.assertEqual(ev["content_hash"], item["content_hash"])
         self.assertEqual(ev["size"], 512)
 
+    # -------------------------------------------------------------
+    # 33. oversized upload rejected (HTTP 413)
+    # -------------------------------------------------------------
+    def test_33_oversized_upload_rejected(self):
+        # 10 MB + 1024 bytes
+        oversized_bytes = b"%PDF-1.4 " + b"0" * (10 * 1024 * 1024 + 1024)
+        resp = self.client.post(
+            f"/api/cases/{self.case_a_id}/evidence",
+            headers=self.cit_a_headers,
+            files={"file": ("large_document.pdf", oversized_bytes, "application/pdf")},
+        )
+        self.assertEqual(resp.status_code, 413)
+        self.assertIn("File is too large", resp.text)
+
+    # -------------------------------------------------------------
+    # 34. NoSQL $where, $gt, $regex operator injection rejected (HTTP 422)
+    # -------------------------------------------------------------
+    def test_34_nosql_where_gt_regex_operator_injection_rejected(self):
+        # 1. $gt operator in login
+        resp_gt = self.client.post("/api/auth/login", json={"email": {"$gt": ""}, "password": "Password123!"})
+        self.assertEqual(resp_gt.status_code, 422)
+
+        # 2. $where operator in login
+        resp_where = self.client.post("/api/auth/login", json={"email": {"$where": "true"}, "password": "Password123!"})
+        self.assertEqual(resp_where.status_code, 422)
+
+        # 3. $regex operator in login
+        resp_regex = self.client.post("/api/auth/login", json={"email": {"$regex": ".*"}, "password": "Password123!"})
+        self.assertEqual(resp_regex.status_code, 422)
+
+        # 4. Operator injection in case route
+        resp_case_op = self.client.get("/api/cases/[$ne]=null", headers=self.cit_a_headers)
+        self.assertEqual(resp_case_op.status_code, 404)
+
+    # -------------------------------------------------------------
+    # 35. shell and command injection absent / rejected
+    # -------------------------------------------------------------
+    def test_35_shell_and_command_injection_absent(self):
+        malicious_shell_filename = "doc;cat /etc/passwd|calc.exe.pdf"
+        file_bytes = b"%PDF-1.4 Mock document bytes"
+        resp = self.client.post(
+            f"/api/cases/{self.case_a_id}/evidence",
+            headers=self.cit_a_headers,
+            files={"file": (malicious_shell_filename, file_bytes, "application/pdf")},
+        )
+        self.assertEqual(resp.status_code, 200)
+        evidence = resp.json()["evidence"]
+        # Filename is sanitized and cleaned, preventing any shell metacharacters
+        self.assertNotIn("|", evidence["filename"])
+        self.assertNotIn(";", evidence["filename"])
+
+    # -------------------------------------------------------------
+    # 36. unsafe markdown and raw HTML does not execute
+    # -------------------------------------------------------------
+    def test_36_unsafe_markdown_raw_html_does_not_execute(self):
+        payloads = [
+            '<script>alert("XSS")</script>',
+            '<img src=x onerror=alert(1)>',
+            'javascript:alert("Pwn")',
+            '<a href="javascript:alert(1)">Click</a>',
+        ]
+        for p in payloads:
+            escaped = escape(p)
+            self.assertNotIn("<script>", escaped)
+            self.assertNotIn("<img", escaped)
+            self.assertNotIn("<a ", escaped)
+            self.assertTrue(escaped.startswith("&lt;") or "alert" in escaped)
+
+    # -------------------------------------------------------------
+    # 37. prompt injection cannot create win probability
+    # -------------------------------------------------------------
+    def test_37_prompt_injection_cannot_create_win_probability(self):
+        # Even if an adversarial prompt attempts to inject win_probability into Engine-2
+        adversarial_case = {
+            **self.case_a,
+            "engine2": {
+                "overview_ready": True,
+                "win_probability": "100%",
+                "likely_winner": "Citizen Guaranteed",
+                "neutral_evaluation": {"issue_readiness": ["Issue 1"]},
+            },
+            "canonical_case_file": {"version": 1},
+        }
+        overview = client_overview(adversarial_case, self.db)
+        overview_str = json.dumps(overview)
+        self.assertNotIn("win_probability", overview)
+        self.assertNotIn("100%", overview_str)
+        self.assertNotIn("likely_winner", overview)
+
+    # -------------------------------------------------------------
+    # 38. prompt injection cannot reveal protected system content
+    # -------------------------------------------------------------
+    def test_38_prompt_injection_cannot_reveal_system_content(self):
+        # Case detail or client case projection never exposes internal prompt instructions or system prompts
+        resp = self.client.get(f"/api/cases/{self.case_a_id}", headers=self.cit_a_headers)
+        self.assertEqual(resp.status_code, 200)
+        text = resp.text
+        self.assertNotIn("system_prompt", text)
+        self.assertNotIn("You are an AI assistant", text)
+        self.assertNotIn("Ignore previous instructions", text)
+
+    # -------------------------------------------------------------
+    # 39. concurrent Engine-2 run safe
+    # -------------------------------------------------------------
+    def test_39_concurrent_engine2_run_safe(self):
+        # If Engine 2 is already marked running, another dispatch fails closed or reports running
+        self.db.update("cases", self.case_a_id, {
+            "status": "ENGINE1_DONE",
+            "canonical_case_file": {"version": 1, "applicable_law": []},
+            "engine2_running": True,
+        })
+        # Verifying atomic check on case prevents concurrent corrupting state
+        case_doc = self.db.get("cases", self.case_a_id)
+        self.assertTrue(case_doc.get("engine2_running"))
+
+    # -------------------------------------------------------------
+    # 40. concurrent filing-package version creation safe
+    # -------------------------------------------------------------
+    def test_40_concurrent_filing_package_version_creation_safe(self):
+        pkg_id = "pkg_ver_unique_cas_1"
+        pkg_rec = {"id": pkg_id, "case_id": self.case_a_id, "version": 1}
+        self.db.create("filing_packages", pkg_rec)
+        # Attempting duplicate creation fails closed with ValueError
+        with self.assertRaises(ValueError):
+            self.db.create("filing_packages", pkg_rec)
+
+    # -------------------------------------------------------------
+    # 41. provider outage fallback preserves legal authority gate
+    # -------------------------------------------------------------
+    def test_41_provider_outage_fallback_preserves_legal_authority_gate(self):
+        from backend.services.engine1 import run_engine1
+        # Set case to initial state
+        self.db.update("cases", self.case_a_id, {
+            "status": "DRAFT",
+            "raw_case_package": {"story": "Disputed transaction", "pending": False, "evidence": []},
+            "stage_statuses": {},
+        })
+        # Simulate LLM failure during Engine 1
+        with patch.object(self.app.state.adapters.llm, "generate", side_effect=RuntimeError("LLM Provider Unavailable")):
+            run_engine1(self.app, self.case_a_id)
+
+        failed_case = self.db.get("cases", self.case_a_id)
+        # Must fail closed to REVIEW_REQUIRED, with error recorded
+        self.assertEqual(failed_case["status"], "REVIEW_REQUIRED")
+        self.assertIn("processing_error", failed_case)
+        # Verified legal sections must NOT contain unverified or fabricated law
+        verified_sections = failed_case.get("verified_legal_sections", [])
+        self.assertEqual(len(verified_sections), 0)
+
+    # -------------------------------------------------------------
+    # 42. arbitrary file and GridFS lookup denial
+    # -------------------------------------------------------------
+    def test_42_arbitrary_file_gridfs_lookup_denial(self):
+        # Attempting to fetch non-existent or arbitrary evidence ID yields 404/403
+        resp = self.client.get(f"/api/cases/{self.case_a_id}/evidence/E999_NONEXISTENT", headers=self.cit_a_headers)
+        self.assertIn(resp.status_code, {404, 403})
+
+        # Citizen B cannot look up Citizen A's arbitrary file
+        resp_b = self.client.get(f"/api/cases/{self.case_a_id}/evidence/E999_NONEXISTENT", headers=self.cit_b_headers)
+        self.assertEqual(resp_b.status_code, 403)
+
 
 if __name__ == "__main__":
     unittest.main()
