@@ -450,9 +450,17 @@ export default function CaseDetailPage() {
             <p style={{ color: "var(--text-body)", marginBottom: "1.5rem", maxWidth: "55ch" }}>
               All provisions, facts, and forum parameters have been reviewed and approved by your assigned advocate. Professional drafting is managed by your advocate in their workspace.
             </p>
-            <div style={{ display: "inline-block", background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: "4px", padding: "0.6rem 1rem", fontSize: "0.9rem", color: "#1E40AF" }}>
-              ✓ Advocate review complete — Professional drafting in progress by advocate
+            <div style={{ display: "inline-block", background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: "4px", padding: "0.6rem 1rem", fontSize: "0.9rem", color: "#1E40AF", marginBottom: item.filing_preparation_status ? "0.75rem" : "0" }}>
+              ✓ Advocate review complete — Professional drafting managed by advocate
             </div>
+            {item.filing_preparation_status && (
+              <div style={{ background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "4px", padding: "0.75rem 1rem", fontSize: "0.88rem", color: "#166534", marginTop: "0.5rem" }}>
+                <strong>Filing Status:</strong> {item.filing_preparation_status === "READY_FOR_HUMAN_FILING" || item.filing_preparation_status === "PREPARATION_ONLY" ? "Filing package prepared by advocate" : "Filing preparation in progress"}
+                <p style={{ margin: "0.35rem 0 0", fontSize: "0.82rem", color: "#374151" }}>
+                  Your advocate has compiled the approved draft, annexure index, and pre-submission checklist. No external court submission has been made; filing remains an explicit human advocate action.
+                </p>
+              </div>
+            )}
           </div>
         )}
 

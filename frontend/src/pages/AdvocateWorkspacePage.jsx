@@ -16,6 +16,7 @@ import {
 import ClarificationPanel from "../components/ClarificationPanel";
 import CaseCommunication from "../components/CaseCommunication";
 import AdvocateDraftingStudio from "../components/AdvocateDraftingStudio";
+import AdvocateFilingStudio from "../components/AdvocateFilingStudio";
 
 export default function AdvocateWorkspacePage() {
   const { caseId } = useParams();
@@ -486,6 +487,13 @@ export default function AdvocateWorkspacePage() {
         caseId={caseId}
         caseItem={item}
         eligibility={engine3Eligibility}
+        onRefreshCase={load}
+      />
+
+      {/* Phase 10 — Safe Filing Preparation Studio */}
+      <AdvocateFilingStudio
+        caseId={caseId}
+        caseItem={item}
         onRefreshCase={load}
       />
     </main>

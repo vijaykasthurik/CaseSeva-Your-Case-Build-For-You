@@ -120,4 +120,18 @@ def ensure_indexes(db: pymongo.database.Database) -> dict[str, list[str]]:
     engine3_draft_versions.create_index([("case_id", ASCENDING)], name="idx_e3_draft_versions_case_id")
     created["engine3_draft_versions"] = ["idx_e3_draft_versions_id_unique", "idx_e3_draft_versions_draft_version", "idx_e3_draft_versions_case_id"]
 
+    # 18. filing_packages
+    filing_packages = db["filing_packages"]
+    filing_packages.create_index([("id", ASCENDING)], unique=True, name="idx_filing_packages_id_unique")
+    filing_packages.create_index([("case_id", ASCENDING)], name="idx_filing_packages_case_id")
+    filing_packages.create_index([("advocate_id", ASCENDING)], name="idx_filing_packages_advocate_id")
+    created["filing_packages"] = ["idx_filing_packages_id_unique", "idx_filing_packages_case_id", "idx_filing_packages_advocate_id"]
+
+    # 19. filing_package_versions: immutable package versions
+    filing_package_versions = db["filing_package_versions"]
+    filing_package_versions.create_index([("id", ASCENDING)], unique=True, name="idx_filing_package_versions_id_unique")
+    filing_package_versions.create_index([("filing_package_id", ASCENDING), ("version", ASCENDING)], unique=True, name="idx_filing_package_versions_pkg_version")
+    filing_package_versions.create_index([("case_id", ASCENDING)], name="idx_filing_package_versions_case_id")
+    created["filing_package_versions"] = ["idx_filing_package_versions_id_unique", "idx_filing_package_versions_pkg_version", "idx_filing_package_versions_case_id"]
+
     return created

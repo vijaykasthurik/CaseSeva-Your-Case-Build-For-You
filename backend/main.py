@@ -20,6 +20,7 @@ from .routes.journey import router as journey_router
 from .routes.retention import router as retention_router
 from .routes.orchestration import router as orchestration_router
 from .routes.authorities import router as authorities_router
+from .routes.filing import router as filing_router
 
 
 @asynccontextmanager
@@ -64,3 +65,4 @@ app.include_router(journey_router)
 app.include_router(retention_router)
 app.include_router(orchestration_router)
 app.include_router(authorities_router)
+app.include_router(filing_router)

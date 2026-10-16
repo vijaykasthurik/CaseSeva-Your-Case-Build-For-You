@@ -216,3 +216,16 @@ export const downloadDraftPdf = async (caseId, draftId, filename = "approved_dra
   if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.detail || "PDF download failed."); }
   const blobUrl = URL.createObjectURL(await response.blob()); const a = window.document.createElement("a"); a.href = blobUrl; a.download = filename; a.click(); setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 };
+
+export const getFilingEligibility = (caseId) => request(`/api/cases/${caseId}/filing-eligibility`);
+export const prepareFilingPackage = (caseId, payload = {}) => request(`/api/cases/${caseId}/filing-packages/prepare`, { method: "POST", body: JSON.stringify(payload) });
+export const listFilingPackages = (caseId) => request(`/api/cases/${caseId}/filing-packages`);
+export const getFilingPackage = (caseId, packageId) => request(`/api/cases/${caseId}/filing-packages/${packageId}`);
+export const getFilingPackageManifest = (caseId, packageId) => request(`/api/cases/${caseId}/filing-packages/${packageId}/manifest`);
+export const getFilingPackageChecklist = (caseId, packageId) => request(`/api/cases/${caseId}/filing-packages/${packageId}/checklist`);
+export const downloadFilingBundle = async (caseId, packageId, filename = "filing_preparation_bundle.zip") => {
+  const url = `${API_BASE_URL}/api/cases/${caseId}/filing-packages/${packageId}/export`;
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${getToken()}`, "X-Case-Access": window.sessionStorage.getItem(`case_access_${caseId}`) || "" } });
+  if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.detail || "Filing bundle download failed."); }
+  const blobUrl = URL.createObjectURL(await response.blob()); const a = window.document.createElement("a"); a.href = blobUrl; a.download = filename; a.click(); setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+};
