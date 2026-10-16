@@ -22,6 +22,7 @@ class MongoDatabaseAdapter(DatabaseAdapter):
         "review_admin_provisioning", "review_admin_password_rotations",
         "authority_reviewer_grants", "admin_role_audit", "engine1_canonical_case_files",
         "engine2_challenge_reports", "engine3_draft_versions", "filing_package_versions",
+        "consent_audit",
     })
 
     def __init__(self, db_name: str | None = None, uri: str | None = None):

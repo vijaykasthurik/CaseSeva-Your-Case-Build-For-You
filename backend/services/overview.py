@@ -49,7 +49,7 @@ def client_overview(case: dict, db=None) -> dict:
     verified = [item for item in file.get("applicable_law", []) if item.get("verification_status") == "VERIFIED" and not item.get("removed")]
     forum = file.get("forum", {})
     limitation = file.get("limitation", {})
-    e2_stale = bool(e2) and not ran
+    e2_stale = bool(case.get("engine2_stale")) or (bool(e2.get("overview_ready")) and not ran)
     output = {
         "title": "Client Case Overview", "case_id": case["case_id"], "case_file_version": file.get("version"),
         "summary": file.get("citizen_safe_summary") or file.get("intake", {}).get("narrative") or case.get("client_story", ""),

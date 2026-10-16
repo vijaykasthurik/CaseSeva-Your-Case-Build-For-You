@@ -53,9 +53,8 @@ class MockDatabaseAdapter(DatabaseAdapter):
             except Exception:
                 time.sleep(0.02)
         raise RuntimeError("Local database write failed.")
-
     def mutate(self, collection: str, record_id: str, transform) -> dict[str, Any]:
-        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit", "engine1_canonical_case_files", "engine2_challenge_reports", "engine3_draft_versions"}:
+        if collection in {"authority_reviewer_grants", "legal_authority_reviews", "admin_role_audit", "engine1_canonical_case_files", "engine2_challenge_reports", "engine3_draft_versions", "filing_package_versions", "audit_events", "consent_audit", "legal_authority_versions", "legal_review_submissions", "legal_revision_requests"}:
             raise ValueError("Historical records are append-only")
         with self._lock:
             data = self._read()

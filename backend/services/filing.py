@@ -802,6 +802,11 @@ def get_filing_package(db: Any, case_id: str, package_id: str, user: dict[str, A
     if not is_assigned_advocate and not is_owner_citizen:
         raise PermissionError("Access denied. Only the assigned advocate or case citizen may view filing package status.")
 
+    if is_assigned_advocate:
+        grant = active_grant(db, case_id, user.get("id"))
+        if not grant:
+            raise PermissionError("Access denied. Active citizen consent is required to view filing packages.")
+
     package = FilingPackage.model_validate(pkg_doc)
     package = evaluate_package_staleness(db, case, package)
 
@@ -836,6 +841,11 @@ def list_filing_packages(db: Any, case_id: str, user: dict[str, Any]) -> list[di
 
     if not is_assigned_advocate and not is_owner_citizen:
         raise PermissionError("Access denied.")
+
+    if is_assigned_advocate:
+        grant = active_grant(db, case_id, user.get("id"))
+        if not grant:
+            raise PermissionError("Access denied. Active citizen consent is required to view filing packages.")
 
     packages = [p for p in db.list("filing_packages") if p.get("case_id") == case_id]
     result = []

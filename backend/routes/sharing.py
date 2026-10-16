@@ -43,9 +43,15 @@ def revoke(case_id: str, grant_id: str, request: Request, user=Depends(get_curre
     if not grant or grant["case_id"] != case_id:
         raise HTTPException(404, "Sharing grant not found.")
     now = utc_now()
-    db.update("case_grants", grant_id, {"revoked_at": now})
+    db.update("case_grants", grant_id, {"revoked_at": now, "status": "REVOKED"})
     from uuid import uuid4
     db.create("consent_audit", {"id": uuid4().hex, "action": "REVOKE", "actor_id": user["id"], "grant_id": grant_id, "case_id": case_id, "created_at": now})
+    for tok in db.list("case_access_tokens"):
+        if tok.get("grant_id") == grant_id or tok.get("case_id") == case_id:
+            try:
+                db.delete("case_access_tokens", tok["id"])
+            except Exception:
+                pass
     if case["status"] in {"ADVOCATE_REVIEW", "ADVOCATE_APPROVED"}:
         db.update("cases", case_id, {"status": "AWAITING_ADVOCATE"})
     return {"status": "revoked"}
