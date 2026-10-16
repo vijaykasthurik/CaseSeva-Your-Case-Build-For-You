@@ -182,12 +182,16 @@ def run_engine1(app, case_id, start_stage=None):
             context = {"raw_case_package": raw, "case_file": data, "clarification_rounds": case.get("clarification_rounds", []), "professional_overrides": case.get("professional_overrides", []), "preferred_language": case.get("preferred_language", "English")}
             db.update("cases", case_id, {"stage_statuses": dict(statuses), "engine1_checkpoint": data})
         state = "ENGINE1_DONE" if data["foundation_complete"] else ("REVIEW_REQUIRED" if raw["pending"] or not data.get("routing", {}).get("detected_domains", data.get("routing", {}).get("domains")) else "LEGAL_CORPUS_NOT_READY")
-        changes = {"case_file": data, "status": state, "current_stage": None, "documents_outdated": bool(case.get("document_version"))}
+        changes = {"case_file": data, "canonical_case_file": data, "status": state, "current_stage": None, "documents_outdated": bool(case.get("document_version"))}
+        prior_file = case.get("canonical_case_file") or case.get("case_file")
+        if prior_file and prior_file.get("version") and prior_file.get("version") != data.get("version"):
+            changes["case_file_versions"] = case.get("case_file_versions", []) + [prior_file]
         for key in ("facts", "timeline", "parties", "legal_issues", "evidence_issue_mapping", "forum", "limitation"):
             changes[key] = data.get(key, [] if key not in {"parties", "forum", "limitation"} else {})
         changes["verified_legal_sections"] = data["applicable_law"]
         if case.get("assigned_advocate_id"):
             changes["status"] = "ADVOCATE_REVIEW"
+        changes["engine1_stale"] = False
         changes["engine2_stale"] = bool(case.get("engine2"))
         changes["engine1_checkpoint"] = None
         write(db, case_id, changes, action="engine1_completed")

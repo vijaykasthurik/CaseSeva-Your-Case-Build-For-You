@@ -299,18 +299,54 @@ export default function AdvocateDashboardPage() {
                   </div>
 
                   <p style={{ fontSize: "0.92rem", color: "var(--text-body)", lineHeight: 1.6, maxWidth: "75ch" }}>
-                    {c.client_story?.slice(0, 160) || c.preview || "Client story under review."}…
+                    {c.client_story?.slice(0, 160) || c.preview || (c.consent_status === "ACTIVE" ? "Client story under review." : "Client story withheld pending explicit citizen consent.")}…
                   </p>
 
+                  {/* Phase 8 Status and Dependency Chips */}
+                  <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", fontSize: "0.8rem", alignItems: "center" }}>
+                    <span style={{ padding: "0.25rem 0.65rem", borderRadius: "3px", fontWeight: 700, background: c.consent_status === "ACTIVE" ? "#E8F5E9" : "#FFF3E0", color: c.consent_status === "ACTIVE" ? "#2E7D32" : "#E65100" }}>
+                      Consent: {c.consent_status || "PENDING"}
+                    </span>
+                    <span style={{ padding: "0.25rem 0.65rem", borderRadius: "3px", fontWeight: 600, background: c.engine1_state === "CURRENT" ? "#E3F2FD" : "#FFEBEE", color: c.engine1_state === "CURRENT" ? "#1565C0" : "#C62828" }}>
+                      Engine 1: {c.engine1_state || "PENDING"} {c.case_file_version ? `(v${c.case_file_version})` : ""}
+                    </span>
+                    <span style={{ padding: "0.25rem 0.65rem", borderRadius: "3px", fontWeight: 600, background: "#F5F5F5", color: "#424242" }}>
+                      Engine 2: {c.engine2_state || "NOT_RUN"}
+                    </span>
+                    <span style={{ padding: "0.25rem 0.65rem", borderRadius: "3px", fontWeight: 600, background: "#EDE7F6", color: "#4527A0" }}>
+                      Review: {c.review_status || "NOT_REVIEWED"}
+                    </span>
+                    {c.engine3_eligible && (
+                      <span style={{ padding: "0.25rem 0.65rem", borderRadius: "3px", fontWeight: 700, background: "#E8F5E9", color: "#1B5E20" }}>
+                        ✓ E3 Eligible
+                      </span>
+                    )}
+                    {c.clarification_needed && (
+                      <span style={{ padding: "0.25rem 0.65rem", borderRadius: "3px", fontWeight: 700, background: "#FFF8E1", color: "#F57F17" }}>
+                        Clarification Needed
+                      </span>
+                    )}
+                  </div>
+
                   <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: "0.5rem" }}>
-                    <Link
-                      to={`/advocate/review/${c.case_id}`}
-                      className="btn-pill-primary"
-                      style={{ textDecoration: "none" }}
-                    >
-                      <span>Open review workspace</span>
-                      <ArrowUpRight size={15} />
-                    </Link>
+                    {c.consent_status === "ACTIVE" ? (
+                      <Link
+                        to={`/advocate/review/${c.case_id}`}
+                        className="btn-pill-primary"
+                        style={{ textDecoration: "none" }}
+                      >
+                        <span>Open review workspace</span>
+                        <ArrowUpRight size={15} />
+                      </Link>
+                    ) : (
+                      <span
+                        className="btn-pill-primary"
+                        style={{ opacity: 0.5, cursor: "not-allowed", background: "#757575", textDecoration: "none" }}
+                        title="Citizen consent required before case access"
+                      >
+                        <span>Awaiting citizen consent</span>
+                      </span>
+                    )}
                   </div>
                 </article>
               );

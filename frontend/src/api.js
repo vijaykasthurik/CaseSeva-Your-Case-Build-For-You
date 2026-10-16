@@ -193,3 +193,11 @@ export const downloadCaseDocument = async (caseId, document, format) => {
 
 export const retryInput = caseId => request(`/api/cases/${caseId}/input/retry`, { method: "POST" });
 export const getCaseHandoff = (caseId) => request(`/api/cases/${caseId}/handoff`);
+
+export const getAdvocateCorrections = (caseId) => request(`/api/advocate/cases/${caseId}/corrections`);
+export const annotateEvidence = (caseId, evidenceId, payload) => request(`/api/advocate/cases/${caseId}/evidence/${evidenceId}/annotate`, { method: "POST", body: JSON.stringify(payload) });
+export const getEvidenceAnnotations = (caseId, evidenceId) => request(`/api/advocate/cases/${caseId}/evidence/${evidenceId}/annotations`);
+export const getAdvocateNotes = (caseId) => request(`/api/advocate/cases/${caseId}/notes`);
+export const addAdvocateNote = (caseId, payload) => request(`/api/advocate/cases/${caseId}/notes`, { method: "POST", body: JSON.stringify(payload) });
+export const resolveConflict = (caseId, payload) => request(`/api/advocate/cases/${caseId}/resolve-conflict`, { method: "POST", body: JSON.stringify(payload) });
+export const getEngine3Eligibility = (caseId) => request(`/api/advocate/cases/${caseId}/engine3-eligibility`);

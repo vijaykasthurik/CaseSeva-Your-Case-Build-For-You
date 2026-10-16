@@ -5,14 +5,20 @@ COLLECTIONS = {"fact": ("facts", "fact_id"), "timeline": ("timeline", "event_id"
 
 def apply_overrides(data, overrides):
     for entry in overrides:
+        strategy = entry.get("strategy") or entry.get("conflict_resolution", "KEEP")
+        if strategy == "REPLACE":
+            # Override retired in favor of AI-generated output
+            continue
         kind, identifier = entry["target"].split(":", 1)
-        value = copy.deepcopy(entry["new"])
+        value = copy.deepcopy(entry.get("merged_value") if strategy == "MERGE" and entry.get("merged_value") else entry["new"])
         if kind in COLLECTIONS:
             collection, key = COLLECTIONS[kind]
             values = data.setdefault(collection, [])
-            index = next((n for n, item in enumerate(values) if item[key] == identifier), None)
-            if index is None: values.append(value)
-            else: values[index] = value
+            index = next((n for n, item in enumerate(values) if item.get(key) == identifier), None)
+            if index is None:
+                values.append(value)
+            else:
+                values[index] = value
         elif kind in {"party", "forum", "limitation", "temporal_law"}:
             data["parties" if kind == "party" else kind] = value
         elif kind in {"provision", "pending"}:

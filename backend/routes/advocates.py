@@ -322,20 +322,21 @@ def decline_request(case_id: str, request: Request, reason: str | None = None, u
 def list_advocate_cases(request: Request, user: dict = Depends(get_current_user)):
     require_advocate(user)
     advocate_id = user["id"]
-    
+    db = request.app.state.adapters.database
+
     requests_list = [
-        item for item in request.app.state.adapters.database.list("advocate_requests")
+        item for item in db.list("advocate_requests")
         if item.get("advocate_id") == advocate_id
     ]
     pending_request_case_ids = {
-        item["case_id"] for item in requests_list if item.get("status") == "PENDING"
+        item["case_id"] for item in requests_list if item.get("status") in {"PENDING", "REQUESTED"}
     }
 
     pending_requests = []
     under_review = []
     finalised = []
-    
-    all_cases = request.app.state.adapters.database.list("cases")
+
+    all_cases = db.list("cases")
     for case in all_cases:
         case_id = case.get("case_id") or case.get("id")
         assigned_id = case.get("assigned_advocate_id") or case.get("advocate_id")
@@ -345,10 +346,28 @@ def list_advocate_cases(request: Request, user: dict = Depends(get_current_user)
         if assigned_id != advocate_id and requested_id != advocate_id and case_id not in pending_request_case_ids:
             continue
 
+        from ..services.sharing import active_grant
+        grant = active_grant(db, case_id, advocate_id)
+        has_active_consent = bool(grant)
+        consent_status = "ACTIVE" if has_active_consent else ("CONSENT_PENDING" if assigned_id == advocate_id else "REQUEST_PENDING")
+
+        cf = case.get("canonical_case_file") or case.get("case_file") or {}
+        e1_version = cf.get("version")
+        e1_stale = bool(case.get("engine1_stale"))
+        e2_stale = bool(case.get("engine2_stale"))
+        e2_ran = bool(case.get("engine2")) or bool(case.get("engine2_report"))
+        e2_state = "RUNNING" if status == "ENGINE2_RUNNING" else ("STALE" if e2_stale else ("RUN" if e2_ran else ("SKIPPED" if case.get("engine2_choice") == "DECLINED" else "NOT_RUN")))
+        e1_state = "RUNNING" if status == "ENGINE1_RUNNING" else ("STALE" if e1_stale else ("CURRENT" if e1_version else "NOT_RUN"))
+
+        review_status = case.get("review_status", "NOT_REVIEWED")
+        if status == "ADVOCATE_APPROVED":
+            review_status = "REVIEWED_CURRENT"
+
         summary = {
             "case_id": case_id,
             "status": status,
             "created_at": case.get("created_at"),
+            "last_updated": case.get("last_activity_at") or case.get("updated_at") or case.get("created_at"),
             "stage": case.get("stage"),
             "domain": case.get("legal_domain", {}).get("domain") or case.get("domain"),
             "sub_domain": case.get("legal_domain", {}).get("sub_domain"),
@@ -357,14 +376,21 @@ def list_advocate_cases(request: Request, user: dict = Depends(get_current_user)
             "unresolved_risks_count": len(case.get("neutral_evaluation", {}).get("unresolved_risks", [])),
             "outstanding_items_count": len(outstanding_items(case)),
             "outstanding_doc_requests_count": len([req for req in case.get("advocate_document_requests", []) if not req.get("resolved")]),
-            "title": (case.get("client_story", "").strip() or "Untitled case")[:80],
-            "preview": case.get("client_story", "").strip()[:140],
+            "consent_status": consent_status,
+            "has_active_consent": has_active_consent,
+            "consent_scopes": grant.get("scopes", []) if grant else [],
+            "ready_for_review": has_active_consent,
+            "review_status": review_status,
+            "case_file_version": e1_version,
+            "engine1_state": e1_state,
+            "engine2_state": e2_state,
+            "engine3_eligible": bool(case.get("engine3_eligible") or (status == "ADVOCATE_APPROVED" and has_active_consent and not e1_stale)),
+            "clarification_needed": bool(case.get("clarification_rounds") and case.get("clarification_rounds")[-1].get("status") == "WAITING"),
         }
-        summary.pop("title", None)
-        summary.pop("preview", None)
-        if status == "AWAITING_ADVOCATE":
-            summary.pop("title", None)
-            summary.pop("preview", None)
+        if has_active_consent:
+            summary["title"] = (case.get("client_story", "").strip() or "Client Case")[:80]
+            summary["preview"] = case.get("client_story", "").strip()[:140]
+        else:
             summary["client_consent_pending"] = bool(case.get("assigned_advocate_id"))
 
         if status == "AWAITING_ADVOCATE" or (case_id in pending_request_case_ids and status not in {"ADVOCATE_REVIEW", "ADVOCATE_APPROVED"}):

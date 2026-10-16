@@ -72,6 +72,14 @@ def client_overview(case: dict, db=None) -> dict:
         "preparation_actions": e2.get("preparation_actions", []) if ran else [],
         "legal_authority_limitations": e2.get("legal_authority_limitations", []) if ran else [],
         "engine2_stale": e2_stale,
+        "advocate_review_status": (
+            "Case ready for next professional step" if case.get("review_status") == "REVIEWED_CURRENT"
+            else ("Review updated" if case.get("review_status") in {"CHANGES_REQUIRED", "STALE_AFTER_CASE_CHANGE"}
+            else ("More information requested" if case.get("review_status") == "IN_REVIEW" and (missing or case.get("information_requests"))
+            else ("Advocate reviewing" if case.get("review_status") == "IN_REVIEW"
+            else "Pending advocate review")))
+        ),
+        "advocate_review_code": case.get("review_status") or "NOT_REVIEWED",
         "ready_to_find_advocate": bool(file) and not case.get("processing_error"),
         "next_step": "Find an advocate for review." if missing or file.get("pending_advocate_verification") else "The case is ready to proceed to an advocate.",
         "processing_mode": file.get("processing_mode"), "documents_outdated": case.get("documents_outdated", False),
@@ -97,13 +105,14 @@ def client_overview(case: dict, db=None) -> dict:
 
 def client_case(case: dict, db=None) -> dict:
     # Explicit projection: new internal fields are private by default.
-    keys = ("case_id", "public_case_id", "origin", "preferred_language", "journey_stage", "owner_user_id", "created_at", "status", "stage", "stage_details", "client_story", "evidence", "version", "workflow_version", "stage_statuses", "input_statuses", "input_status", "active_engine", "current_stage", "processing_error", "engine2_choice", "assigned_advocate_id", "requested_advocate_id", "documents_outdated", "document_version", "engine2_stale")
+    keys = ("case_id", "public_case_id", "origin", "preferred_language", "journey_stage", "owner_user_id", "created_at", "status", "stage", "stage_details", "client_story", "evidence", "version", "workflow_version", "stage_statuses", "input_statuses", "input_status", "active_engine", "current_stage", "processing_error", "engine2_choice", "assigned_advocate_id", "requested_advocate_id", "documents_outdated", "document_version", "engine2_stale", "review_status")
     output = {key: case.get(key) for key in keys if key in case}
     output["processing_error"] = public_processing_error(case.get("processing_error") or case.get("analysis_error") or case.get("legal_analysis_error"))
     output["evidence"] = [public_evidence(item) for item in case.get("evidence", [])]
     for field in ("stage_statuses", "input_statuses"):
         output[field] = public_statuses(case.get(field))
     output["overview"] = client_overview(case, db)
+    output["advocate_review_status"] = output["overview"].get("advocate_review_status")
     output["engine1_available"] = bool(case.get("case_file"))
     if case.get("engine1_execution") == "ORCHESTRATED_CORE_V1":
         state = case.get("case_understanding_status")

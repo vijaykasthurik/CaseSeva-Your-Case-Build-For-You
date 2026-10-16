@@ -164,12 +164,21 @@ def shared_case(case, grant, db=None):
         result["raw_package"] = raw
     if "case_file" in grant["scopes"]:
         from .legal_visibility import current_case_file
-        result["case_file"] = current_case_file(case, db)
+        cf = current_case_file(case, db)
+        if not cf or not cf.get("version"):
+            cf = case.get("canonical_case_file") or case.get("case_file") or {}
+        result["case_file"] = cf
         if case.get('case_file', {}).get('kind') == 'SOURCE_VERIFIED_ENGINE1' and not result['case_file']:
             result['status'] = 'LEGAL_FOUNDATION_REVIEW_REQUIRED'
         result["clarification"] = (case.get("clarification_rounds") or [None])[-1]
         result["engines"] = case.get("engines", {})
         result["professional_notes"] = case.get("professional_notes", [])
+        result["advocate_corrections"] = case.get("advocate_corrections", [])
+        result["evidence_annotations"] = case.get("evidence_annotations", [])
+        result["review_status"] = case.get("review_status", "NOT_REVIEWED")
+        result["advocate_approved_case_file_version"] = case.get("advocate_approved_case_file_version")
+        result["engine1_stale"] = bool(case.get("engine1_stale"))
+        result["engine2_stale"] = bool(case.get("engine2_stale"))
         result["information_requests"] = case.get("information_requests", [])
         result["filing_update"] = case.get("filing_update")
         result["origin"] = case.get("origin", "CITIZEN_SELF_SERVICE")
@@ -178,6 +187,11 @@ def shared_case(case, grant, db=None):
             result[key] = case.get(key)
     if "engine2" in grant["scopes"]:
         result["engine2"] = case.get("engine2", {})
+        result["engine2_report"] = case.get("engine2_report")
+    e2 = case.get("engine2_report") or case.get("engine2") or {}
+    e2_ran = bool(e2) and bool(e2.get("overview_ready") or e2.get("status") == "COMPLETED" or e2.get("run_id"))
+    result["engine2_skipped"] = case.get("engine2_choice") == "DECLINED" or not e2_ran
+    result["engine2_disclosure"] = "Argument analysis was run on the current Case File." if (e2_ran and not case.get("engine2_stale")) else "Case Challenge / Argument Analysis was not run."
     if "evidence" in grant["scopes"]:
         result["evidence"] = [public_evidence(item) for item in case.get("evidence", []) if item["evidence_id"] in grant["evidence_ids"]]
     result["grant"] = grant
