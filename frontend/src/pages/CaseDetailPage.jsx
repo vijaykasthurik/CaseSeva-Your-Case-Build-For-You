@@ -448,12 +448,11 @@ export default function CaseDetailPage() {
               </p>
             )}
             <p style={{ color: "var(--text-body)", marginBottom: "1.5rem", maxWidth: "55ch" }}>
-              All provisions, facts, and forum parameters have been approved by the advocate. You can now generate court-ready legal documents.
+              All provisions, facts, and forum parameters have been reviewed and approved by your assigned advocate. Professional drafting is managed by your advocate in their workspace.
             </p>
-            <button type="button" className="btn-pill-primary" onClick={beginDocuments} disabled={busy}>
-              <span>{busy ? "Generating…" : "Generate documents"}</span>
-              <ArrowUpRight size={16} />
-            </button>
+            <div style={{ display: "inline-block", background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: "4px", padding: "0.6rem 1rem", fontSize: "0.9rem", color: "#1E40AF" }}>
+              ✓ Advocate review complete — Professional drafting in progress by advocate
+            </div>
           </div>
         )}
 

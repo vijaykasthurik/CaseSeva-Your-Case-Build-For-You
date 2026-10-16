@@ -201,3 +201,18 @@ export const getAdvocateNotes = (caseId) => request(`/api/advocate/cases/${caseI
 export const addAdvocateNote = (caseId, payload) => request(`/api/advocate/cases/${caseId}/notes`, { method: "POST", body: JSON.stringify(payload) });
 export const resolveConflict = (caseId, payload) => request(`/api/advocate/cases/${caseId}/resolve-conflict`, { method: "POST", body: JSON.stringify(payload) });
 export const getEngine3Eligibility = (caseId) => request(`/api/advocate/cases/${caseId}/engine3-eligibility`);
+
+export const generateAdvocateDraft = (caseId, payload) => request(`/api/cases/${caseId}/drafts/generate`, { method: "POST", body: JSON.stringify(payload) });
+export const listAdvocateDrafts = (caseId) => request(`/api/cases/${caseId}/drafts`);
+export const getAdvocateDraft = (caseId, draftId, version) => request(`/api/cases/${caseId}/drafts/${draftId}${version ? `?version=${version}` : ""}`);
+export const editAdvocateDraft = (caseId, draftId, payload) => request(`/api/cases/${caseId}/drafts/${draftId}/edit`, { method: "POST", body: JSON.stringify(payload) });
+export const regenerateDraftSection = (caseId, draftId, sectionId) => request(`/api/cases/${caseId}/drafts/${draftId}/regenerate-section`, { method: "POST", body: JSON.stringify({ section_id: sectionId }) });
+export const resolveDraftConflict = (caseId, draftId, payload) => request(`/api/cases/${caseId}/drafts/${draftId}/resolve-conflict`, { method: "POST", body: JSON.stringify(payload) });
+export const regenerateFullDraft = (caseId, draftId) => request(`/api/cases/${caseId}/drafts/${draftId}/regenerate-full`, { method: "POST" });
+export const approveAdvocateDraft = (caseId, draftId) => request(`/api/cases/${caseId}/drafts/${draftId}/approve`, { method: "POST" });
+export const downloadDraftPdf = async (caseId, draftId, filename = "approved_draft.pdf", version) => {
+  const url = `${API_BASE_URL}/api/cases/${caseId}/drafts/${draftId}/pdf${version ? `?version=${version}` : ""}`;
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${getToken()}`, "X-Case-Access": window.sessionStorage.getItem(`case_access_${caseId}`) || "" } });
+  if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.detail || "PDF download failed."); }
+  const blobUrl = URL.createObjectURL(await response.blob()); const a = window.document.createElement("a"); a.href = blobUrl; a.download = filename; a.click(); setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+};

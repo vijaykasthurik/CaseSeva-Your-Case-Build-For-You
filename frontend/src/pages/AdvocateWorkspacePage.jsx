@@ -15,6 +15,7 @@ import {
 } from "../api";
 import ClarificationPanel from "../components/ClarificationPanel";
 import CaseCommunication from "../components/CaseCommunication";
+import AdvocateDraftingStudio from "../components/AdvocateDraftingStudio";
 
 export default function AdvocateWorkspacePage() {
   const { caseId } = useParams();
@@ -480,25 +481,13 @@ export default function AdvocateWorkspacePage() {
         )}
       </section>
 
-      {/* Engine 3 Eligibility Gate (Preparation Only — No Drafting in Phase 8) */}
-      <section style={{ marginBottom: "2.5rem", background: "#F3F4F6", border: "1px solid #D1D5DB", padding: "1.25rem", borderRadius: "4px" }}>
-        <h2 style={{ marginTop: 0 }}>Engine 3 — Court-Ready Drafting Gate (Future)</h2>
-        <p style={{ fontSize: "0.88rem", color: "#4B5563" }}>
-          Engine 3 is NOT implemented in Phase 8. When available, drafting will require:
-        </p>
-        <ul style={{ fontSize: "0.85rem", color: "#374151", paddingLeft: "1.25rem" }}>
-          <li>Accepted advocate representation: <strong>{item.assigned_advocate_id ? "✓ PASS" : "PENDING"}</strong></li>
-          <li>Active citizen consent: <strong>{item.grant ? "✓ PASS" : "PENDING"}</strong></li>
-          <li>Current advocate-reviewed Engine-1 Case File: <strong>{!item.engine1_stale && item.review_status === "REVIEWED_CURRENT" ? "✓ PASS" : "PENDING REVIEW APPROVAL"}</strong></li>
-          <li>No unresolved substantive conflicts: <strong>{corrections.filter((c) => c.conflict_status === "CONFLICT_DETECTED").length === 0 ? "✓ PASS" : "CONFLICT PENDING"}</strong></li>
-          <li>Engine 2 challenge analysis: <em>Optional (absence does not block drafting)</em></li>
-        </ul>
-        <div style={{ marginTop: "0.75rem" }}>
-          <span style={{ padding: "0.3rem 0.75rem", borderRadius: "3px", fontWeight: 700, fontSize: "0.85rem", background: item.engine3_eligible ? "#D1FAE5" : "#FEE2E2", color: item.engine3_eligible ? "#065F46" : "#991B1B" }}>
-            Drafting Eligibility: {item.engine3_eligible ? "ELIGIBLE (WHEN ENGINE 3 OPENS)" : "INELIGIBLE (PREREQUISITES OUTSTANDING)"}
-          </span>
-        </div>
-      </section>
+      {/* Engine 3 — Advocate-Ready Drafting Studio */}
+      <AdvocateDraftingStudio
+        caseId={caseId}
+        caseItem={item}
+        eligibility={engine3Eligibility}
+        onRefreshCase={load}
+      />
     </main>
   );
 }

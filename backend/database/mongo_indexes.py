@@ -106,4 +106,18 @@ def ensure_indexes(db: pymongo.database.Database) -> dict[str, list[str]]:
     reviewers.create_index([("email", ASCENDING)], unique=True, name="idx_reviewer_email_unique")
     created["reviewer_identities"] = ["idx_reviewer_id_unique", "idx_reviewer_email_unique"]
 
+    # 16. engine3_drafts
+    engine3_drafts = db["engine3_drafts"]
+    engine3_drafts.create_index([("id", ASCENDING)], unique=True, name="idx_e3_drafts_id_unique")
+    engine3_drafts.create_index([("case_id", ASCENDING)], name="idx_e3_drafts_case_id")
+    engine3_drafts.create_index([("advocate_id", ASCENDING)], name="idx_e3_drafts_advocate_id")
+    created["engine3_drafts"] = ["idx_e3_drafts_id_unique", "idx_e3_drafts_case_id", "idx_e3_drafts_advocate_id"]
+
+    # 17. engine3_draft_versions: immutable versions
+    engine3_draft_versions = db["engine3_draft_versions"]
+    engine3_draft_versions.create_index([("id", ASCENDING)], unique=True, name="idx_e3_draft_versions_id_unique")
+    engine3_draft_versions.create_index([("draft_id", ASCENDING), ("version", ASCENDING)], unique=True, name="idx_e3_draft_versions_draft_version")
+    engine3_draft_versions.create_index([("case_id", ASCENDING)], name="idx_e3_draft_versions_case_id")
+    created["engine3_draft_versions"] = ["idx_e3_draft_versions_id_unique", "idx_e3_draft_versions_draft_version", "idx_e3_draft_versions_case_id"]
+
     return created

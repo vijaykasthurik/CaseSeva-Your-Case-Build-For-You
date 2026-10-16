@@ -14,7 +14,13 @@ def active_grant(db, case_id, advocate_id):
             return {**consent, "id": "walkin:" + case_id, "scopes": ["story", "raw_package", "case_file", "engine2", "evidence"], "evidence_ids": [item["evidence_id"] for item in case.get("evidence", [])], "expires_at": None, "permission_type": "WALK_IN_CONSENT"}
     now = datetime.now(timezone.utc)
     for grant in db.list("case_grants"):
-        if grant["case_id"] == case_id and grant["advocate_id"] == advocate_id and not grant.get("revoked_at") and datetime.fromisoformat(grant["expires_at"]) > now:
+        if (
+            grant["case_id"] == case_id
+            and grant["advocate_id"] == advocate_id
+            and not grant.get("revoked_at")
+            and grant.get("status") != "REVOKED"
+            and datetime.fromisoformat(grant["expires_at"]) > now
+        ):
             return grant
     return None
 
@@ -33,7 +39,7 @@ def require_access(request, case_id, user, scope="case_file"):
     if not session or session["case_id"] != case_id or session["advocate_id"] != user["id"]:
         raise HTTPException(403, "Invalid case access token.")
     grant = request.app.state.adapters.database.get("case_grants", session["grant_id"])
-    if not grant or grant.get("revoked_at") or datetime.fromisoformat(grant["expires_at"]) <= datetime.now(timezone.utc):
+    if not grant or grant.get("revoked_at") or grant.get("status") == "REVOKED" or datetime.fromisoformat(grant["expires_at"]) <= datetime.now(timezone.utc):
         raise HTTPException(403, "Case access has expired or been revoked.")
     if scope and scope not in grant["scopes"]:
         raise HTTPException(403, f"The client did not share {scope}.")
