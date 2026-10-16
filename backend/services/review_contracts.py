@@ -6,10 +6,10 @@ ENGINE2_NOT_RUN_DISCLOSURE = 'Case Challenge / Argument Analysis was not run.'
 
 def reviewed_engine1_current(case, db=None):
     file = current_case_file(case, db)
-    if not file or not file.get('version'):
+    if not file and case.get('case_file', {}).get('kind') != 'SOURCE_VERIFIED_ENGINE1':
         file = case.get('canonical_case_file') or case.get('case_file') or {}
-        if not file or not file.get('version'):
-            return False
+    if not file or not file.get('version'):
+        return False
     if case.get('advocate_approved_case_file_version') != file['version']:
         return False
     if case.get('engines', {}).get('1', {}).get('status') in {'STALE', 'RUNNING', 'FAILED'}:

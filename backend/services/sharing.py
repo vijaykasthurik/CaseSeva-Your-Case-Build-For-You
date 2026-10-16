@@ -171,7 +171,7 @@ def shared_case(case, grant, db=None):
     if "case_file" in grant["scopes"]:
         from .legal_visibility import current_case_file
         cf = current_case_file(case, db)
-        if not cf or not cf.get("version"):
+        if not cf and case.get('case_file', {}).get('kind') != 'SOURCE_VERIFIED_ENGINE1':
             cf = case.get("canonical_case_file") or case.get("case_file") or {}
         result["case_file"] = cf
         if case.get('case_file', {}).get('kind') == 'SOURCE_VERIFIED_ENGINE1' and not result['case_file']:
